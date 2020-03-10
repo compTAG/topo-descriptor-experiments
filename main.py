@@ -2,7 +2,6 @@
 
 from vertex import *
 from orth_angle import *
-from min_angle import *
 from load_datasets import *
 import random
 import time
