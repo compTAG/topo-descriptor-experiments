@@ -15,6 +15,18 @@ import networkx as nx
 from visualize import *
 from multiprocessing import Pool
 
+###############################
+####### Global constants ######
+###############################
+
+# modify for that approximation type for emnist and mpeg7
+# choices include graphs_001_approx and graphs_005_approx
+graphs_dir = "graphs_001_approx"
+# same as above but specifies where to write results
+out_graphs_dir = "output_001_approx"
+
+# NOTE THAT THERE ARE MORE VARIABLES TO SET IN main()
+
 ######################################################
 ##### Functions for experiments ######################
 ######################################################
@@ -30,7 +42,7 @@ def stratify(G):
 # stores the results in designated outfiles
 def stratum_experiment(G,arcs,outFile):
 	print("Stratum experiment")
-	with open("output_no_approx/distribution_exp/"+outFile, "w+") as f:
+	with open(out_graphs_dir+"/distribution_exp/"+outFile, "w+") as f:
 		f.write("startv1,startv2,endv1,endv2,length\n")
 		f.write("\n".join([(str(arc["start"]["vertex1"])+","+str(arc["start"]["vertex2"]) +
 			","+str(arc["end"]["vertex1"])+","+str(arc["end"]["vertex2"])+","+str(arc["length"]))
@@ -45,7 +57,7 @@ def stratum_experiment(G,arcs,outFile):
 def sample_experiment(G,arcs,sample_sizes,outFile):
 	print("Sample experiment")
 	# open up a file to write the outputs to for this pc size
-	with open("output_no_approx/sample_exp/"+outFile, "w+") as f:
+	with open(out_graphs_dir+"/sample_exp/"+outFile, "w+") as f:
 		# we store three values: samples, hits (number of stratum hit), num_stratum (total number of stratum on this graph)
 		f.write("samples,hits,num_stratum")
 		f.write("\n")
@@ -84,7 +96,7 @@ def uniform_sample_experiment(G,arcs,sample_sizes,outFile):
 	if len(arcs) < 5000:
 		print("Num arcs: "+str(len(arcs)))
 		# open up a file to write the outputs to for this pc size
-		with open("output_no_approx/uniform_sample_exp/"+outFile, "w+") as f:
+		with open(out_graphs_dir+"/uniform_sample_exp/"+outFile, "w+") as f:
 			# we store three values: samples, hits (number of stratum hit), num_stratum (total number of stratum on this graph)
 			f.write("n,samples,hits,num_stratum")
 			f.write("\n")
@@ -124,7 +136,7 @@ def uniform_sample_experiment(G,arcs,sample_sizes,outFile):
 # stores the results in designated outfiles
 def smallest_angle_experiment(G,arcs,outFile):
 	print("Smallest angle experiment")
-	with open("output_no_approx/smallest_angle_exp/"+outFile, "w+") as f:
+	with open(out_graphs_dir+"/smallest_angle_exp/"+outFile, "w+") as f:
 		# Add headers to output file
 		f.write("n,min_angle,num_stratum,num_needed_stratum,ratio")
 		f.write("\r\n")
@@ -216,7 +228,6 @@ def exp_wrapper(args):
 
 def get_exp_graphs(data_type):
 	exp_list = []
-	graphs_dir = "graphs_no_approx"
 	# random experiment
 	if data_type == 1 or data_type == 4:
 		for filename in os.listdir('graphs_random/'):
@@ -273,7 +284,7 @@ if __name__ == "__main__":
 	#				3 for smallest angle experiment (smallest_angle_exp)
 	#				4 for a uniform random sample experiment (uniform_sample_exp)
 	#				5 for all four exps
-	exp_type = 4
+	exp_type = 3
 	#### data is:
 	#				1 for random
 	#				2 for MPEG7 (classes from PHT paper - Turner et al.)
