@@ -219,8 +219,8 @@ def get_exp_graphs(data_type):
 	graphs_dir = "graphs_no_approx"
 	# random experiment
 	if data_type == 1 or data_type == 4:
-		for filename in os.listdir('graphs/random/'):
-			G = nx.read_gpickle('graphs/random/' + filename)
+		for filename in os.listdir('graphs_random/'):
+			G = nx.read_gpickle('graphs_random/' + filename)
 			output_file = "random/"+filename[:-8]+".txt"
 			exp_list.append({"G":G, "output_file":output_file})
 	# MPEG7 dataset

@@ -37,8 +37,8 @@ print(max(y_list_mpeg7))
 #Rand
 x_list_rand = []
 y_list_rand = []
-for filename in os.listdir('graphs/random/'):
-	G = nx.read_gpickle('graphs/random/' + filename)
+for filename in os.listdir('graphs_random/'):
+	G = nx.read_gpickle('graphs_random/' + filename)
 	x,y = find_max(G)
 	x_list_rand.append(x)
 	y_list_rand.append(y)
