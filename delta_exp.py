@@ -3,8 +3,8 @@ import os
 from orth_angle import *
 import math
 
-graphs_dir = "graphs"
-output_dir = "output"
+graphs_dir = "graphs_005_approx"
+output_dir = "output_005_approx"
 # Counterclockwise angle in degrees by turning from a to c around b
 # Returns a float between 0.0 and 2pi
 # found at https://python-forum.io/Thread-finding-angle-between-three-points-on-a-2d-graph
@@ -57,7 +57,7 @@ def delta_exp(exp_list,exp_type):
 				#for situations where a contour might just have a single point
 				if len(c) < 3:
 					continue
-				print(c)
+				# print(c)
 				for i in range(0, len(c)-2):
 					# print(str(c[i])+","+str(c[i+1])+","+str(c[i+2]))
 					# angle1 = angle(G.node[c[i]]['v'], G.node[c[i+1]]['v'], G.node[c[i+2]]['v'])
@@ -89,7 +89,7 @@ def delta_exp(exp_list,exp_type):
 				# print(math.degrees(delta))
 				delta_list.append(delta)
 			delta = min(delta_list)
-			print("Smallest delta: "+str(delta))
+			# print("Smallest delta: "+str(delta))
 			f.write(str(len(G.nodes()))+","+str(delta)+","+output_file+"\n")
 
 def test_angle_func():
@@ -153,11 +153,11 @@ def test_angle_func():
 	# print(angle(b,z,x))
 
 def main():
-	# exp_list_mpeg7 = get_mpeg7()
-	# delta_exp(exp_list_mpeg7,"mpeg7")
-	# exp_list_mnist = get_mnist()
-	# delta_exp(exp_list_mnist,"mnist")
-	test_angle_func()
+	exp_list_mpeg7 = get_mpeg7()
+	delta_exp(exp_list_mpeg7,"mpeg7")
+	exp_list_mnist = get_mnist()
+	delta_exp(exp_list_mnist,"mnist")
+	# test_angle_func()
 
 if __name__ == '__main__':main()
 
