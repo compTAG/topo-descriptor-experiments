@@ -3,8 +3,8 @@ import os
 from orth_angle import *
 import math
 
-graphs_dir = "graphs_001_approx"
-output_dir = "output_001_approx"
+graphs_dir = "graphs_005_approx"
+output_dir = "output_005_approx"
 # Counterclockwise angle in degrees by turning from a to c around b
 # Returns a float between 0.0 and 2pi
 # found at https://python-forum.io/Thread-finding-angle-between-three-points-on-a-2d-graph
@@ -154,6 +154,7 @@ def test_angle_func():
 
 def main():
 	exp_list_mpeg7 = get_mpeg7()
+	print(len(exp_list_mpeg7))
 	delta_exp(exp_list_mpeg7,"mpeg7")
 	# exp_list_mnist = get_mnist()
 	# delta_exp(exp_list_mnist,"mnist")
