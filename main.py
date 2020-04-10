@@ -23,7 +23,7 @@ from multiprocessing import Pool
 # choices include graphs_001_approx and graphs_005_approx
 graphs_dir = "graphs_001_approx"
 # same as above but specifies where to write results
-out_graphs_dir = "output_001_approx"
+out_graphs_dir = "output_005_approx"
 
 # NOTE THAT THERE ARE MORE VARIABLES TO SET IN main()
 
@@ -96,6 +96,7 @@ def uniform_sample_experiment(G,arcs,sample_sizes,outFile):
 	if len(arcs) < 5000:
 		print("Num arcs: "+str(len(arcs)))
 		# open up a file to write the outputs to for this pc size
+		print(out_graphs_dir+"/uniform_sample_exp/"+outFile)
 		with open(out_graphs_dir+"/uniform_sample_exp/"+outFile, "w+") as f:
 			# we store three values: samples, hits (number of stratum hit), num_stratum (total number of stratum on this graph)
 			f.write("n,samples,hits,num_stratum")
@@ -124,6 +125,7 @@ def uniform_sample_experiment(G,arcs,sample_sizes,outFile):
 				for arc in arcs:
 					arc["hit"] = 0
 
+				print(str(len(G.nodes()))+","+str(num_samples)+","+str(hit_count)+","+str(len(arcs)))
 				f.write(str(len(G.nodes()))+","+str(num_samples)+","+str(hit_count)+","+str(len(arcs)))
 				f.write("\n")
 	else:
@@ -262,8 +264,8 @@ def get_exp_graphs(data_type):
 		# exp_list.append({"G":G1, "output_file":output_file})
 
 		#get the first MNIST file
-		G2 = nx.read_gpickle('graphs/mnist/MNIST_C0_S0.gpickle')
-		output_file = "TEST_MNIST.txt"
+		G2 = nx.read_gpickle('graphs_random/RAND_30_13.gpickle')
+		output_file = "random/RAND_30_13.txt"
 		exp_list.append({"G":G2, "output_file":output_file})
 	return exp_list
 
@@ -284,14 +286,14 @@ if __name__ == "__main__":
 	#				3 for smallest angle experiment (smallest_angle_exp)
 	#				4 for a uniform random sample experiment (uniform_sample_exp)
 	#				5 for all four exps
-	exp_type = 3
+	exp_type = 4
 	#### data is:
 	#				1 for random
 	#				2 for MPEG7 (classes from PHT paper - Turner et al.)
 	#				3 for EMNIST
 	#				4 for all three
 	#				5 for test
-	data_type = 2
+	data_type = 5
 
 	exp_list = get_exp_graphs(data_type)
 
