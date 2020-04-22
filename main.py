@@ -23,7 +23,7 @@ from multiprocessing import Pool
 # choices include graphs_001_approx and graphs_005_approx
 graphs_dir = "graphs_001_approx"
 # same as above but specifies where to write results
-out_graphs_dir = "output_005_approx"
+out_graphs_dir = "output_001_approx"
 
 # NOTE THAT THERE ARE MORE VARIABLES TO SET IN main()
 
@@ -134,6 +134,7 @@ def uniform_sample_experiment(G,arcs,sample_sizes,outFile):
 # @param list arcs: stratum along the sphere for G
 # @param str outFile: string of file name to write results to (see headers in function)
 # stores the results in designated outfiles
+#### NOTE, THIS EXPERIMENT IS ACTUALLY THE SMALLEST STRATUM SIZE, NOT ANGLE
 def smallest_angle_experiment(G,arcs,outFile):
 	print("Smallest angle experiment")
 	with open(out_graphs_dir+"/smallest_angle_exp/"+outFile, "w+") as f:
@@ -287,14 +288,14 @@ if __name__ == "__main__":
 	#				3 for smallest angle experiment (smallest_angle_exp)
 	#				4 for a uniform random sample experiment (uniform_sample_exp)
 	#				5 for all four exps
-	exp_type = 4
+	exp_type = 3
 	#### data is:
 	#				1 for random
 	#				2 for MPEG7 (classes from PHT paper - Turner et al.)
 	#				3 for EMNIST
 	#				4 for all three
 	#				5 for test
-	data_type = 5
+	data_type = 3
 
 	exp_list = get_exp_graphs(data_type)
 
