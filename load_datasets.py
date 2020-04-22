@@ -286,6 +286,7 @@ def get_img_data_approx(img, eps, threshold):
 
     # store the longest contour
     c_temp = cntrs[0]
+
     epsilon = eps * cv2.arcLength(curve = c_temp, closed = True)
     #get an approximate contour from c_temp
     c = cv2.approxPolyDP(curve = c_temp,
@@ -364,11 +365,11 @@ def main():
     # deer = nx.read_gpickle('graphs_005_approx/mpeg7/MPEG7_spring-4.gpickle')
     # print(deer.nodes())
 
-    c = 1
-    n = 40
+    c = 10
+    n = 47
     image = get_mnist_img(c,n)
-    G,ret = get_img_data_approx(image[32],.005, 102.951612903)
-    draw_graph(G, G.graph['stratum'], "graphs_005_approx/test_data/MNIST_C1_S21_test")
+    G,ret = get_img_data_approx(image[46],.001, 102.951612903)
+    draw_graph(G, G.graph['stratum'], "graphs_005_approx/test_data/MNIST_C10_S46_test")
     print len(G.nodes())
     # #test against old C3 S0
     # c8_s0 = nx.read_gpickle('graphs_005_approx/mnist/MNIST_C2_S20.gpickle')
