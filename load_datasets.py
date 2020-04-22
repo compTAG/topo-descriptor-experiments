@@ -326,9 +326,7 @@ def get_img_data_approx(img, eps, threshold):
     # draw_graph(G)
     G.graph["stratum"] = np.zeros((len(G.nodes()),len(G.nodes())))
 
-    # if we had duplicate vertices, return 0
-    if dup_vertices:
-        return G, 0
+
 
     # Make sure we meet gen pos assumption
     G = perturb(G)
@@ -340,6 +338,12 @@ def get_img_data_approx(img, eps, threshold):
     if not simple_polygon(G):
         print("Not simple polygon!")
         return G, -2
+
+    # if we had duplicate vertices and it was not caught by the simple_polygon function
+    # then return 0
+    if dup_vertices:
+        return G, 0
+
     return G, 1
 
 
