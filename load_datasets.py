@@ -17,7 +17,17 @@ import sys
 import copy
 from visualize import draw_graph
 from itertools import combinations
+from planar import Polygon
 
+# takes a sample from each emnist class and determines the threshold we should use
+def determine_emnist_threshold():
+    imgs=[]
+    for i in range(0,1):
+        image = get_mnist_img(i,1)
+        imgs.append(image[0])
+    for img in imgs:
+        ret, thresh = cv2.threshold(img, threshold, -1, cv2.THRESH_BINARY+cv2.THRESH_OTSU)
+        print ret
 
 # generates and returns n point clouds of size k as a list
 # @param int n: number of point clouds to generate of each size
@@ -61,6 +71,17 @@ def colin(x,y,z):
         return True
     return False
 
+# tests to see if the contour defines a simple polygon
+# @param G: networkx graph
+# returns True if the polygon is simple, False otherwise
+def simple_polygon(G):
+    #generate a list of the coordinates
+    coords = []
+    for i in range(0,len(G.nodes())):
+        coords.append((G.node[i]['v'].get_x(), G.node[i]['v'].get_y()))
+    poly = Polygon(coords)
+    return poly.is_simple
+
 # tests to make sure gen position assumptions are met for a point cloud
 # @param networkx Graph G: point cloud object
 # @return: True if general position assumptions are met, False otherwise
@@ -75,6 +96,9 @@ def test_gen_pos(G):
         # print(str(c[0][1]['v'].get_id()) + " " + str(c[1][1]['v'].get_id()) + " "+ str(c[2][1]['v'].get_id()))
         if colin(c[0][1]['v'],c[1][1]['v'],c[2][1]['v']):
             return False
+    # Test to make sure the polygon is simple
+    if not simple_polygon(G):
+        return False
     return True
 
 # takes a graph (not in gen position) and perturbs the vertices
@@ -140,6 +164,7 @@ def get_mnist_img(c, n):
     images = data['dataset'][0][0][0][0][0][0]
     labels = data['dataset'][0][0][0][0][0][1]
     indexes = [i for i, label in enumerate(x[0] for x in labels) if label == c][:n]
+    # images are returned as an array with 784 elements, so we reshape to be a 2d array
     return [(images[i]).reshape(28, 28) for i in indexes]
 
 
@@ -208,6 +233,10 @@ def get_img_data(img):
     G = perturb(G)
     return G
 
+# Wrapper to get the contour length for sorting
+def contour_length(c):
+    return cv2.arcLength(c,closed=True)
+
 
 # takes a x,y coordinates
 # @ param x: integer
@@ -216,56 +245,67 @@ def get_img_data(img):
 # returns the vertex id of the coordinates if it exists, -1 otherwise
 def get_node_index(x,y,G):
     for v in G.nodes(data=True):
-        if v['v'].get_x() == x and v['v'].get_y()==y:
-            return v['v'].get_id()
+        if v[1]['v'].get_x() == x and v[1]['v'].get_y()==y:
+            return v[1]['v'].get_id()
     return -1
-
 
 # takes an img from the MNIST data set and returns a networkx graph with the
 # perimeter data
 # @param img: the image
+# @param eps: the epsilon value used in contour approximation
+# @param threshed: the threshold used on converting to binary (MPEG7 should have 0, MNIST should have another fixed param)
 # returns a networkx graph with vertices on the perimeter and edges along the
 # contour. Note that the vertices are a SIMPLE approx of the actual contour
 # data.
 # Note that original eps is .005
-def get_img_data_approx(img, eps):
+def get_img_data_approx(img, eps, threshold):
     G = nx.Graph()
-
-    ret, thresh = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY)
+    # get the thresholded image (thresh)
+    ret, thresh = cv2.threshold(img, threshold, 255, cv2.THRESH_BINARY)
     contours, hierarchy = cv2.findContours(thresh,
         cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
-    cntrs = sorted(contours, key=cv2.contourArea, reverse=True)
-    approx_contours = []
-    for c in cntrs[:5]:
-        epsilon = eps * cv2.arcLength(curve = c, closed = True)
-        approx_contours.append(cv2.approxPolyDP(curve = c,
+    # sort the contours by length (in descending order)
+    cntrs = sorted(contours, key=contour_length, reverse=True)
+
+    # store the longest contour
+    c_temp = cntrs[0]
+    epsilon = eps * cv2.arcLength(curve = c_temp, closed = True)
+    #get an approximate contour from c_temp
+    c = cv2.approxPolyDP(curve = c_temp,
             epsilon = epsilon,
-            closed = True))
+            closed = True)
 
-
+    # add the vertices to a networkx graph
     node_id = 0
-    sep = 0
-    for contour in approx_contours:
-        for pt in contour:
-            index = get_node_index(pt[0][0], pt[0][1], G)
-            # check to make sure we haven't already added this vertex
-            if index == -1:
-                G.add_node(node_id, v=Vertex(node_id,
-                                            float(pt[0][0]),
-                                            float(pt[0][1])))
-                node_id+=1
-        # add in the appropriate edges for this contour
-        for i in range(0 len(contour)-1):
-            v1 = contour[i]
-            v2 = contour[i+1]
-            G.add_edge(get_node_index(v1[0][0], v1[0][1], G),
-                get_node_index(v2[0][0], v2[0][1], G))
-        # add edge from last to first vertex in contour to make closed curve
-        v1 = contour[len(contour)-1]
-        v2 = contour[0]
+    print("\n\n new contour \n\n")
+    for pt in c:
+        index = get_node_index(pt[0][0], pt[0][1], G)
+        # check to make sure we haven't already added this vertex
+        if index == -1:
+            G.add_node(node_id, v=Vertex(node_id,
+                                        float(pt[0][0]),
+                                        float(pt[0][1])))
+            node_id+=1
+        # vertices have to be unique, so if it isn't, we exit
+        else:
+            print("There is a duplicate vertex")
+            print(pt)
+            sys.exit(1)
+    print("\n\n adding edges \n\n")
+    # add in the appropriate edges for the contour
+    for i in range(0, len(c)-1):
+        v1 = c[i]
+        v2 = c[i+1]
         G.add_edge(get_node_index(v1[0][0], v1[0][1], G),
             get_node_index(v2[0][0], v2[0][1], G))
+    # add edge from last to first vertex in contour to make closed curve
+    v1 = c[len(c)-1]
+    v2 = c[0]
+    G.add_edge(get_node_index(v1[0][0], v1[0][1], G),
+        get_node_index(v2[0][0], v2[0][1], G))
+
+    print(G.edges(data=True))
 
     # visualization functions for debugging
     # save_contour_img(thresh, contours, copy.deepcopy(img), "test")
@@ -280,27 +320,36 @@ def get_img_data_approx(img, eps):
 
 #### for testing purposes only
 def main():
+    determine_emnist_threshold()
+    sys.exit(1)
     # G = get_img_data(get_mpegSeven_img("cattle-3.gif"))
     # draw_graph(G, G.graph['stratum'], "graphs/test_data/cattle-3")
     # print len(G.nodes())
 
-    # G = get_img_data_approx(get_mpegSeven_img("cattle-3.gif"))
-    # draw_graph(G, G.graph['stratum'], "graphs/test_data/cattle-3-approx")
-    # print len(G.nodes())
+    # G = get_img_data_approx(get_mpegSeven_img("deer-7.gif"),.005, 0)
+    # draw_graph(G, G.graph['stratum'], "graphs_005_approx/test_data/deer-7-approx")
+    # print(G.nodes())
 
-    c = 61
-    n = 3
+    # #test against old deer 3
+    # deer = nx.read_gpickle('graphs_005_approx/mpeg7/MPEG7_deer-7.gpickle')
+    # print(deer.nodes())
+
+    c = 8
+    n = 1
     image = get_mnist_img(c,n)
-    e = 0
-    for i in image:
-        G = get_img_data_approx(i)
-        draw_graph(G, G.graph['stratum'], "graphs/test_data/mnist"+str(e))
-        print len(G.nodes())
-        e+=1
+    G = get_img_data_approx(image[0],.005, 127)
+    draw_graph(G, G.graph['stratum'], "graphs_005_approx/test_data/MNIST_C8_S0_test")
+    print len(G.nodes())
+    # #test against old C3 S0
+    c8_s0 = nx.read_gpickle('graphs_005_approx/mnist/MNIST_C8_S0.gpickle')
+    print(len(c8_s0.nodes()))
+
 
     # G = get_img_data_approx(get_mnist_img(10))
     # draw_graph(G, G.graph['stratum'], "graphs/test_data/mnist10-approx")
     # print len(G.nodes())
+
+
 
 
 

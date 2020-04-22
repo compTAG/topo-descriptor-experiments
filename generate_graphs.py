@@ -38,7 +38,7 @@ def generate():
 	for f in os.listdir('data/mpeg7/'):
 		if f.endswith(".gif"):
 			# original eps is .005
-			G = get_img_data_approx(get_mpegSeven_img(f),eps)
+			G = get_img_data_approx(get_mpegSeven_img(f),eps,0)
 			# G = get_img_data(get_mpegSeven_img(f))
 			output_file = "MPEG7_"+str(f[:-4])
 			if G !=-1:
@@ -63,7 +63,7 @@ def generate():
 		samp_count = 0
 		for img in images:
 			# original eps is .005
-			G = get_img_data_approx(img,eps)
+			G = get_img_data_approx(img,eps,127)
 			# G = get_img_data(img)
 			output_file = "MNIST_C"+str(c)+"_S"+str(samp_count)
 			if G != -1:
