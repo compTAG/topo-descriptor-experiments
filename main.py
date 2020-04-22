@@ -262,8 +262,8 @@ def get_exp_graphs(data_type):
 		# exp_list.append({"G":G1, "output_file":output_file})
 
 		#get the first MNIST file
-		G2 = nx.read_gpickle('graphs_random/RAND_30_13.gpickle')
-		output_file = "random/RAND_30_13.txt"
+		G2 = nx.read_gpickle('graphs_random/RAND_3_1.gpickle')
+		output_file = "random/RAND_3_1.txt"
 		exp_list.append({"G":G2, "output_file":output_file})
 	return exp_list
 
@@ -277,6 +277,9 @@ if __name__ == "__main__":
 	# Set for random experiments only
 	random.seed(423652346)
 	np.random.seed(423652346)
+
+
+	# G = get_exp_graphs(5)
 
 	#### exp type is:
 	#				1 for stratification experiment (distribution_exp)
@@ -294,6 +297,15 @@ if __name__ == "__main__":
 	data_type = 5
 
 	exp_list = get_exp_graphs(data_type)
+
+	# G,arcs = stratify(exp_list[0]["G"])
+	# print G.graph["stratum"]
+	# for a in arcs:
+	# 	print a
+	# for n in G.nodes(data=True):
+	# 	print str(n[1]['v'].get_id()) + " " +str(n[1]['v'].get_x()) + " " + str(n[1]['v'].get_y())
+
+	# sys.exit(1)
 
 	# stratum_order_exp(exp_list[0]["G"])
 
