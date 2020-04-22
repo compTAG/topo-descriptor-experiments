@@ -208,6 +208,19 @@ def get_img_data(img):
     G = perturb(G)
     return G
 
+
+# takes a x,y coordinates
+# @ param x: integer
+# @ param y: integer
+# @ param G: networkx undirected graph
+# returns the vertex id of the coordinates if it exists, -1 otherwise
+def get_node_index(x,y,G):
+    for v in G.nodes(data=True):
+        if v['v'].get_x() == x and v['v'].get_y()==y:
+            return v['v'].get_id()
+    return -1
+
+
 # takes an img from the MNIST data set and returns a networkx graph with the
 # perimeter data
 # @param img: the image
@@ -235,15 +248,24 @@ def get_img_data_approx(img, eps):
     sep = 0
     for contour in approx_contours:
         for pt in contour:
-            G.add_node(node_id, v=Vertex(node_id,
-                                        float(pt[0][0]),
-                                        float(pt[0][1])))
-            node_id+=1
+            index = get_node_index(pt[0][0], pt[0][1], G)
+            # check to make sure we haven't already added this vertex
+            if index == -1:
+                G.add_node(node_id, v=Vertex(node_id,
+                                            float(pt[0][0]),
+                                            float(pt[0][1])))
+                node_id+=1
         # add in the appropriate edges for this contour
-        for i in range(sep, node_id-1):
-            G.add_edge(i, i+1)
-        G.add_edge(node_id-1, sep)
-        sep = node_id
+        for i in range(0 len(contour)-1):
+            v1 = contour[i]
+            v2 = contour[i+1]
+            G.add_edge(get_node_index(v1[0][0], v1[0][1], G),
+                get_node_index(v2[0][0], v2[0][1], G))
+        # add edge from last to first vertex in contour to make closed curve
+        v1 = contour[len(contour)-1]
+        v2 = contour[0]
+        G.add_edge(get_node_index(v1[0][0], v1[0][1], G),
+            get_node_index(v2[0][0], v2[0][1], G))
 
     # visualization functions for debugging
     # save_contour_img(thresh, contours, copy.deepcopy(img), "test")
