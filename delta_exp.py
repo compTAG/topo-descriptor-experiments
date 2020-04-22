@@ -37,9 +37,6 @@ def print_G(G):
 		print(str(e))
 		print(str(G.node[e[0]]['v'].get_x()) + " " +str(G.node[e[0]]['v'].get_y()))
 		print(str(G.node[e[1]]['v'].get_x()) + " " +str(G.node[e[1]]['v'].get_y()))
-	print(G.has_edge(30, 31))
-	print(G.has_edge(31, 30))
-	print(G.has_edge(23, 30))
 
 def delta_exp(exp_list,exp_type):
 	with open(output_dir+"/delta_exp/"+exp_type+"/deltas.txt", "w+") as f:
@@ -52,41 +49,20 @@ def delta_exp(exp_list,exp_type):
 
 			### we get our deltas in R^2 from example 7.4 of Curry et al. 2018
 			delta_list = []
-			for c in nx.cycle_basis(G):
+			for i in range(0,len(G.nodes())):
+				neighbors = G.neighbors(i)
+				if len(neighbors) != 2:
+					print ("ERROR, neighbors list is not size 2!")
+					print neighbors
+					print i
+					print_G(G)
+					print(output_file)
+					sys.exit(1)
 
-				#for situations where a contour might just have a single point
-				if len(c) < 3:
-					continue
-				# print(c)
-				for i in range(0, len(c)-2):
-					# print(str(c[i])+","+str(c[i+1])+","+str(c[i+2]))
-					# angle1 = angle(G.node[c[i]]['v'], G.node[c[i+1]]['v'], G.node[c[i+2]]['v'])
-					# angle2 = angle(G.node[c[i+2]]['v'], G.node[c[i+1]]['v'], G.node[c[i]]['v'])
-					# print(angle1)
-					# print(angle2)
-					delta = math.pi - min(angle(G.node[c[i]]['v'], G.node[c[i+1]]['v'], G.node[c[i+2]]['v']),
-						angle(G.node[c[i+2]]['v'], G.node[c[i+1]]['v'], G.node[c[i]]['v']))
-					# print(math.degrees(delta))
-					delta_list.append(delta)
-				# print(str(c[len(c)-2])+","+str(c[len(c)-1])+","+str(c[0]))
-				# angle1 = angle(G.node[c[len(c)-2]]['v'], G.node[c[len(c)-1]]['v'], G.node[c[0]]['v'])
-				# angle2 = angle(G.node[c[0]]['v'], G.node[c[len(c)-1]]['v'], G.node[c[len(c)-2]]['v'])
-				# print(angle1)
-				# print(angle2)
-				delta = math.pi - min(angle(G.node[c[len(c)-2]]['v'], G.node[c[len(c)-1]]['v'], G.node[c[0]]['v']),
-					angle(G.node[c[0]]['v'], G.node[c[len(c)-1]]['v'], G.node[c[len(c)-2]]['v']))
-				# print(math.degrees(delta))
-				delta_list.append(delta)
-
-
-				# print(str(c[len(c)-1])+","+str(c[0])+","+str(c[1]))
-				# angle1 = angle(G.node[c[len(c)-1]]['v'], G.node[c[0]]['v'], G.node[c[1]]['v'])
-				# angle2 = angle(G.node[c[1]]['v'], G.node[c[0]]['v'], G.node[c[len(c)-1]]['v'])
-				# print(angle1)
-				# print(angle2)
-				delta = math.pi - min(angle(G.node[c[len(c)-1]]['v'], G.node[c[0]]['v'], G.node[c[1]]['v']),
-					angle(G.node[c[1]]['v'], G.node[c[0]]['v'], G.node[c[len(c)-1]]['v']))
-				# print(math.degrees(delta))
+				n1 = neighbors[0]
+				n2 = neighbors[1]
+				delta = math.pi - min(angle(G.node[n1]['v'], G.node[i]['v'], G.node[n2]['v']),
+					angle(G.node[n2]['v'], G.node[i]['v'], G.node[n1]['v']))
 				delta_list.append(delta)
 			delta = min(delta_list)
 			# print("Smallest delta: "+str(delta))
