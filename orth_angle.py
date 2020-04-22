@@ -51,9 +51,8 @@ def find_arc_lengths(m):
             if i != j:
                 stratum_boundaries.append({"location":m[i][j], "vertex1":i,
                     "vertex2":j})
-    ##### TODO IS THIS OKAY? should sort by dictionary value (location) then
-    # the value, which is what we want, but we need to be sure!!!
-    stratum_boundaries.sort()
+    # sort by the boundary locations on the sphere (stored in radians)
+    stratum_boundaries = sorted(stratum_boundaries, key=lambda i: i['location'])
     arcs = []
     for i in range(0, len(stratum_boundaries)-1):
         arc_length = 0.0

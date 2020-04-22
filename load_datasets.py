@@ -19,6 +19,7 @@ from visualize import draw_graph
 from itertools import combinations
 from planar import Polygon
 
+
 # takes a sample from each emnist class and determines the threshold we should use
 def determine_emnist_threshold():
     data = sio.loadmat('data/emnist/emnist-byclass.mat')
@@ -85,7 +86,11 @@ def colin(x,y,z):
 def simple_polygon(G):
     # generate a list of the coordinates
     coords = []
-
+    if len(nx.cycle_basis(G,root=0)) != 1:
+        print("The graph is not a single contour...")
+        return False
+        # print(nx.cycle_basis(G,root=0))
+        # sys.exit(1)
     # our contours are a single closed curve so we can just
     # use the cycle basis to generate the polygon
     for i in nx.cycle_basis(G,root=0)[0]:
@@ -102,32 +107,29 @@ def test_gen_pos(G):
     for c in combinations(list(G.nodes(data=True)), 2):
         if (c[0][1]['v'].get_x() == c[1][1]['v'].get_x() or
             c[0][1]['v'].get_y() == c[1][1]['v'].get_y()):
+            print("Shared x- and y-coords")
             return False
     # Test to make sure no three points are colinear
     for c in combinations(list(G.nodes(data=True)), 3):
         # print(str(c[0][1]['v'].get_id()) + " " + str(c[1][1]['v'].get_id()) + " "+ str(c[2][1]['v'].get_id()))
         if colin(c[0][1]['v'],c[1][1]['v'],c[2][1]['v']):
+            print("3 points colin")
             return False
-    # Test to make sure the polygon is simple
-    if not simple_polygon(G):
-        return False
     return True
 
 # takes a graph (not in gen position) and perturbs the vertices
 # until they are in general position
 # @param networkx Graph G
 def perturb(G):
-    gen_pos = False
-    while not gen_pos:
-        for v in G.nodes(data=True):
-            # mean, std dev, number of samples
-            perturbations = np.random.uniform(low=0.0, high=0.1, size=2)
-            v[1]['v'].set_x(v[1]['v'].get_x() + perturbations[0])
-            v[1]['v'].set_y(v[1]['v'].get_y() + perturbations[1])
-        gen_pos = test_gen_pos(G)
-        if not gen_pos:
-            print("First perturbation did not work on graph")
-            sys.exit(1)
+    for v in G.nodes(data=True):
+        # mean, std dev, number of samples
+        perturbations = np.random.uniform(low=-0.01, high=0.01, size=2)
+        v[1]['v'].set_x(v[1]['v'].get_x() + perturbations[0])
+        v[1]['v'].set_y(v[1]['v'].get_y() + perturbations[1])
+    gen_pos = test_gen_pos(G)
+    if not gen_pos:
+        print("Perturbation did not work on graph")
+        return -1
     return G
 
 
@@ -268,7 +270,9 @@ def get_node_index(x,y,G):
 # @param threshed: the threshold used on converting to binary (MPEG7 should have 0, MNIST should have another fixed param)
 # returns a networkx graph with vertices on the perimeter and edges along the
 # contour. Note that the vertices are a SIMPLE approx of the actual contour
-# data.
+# data. The second return value is pertaining to general position. -2 means it was not
+# a simple polygon, -1 means it did not mean gen pos, 0 means it has duplicate
+# vertices in the contour  and 1 means success
 # Note that original eps is .005
 def get_img_data_approx(img, eps, threshold):
     G = nx.Graph()
@@ -287,6 +291,7 @@ def get_img_data_approx(img, eps, threshold):
     c = cv2.approxPolyDP(curve = c_temp,
             epsilon = epsilon,
             closed = True)
+    # print c
 
     # add the vertices to a networkx graph
     node_id = 0
@@ -302,7 +307,7 @@ def get_img_data_approx(img, eps, threshold):
         else:
             print("There is a duplicate vertex")
             print(pt)
-            sys.exit(1)
+            # return G, 0
     # add in the appropriate edges for the contour
     for i in range(0, len(c)-1):
         v1 = c[i]
@@ -322,7 +327,15 @@ def get_img_data_approx(img, eps, threshold):
 
     # Make sure we meet gen pos assumption
     G = perturb(G)
-    return G
+    if G == -1:
+        print("Does not meet gen pos")
+        return G, -1
+
+    # Test to make sure the polygon is simple
+    if not simple_polygon(G):
+        print("Not simple polygon!")
+        return G, -2
+    return G, 1
 
 
 
@@ -334,23 +347,23 @@ def main():
     # draw_graph(G, G.graph['stratum'], "graphs/test_data/cattle-3")
     # print len(G.nodes())
 
-    # G = get_img_data_approx(get_mpegSeven_img("deer-7.gif"),.005, 0)
-    # draw_graph(G, G.graph['stratum'], "graphs_005_approx/test_data/deer-7-approx")
+    # G = get_img_data_approx(get_mpegSeven_img("spring-4.gif"),.005, 0)
+    # draw_graph(G, G.graph['stratum'], "graphs_005_approx/test_data/spring-4-approx")
     # print(G.nodes())
 
-    # #test against old deer 3
-    # deer = nx.read_gpickle('graphs_005_approx/mpeg7/MPEG7_deer-7.gpickle')
+    #test against old deer 3
+    # deer = nx.read_gpickle('graphs_005_approx/mpeg7/MPEG7_spring-4.gpickle')
     # print(deer.nodes())
 
-    c = 8
-    n = 1
+    c = 1
+    n = 40
     image = get_mnist_img(c,n)
-    G = get_img_data_approx(image[0],.005, 102.951612903)
-    draw_graph(G, G.graph['stratum'], "graphs_005_approx/test_data/MNIST_C8_S0_test")
+    G,ret = get_img_data_approx(image[32],.005, 102.951612903)
+    draw_graph(G, G.graph['stratum'], "graphs_005_approx/test_data/MNIST_C1_S21_test")
     print len(G.nodes())
     # #test against old C3 S0
-    c8_s0 = nx.read_gpickle('graphs_005_approx/mnist/MNIST_C8_S0.gpickle')
-    print(len(c8_s0.nodes()))
+    # c8_s0 = nx.read_gpickle('graphs_005_approx/mnist/MNIST_C2_S20.gpickle')
+    # print(len(c8_s0.nodes()))
 
 
     # G = get_img_data_approx(get_mnist_img(10))

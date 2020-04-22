@@ -34,21 +34,29 @@ def generate():
 	# 		print(output_file+ ": " +str(time.time() - t)+ "(s)")
 	# 		t = time.time()
 
+	unused_mpeg7 = []
 	# MPEG7 data
 	for f in os.listdir('data/mpeg7/'):
 		if f.endswith(".gif"):
 			# original eps is .005
-			G = get_img_data_approx(get_mpegSeven_img(f),eps,0)
+			print("Starting on graph: "+str(f))
+			G, ret = get_img_data_approx(get_mpegSeven_img(f),eps,0)
 			# G = get_img_data(get_mpegSeven_img(f))
 			output_file = "MPEG7_"+str(f[:-4])
-			if G !=-1:
-				draw_graph(G, G.graph['stratum'], graphs_dir+"/mpeg7_imgs/"+output_file)
+			draw_graph(G, G.graph['stratum'], graphs_dir+"/mpeg7_imgs/"+output_file)
+			if ret != -2 and ret !=-1 and ret != 0:
 				nx.write_gpickle(G, graphs_dir+"/mpeg7/"+str(output_file)+".gpickle")
 			else:
-				print(output_file + " was too large")
+				unused_mpeg7.append((output_file, ret))
+				print(output_file + " was not used")
 			print(output_file+ ": " +str(time.time() - t)+ "(s)")
 			t = time.time()
+	with open(graphs_dir+"/unused_mpeg7.txt","w+") as f:
+		f.write(str(len(unused_mpeg7))+"\n")
+		for u in unused_mpeg7:
+			f.write(str(u)+"\n")
 
+	unused_mnist = []
 
 	# MNIST data
 	####
@@ -66,18 +74,23 @@ def generate():
 		samp_count = 0
 		for img in images:
 			# original eps is .005
-			G = get_img_data_approx(img,eps,102.951612903)
+			G, ret = get_img_data_approx(img,eps,102.951612903)
 			# G = get_img_data(img)
 			output_file = "MNIST_C"+str(c)+"_S"+str(samp_count)
-			if G != -1:
-				draw_graph(G, G.graph['stratum'], graphs_dir+"/mnist_imgs/"+output_file)
+			draw_graph(G, G.graph['stratum'], graphs_dir+"/mnist_imgs/"+output_file)
+			if ret != -2 and ret != -1 and ret != 0:
 				nx.write_gpickle(G, graphs_dir+"/mnist/"+str(output_file)+".gpickle")
 			else:
-				print(output_file + " was too large")
+				unused_mnist.append((output_file, ret))
+				print(output_file + " graph was not used")
 			samp_count+=1
 			print(output_file+ ": " +str(time.time() - t)+ "(s)")
 			t = time.time()
 
+	with open(graphs_dir+"/unused_mnist.txt","w+") as f:
+		f.write(str(len(unused_mnist)) + "\n")
+		for u in unused_mnist:
+			f.write(str(u)+"\n")
 
 def main():
 	# make sure we have the same seeds as main

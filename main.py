@@ -36,7 +36,6 @@ def stratify(G):
 	arcs = find_arc_lengths(G.graph["stratum"])
 	return G, arcs
 
-# runs an experiment generating k point clouds of size n
 # @param networkx Graph G: the graph containing the points
 # @param str outFile: string of file name to write the stratum sizes to
 # stores the results in designated outfiles
@@ -59,7 +58,7 @@ def sample_experiment(G,arcs,sample_sizes,outFile):
 	# open up a file to write the outputs to for this pc size
 	with open(out_graphs_dir+"/sample_exp/"+outFile, "w+") as f:
 		# we store three values: samples, hits (number of stratum hit), num_stratum (total number of stratum on this graph)
-		f.write("samples,hits,num_stratum")
+		f.write("n,samples,hits,num_stratum")
 		f.write("\n")
 		# iterate through each number of samples, each of these loops is an experiment
 		for num_samples in sample_sizes:
@@ -83,7 +82,7 @@ def sample_experiment(G,arcs,sample_sizes,outFile):
 			for arc in arcs:
 				arc["hit"] = 0
 
-			f.write(str(num_samples)+","+str(hit_count)+","+str(len(arcs)))
+			f.write(str(len(G))+","+str(num_samples)+","+str(hit_count)+","+str(len(arcs)))
 			f.write("\n")
 
 # runs an experiment randomly sampling uniformly alon the unit sphere and marking off arcs we hit
@@ -131,7 +130,6 @@ def uniform_sample_experiment(G,arcs,sample_sizes,outFile):
 	else:
 		print("Not running exp, too many arcs: "+str(len(arcs)))
 
-# runs an experiment generating one point cloud of sizes k and then randomly sampling to find overlap
 # @param networkx Graph G: graph to run experiments on
 # @param list arcs: stratum along the sphere for G
 # @param str outFile: string of file name to write results to (see headers in function)
