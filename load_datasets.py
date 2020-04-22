@@ -21,13 +21,21 @@ from planar import Polygon
 
 # takes a sample from each emnist class and determines the threshold we should use
 def determine_emnist_threshold():
-    imgs=[]
-    for i in range(0,1):
-        image = get_mnist_img(i,1)
-        imgs.append(image[0])
+    data = sio.loadmat('data/emnist/emnist-byclass.mat')
+    images = data['dataset'][0][0][0][0][0][0]
+    labels = data['dataset'][0][0][0][0][0][1]
+    imgs = []
+    for c in range(0,62):
+        indexes = [i for i, label in enumerate(x[0] for x in labels) if label == c][:1]
+        # images are returned as an array with 784 elements, so we reshape to be a 2d array
+        imgs.append([(images[i]).reshape(28, 28) for i in indexes][0])
+
+    thresholds = []
     for img in imgs:
-        ret, thresh = cv2.threshold(img, threshold, -1, cv2.THRESH_BINARY+cv2.THRESH_OTSU)
-        print ret
+        ret, thresh = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY+cv2.THRESH_OTSU)
+        thresholds.append(ret)
+    print thresholds
+    print("Average: "+str(sum(thresholds) / len(thresholds)) + " Std: "+str(np.std(thresholds)))
 
 # generates and returns n point clouds of size k as a list
 # @param int n: number of point clouds to generate of each size
@@ -75,10 +83,14 @@ def colin(x,y,z):
 # @param G: networkx graph
 # returns True if the polygon is simple, False otherwise
 def simple_polygon(G):
-    #generate a list of the coordinates
+    # generate a list of the coordinates
     coords = []
-    for i in range(0,len(G.nodes())):
+
+    # our contours are a single closed curve so we can just
+    # use the cycle basis to generate the polygon
+    for i in nx.cycle_basis(G,root=0)[0]:
         coords.append((G.node[i]['v'].get_x(), G.node[i]['v'].get_y()))
+
     poly = Polygon(coords)
     return poly.is_simple
 
@@ -278,7 +290,6 @@ def get_img_data_approx(img, eps, threshold):
 
     # add the vertices to a networkx graph
     node_id = 0
-    print("\n\n new contour \n\n")
     for pt in c:
         index = get_node_index(pt[0][0], pt[0][1], G)
         # check to make sure we haven't already added this vertex
@@ -292,7 +303,6 @@ def get_img_data_approx(img, eps, threshold):
             print("There is a duplicate vertex")
             print(pt)
             sys.exit(1)
-    print("\n\n adding edges \n\n")
     # add in the appropriate edges for the contour
     for i in range(0, len(c)-1):
         v1 = c[i]
@@ -304,8 +314,6 @@ def get_img_data_approx(img, eps, threshold):
     v2 = c[0]
     G.add_edge(get_node_index(v1[0][0], v1[0][1], G),
         get_node_index(v2[0][0], v2[0][1], G))
-
-    print(G.edges(data=True))
 
     # visualization functions for debugging
     # save_contour_img(thresh, contours, copy.deepcopy(img), "test")
@@ -320,8 +328,8 @@ def get_img_data_approx(img, eps, threshold):
 
 #### for testing purposes only
 def main():
-    determine_emnist_threshold()
-    sys.exit(1)
+    # determine_emnist_threshold()
+
     # G = get_img_data(get_mpegSeven_img("cattle-3.gif"))
     # draw_graph(G, G.graph['stratum'], "graphs/test_data/cattle-3")
     # print len(G.nodes())
@@ -337,7 +345,7 @@ def main():
     c = 8
     n = 1
     image = get_mnist_img(c,n)
-    G = get_img_data_approx(image[0],.005, 127)
+    G = get_img_data_approx(image[0],.005, 102.951612903)
     draw_graph(G, G.graph['stratum'], "graphs_005_approx/test_data/MNIST_C8_S0_test")
     print len(G.nodes())
     # #test against old C3 S0

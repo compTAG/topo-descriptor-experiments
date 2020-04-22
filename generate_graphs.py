@@ -58,12 +58,15 @@ def generate():
 	classes = range(0,62) #gives us a list [0,1,...,61] which covers all classes
 	samples = 100 #get first 100 samples from each class
 
+	#[95.0, 97.0, 110.0, 100.0, 106.0, 114.0, 111.0, 100.0, 113.0, 104.0, 96.0, 100.0, 96.0, 107.0, 100.0, 106.0, 95.0, 108.0, 90.0, 95.0, 114.0, 84.0, 95.0, 100.0, 105.0, 99.0, 106.0, 104.0, 109.0, 100.0, 97.0, 109.0, 115.0, 109.0, 114.0, 115.0, 102.0, 98.0, 100.0, 107.0, 115.0, 107.0, 104.0, 112.0, 96.0, 96.0, 107.0, 110.0, 95.0, 115.0, 101.0, 95.0, 103.0, 100.0, 102.0, 82.0, 108.0, 95.0, 96.0, 115.0, 108.0, 96.0]
+	#Average: 102.951612903 Std: 7.631487022378845
+	threshold = 102.951612903
 	for c in classes:
 		images = get_mnist_img(c, samples)
 		samp_count = 0
 		for img in images:
 			# original eps is .005
-			G = get_img_data_approx(img,eps,127)
+			G = get_img_data_approx(img,eps,102.951612903)
 			# G = get_img_data(img)
 			output_file = "MNIST_C"+str(c)+"_S"+str(samp_count)
 			if G != -1:
