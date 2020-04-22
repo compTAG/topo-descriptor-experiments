@@ -295,6 +295,7 @@ def get_img_data_approx(img, eps, threshold):
 
     # add the vertices to a networkx graph
     node_id = 0
+    dup_vertices = False
     for pt in c:
         index = get_node_index(pt[0][0], pt[0][1], G)
         # check to make sure we haven't already added this vertex
@@ -307,7 +308,7 @@ def get_img_data_approx(img, eps, threshold):
         else:
             print("There is a duplicate vertex")
             print(pt)
-            # return G, 0
+            dup_vertices = True
     # add in the appropriate edges for the contour
     for i in range(0, len(c)-1):
         v1 = c[i]
@@ -324,6 +325,10 @@ def get_img_data_approx(img, eps, threshold):
     # save_contour_img(thresh, contours, copy.deepcopy(img), "test")
     # draw_graph(G)
     G.graph["stratum"] = np.zeros((len(G.nodes()),len(G.nodes())))
+
+    # if we had duplicate vertices, return 0
+    if dup_vertices:
+        return G, 0
 
     # Make sure we meet gen pos assumption
     G = perturb(G)
