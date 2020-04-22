@@ -19,8 +19,8 @@ def generate():
 	t = time.time()
 
 	#original eps is .005, change according to how close we want the approx
-	eps = .001
-	graphs_dir = "graphs_no_approx"
+	eps = .005
+	graphs_dir = "graphs_005_approx"
 
 	# Random point clouds
 	# for g_size in k:
@@ -38,8 +38,8 @@ def generate():
 	for f in os.listdir('data/mpeg7/'):
 		if f.endswith(".gif"):
 			# original eps is .005
-			# G = get_img_data_approx(get_mpegSeven_img(f),eps)
-			G = get_img_data(get_mpegSeven_img(f))
+			G = get_img_data_approx(get_mpegSeven_img(f),eps)
+			# G = get_img_data(get_mpegSeven_img(f))
 			output_file = "MPEG7_"+str(f[:-4])
 			if G !=-1:
 				draw_graph(G, G.graph['stratum'], graphs_dir+"/mpeg7_imgs/"+output_file)
@@ -55,7 +55,7 @@ def generate():
 	# classes 0 -> 9 are integers 0->9
 	# classes 10 -> 35 are uppercase letters A->Z
 	# classes 36 -> 61 are lowercase letters a->z
-	classes = range(0,62) #gives us a list [0,1,...,61] whic covers all classes
+	classes = range(0,62) #gives us a list [0,1,...,61] which covers all classes
 	samples = 100 #get first 100 samples from each class
 
 	for c in classes:
@@ -63,8 +63,8 @@ def generate():
 		samp_count = 0
 		for img in images:
 			# original eps is .005
-			# G = get_img_data_approx(img,eps)
-			G = get_img_data(img)
+			G = get_img_data_approx(img,eps)
+			# G = get_img_data(img)
 			output_file = "MNIST_C"+str(c)+"_S"+str(samp_count)
 			if G != -1:
 				draw_graph(G, G.graph['stratum'], graphs_dir+"/mnist_imgs/"+output_file)
