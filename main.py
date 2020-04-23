@@ -13,7 +13,6 @@ import copy
 import numpy as np
 import networkx as nx
 from visualize import *
-from multiprocessing import Pool
 
 ###############################
 ####### Global constants ######
