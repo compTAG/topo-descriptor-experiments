@@ -34,6 +34,8 @@ def generate():
 	# 		print(output_file+ ": " +str(time.time() - t)+ "(s)")
 	# 		t = time.time()
 
+
+	#### FOR MPEG7, MAKE SURE RAT-09 IS NOT IN THE DATA SET
 	unused_mpeg7 = []
 	# MPEG7 data
 	for f in os.listdir('data/mpeg7/'):
