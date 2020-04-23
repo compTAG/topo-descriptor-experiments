@@ -21,9 +21,9 @@ from multiprocessing import Pool
 
 # modify for that approximation type for emnist and mpeg7
 # choices include graphs_001_approx and graphs_005_approx
-graphs_dir = "graphs_001_approx"
+graphs_dir = "graphs_005_approx"
 # same as above but specifies where to write results
-out_graphs_dir = "output_001_approx"
+out_graphs_dir = "output_005_approx"
 
 # NOTE THAT THERE ARE MORE VARIABLES TO SET IN main()
 
@@ -124,7 +124,7 @@ def uniform_sample_experiment(G,arcs,sample_sizes,outFile):
 				for arc in arcs:
 					arc["hit"] = 0
 
-				print(str(len(G.nodes()))+","+str(num_samples)+","+str(hit_count)+","+str(len(arcs)))
+				# print(str(len(G.nodes()))+","+str(num_samples)+","+str(hit_count)+","+str(len(arcs)))
 				f.write(str(len(G.nodes()))+","+str(num_samples)+","+str(hit_count)+","+str(len(arcs)))
 				f.write("\n")
 	else:
@@ -288,14 +288,14 @@ if __name__ == "__main__":
 	#				3 for smallest angle experiment (smallest_angle_exp)
 	#				4 for a uniform random sample experiment (uniform_sample_exp)
 	#				5 for all four exps
-	exp_type = 3
+	exp_type = 4
 	#### data is:
 	#				1 for random
 	#				2 for MPEG7 (classes from PHT paper - Turner et al.)
 	#				3 for EMNIST
 	#				4 for all three
 	#				5 for test
-	data_type = 3
+	data_type = 1
 
 	exp_list = get_exp_graphs(data_type)
 
