@@ -8,11 +8,8 @@ import random
 from PIL import Image
 import os
 import cv2
-import zipfile
-import wget
 import scipy.io as sio
 import networkx as nx
-from sklearn import datasets
 import sys
 import copy
 from visualize import draw_graph
