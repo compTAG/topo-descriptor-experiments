@@ -1,0 +1,18 @@
+Everything has been run using Python 2.7.9
+
+#### PYTHON PACKAGES ####
+networkx
+numpy
+time
+os
+matplotlib.pyplot
+random
+PIL
+cv2
+scipy.io
+sys
+copy
+itertools
+planar
+pickle
+math
