@@ -20,9 +20,9 @@ from visualize import *
 
 # modify for that approximation type for emnist and mpeg7
 # choices include graphs_001_approx and graphs_005_approx
-graphs_dir = "graphs_005_approx"
+graphs_dir = "graphs_001_approx"
 # same as above but specifies where to write results
-out_graphs_dir = "output_005_approx"
+out_graphs_dir = "output_001_approx"
 
 # NOTE THAT THERE ARE MORE VARIABLES TO SET IN main()
 
