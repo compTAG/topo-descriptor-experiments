@@ -20,9 +20,9 @@ from visualize import *
 
 # modify for that approximation type for emnist and mpeg7
 # choices include graphs_001_approx and graphs_005_approx
-graphs_dir = "graphs_001_approx"
+graphs_dir = "graphs_005_approx"
 # same as above but specifies where to write results
-out_graphs_dir = "output_001_approx"
+out_graphs_dir = "output_005_approx"
 
 # NOTE THAT THERE ARE MORE VARIABLES TO SET IN main()
 
@@ -243,8 +243,8 @@ def get_exp_graphs(data_type):
 	# MNIST
 	if data_type == 3 or data_type == 4:
 		for filename in os.listdir(graphs_dir+'/mnist/'):
-			# output_file = "mnist/"+filename[:-8]+".csv"
-			# if not os.path.exists("output/distribution_exp/"+output_file):
+			# test_output_file = "mnist/"+filename[:-8]+".txt"
+			# if not os.path.exists(out_graphs_dir+"/uniform_sample_exp/"+test_output_file):
 			G = nx.read_gpickle(graphs_dir+'/mnist/' + filename)
 			output_file = "mnist/"+filename[:-8]+".txt"
 			exp_list.append({"G":G, "output_file":output_file})
@@ -294,7 +294,7 @@ if __name__ == "__main__":
 	#				3 for EMNIST
 	#				4 for all three
 	#				5 for test
-	data_type = 1
+	data_type = 3
 
 	exp_list = get_exp_graphs(data_type)
 
