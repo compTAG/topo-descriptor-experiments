@@ -3,8 +3,8 @@ import os
 from orth_angle import *
 import math
 
-graphs_dir = "graphs_001_approx"
-output_dir = "output_001_approx"
+graphs_dir = "graphs_005_approx"
+output_dir = "output_005_approx"
 
 def get_mnist():
 	exp_list=[]
