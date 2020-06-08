@@ -21,85 +21,19 @@ dir_mpeg7_001 = 'graphs_001_approx/mpeg7'
 dir_img_mpeg7_001 ='graphs_001_approx/mpeg7_imgs'
 dir_mpeg7_extra_001 ='graphs_001_approx/mpeg7_extra'
 
-#Make data directory
-if not os.path.exists(dir_data):
-    os.makedirs(dir_data)
-    print("Directory " , dir_data ,  " Created ")
-else:    
-    print("Directory " , dir_data,  " already exists")    
+dir_list =[dir_data, dir_emnist_005, dir_img_emnist_005, dir_emnist_001, dir_mpeg7_005, 
+dir_img_mpeg7_005, dir_mpeg7_extra_005, dir_mpeg7_001,dir_img_mpeg7_001,dir_mpeg7_extra_001]
 
-# Make emnist 005 directories
-
-if not os.path.exists(dir_emnist_005):
-    os.makedirs(dir_emnist_005)
-    print("Directory " , dir_emnist_005 ,  " Created ")
-else:    
-    print("Directory " , dir_emnist_005 ,  " already exists")  
-
-if not os.path.exists(dir_img_emnist_005):
-    os.makedirs(dir_img_emnist_005)
-    print("Directory " , dir_img_emnist_005 ,  " Created ")
-else:    
-    print("Directory " , dir_img_emnist_005 ,  " already exists") 
-
-# Make emnist 001 directories
-
-if not os.path.exists(dir_emnist_001):
-    os.makedirs(dir_emnist_001)
-    print("Directory " , dir_emnist_001 ,  " Created ")
-else:    
-    print("Directory " , dir_emnist_001 ,  " already exists") 
-
-if not os.path.exists(dir_img_emnist_001):
-    os.makedirs(dir_img_emnist_001)
-    print("Directory " , dir_img_emnist_001 ,  " Created ")
-else:    
-    print("Directory " , dir_img_emnist_001 ,  " already exists") 
+# Make directories so that generate_graphs runs properly
+for x in dir_list:
+  if not os.path.exists(x):
+    os.makedirs(x)
+    print("Directory " , x ,  " Created ")
+  else:    
+    print("Directory " , x,  " already exists")
 
 
-# Make mpeg7 005 directories
-
-if not os.path.exists(dir_mpeg7_005):
-    os.makedirs(dir_mpeg7_005)
-    print("Directory " , dir_mpeg7_005 ,  " Created ")
-else:    
-    print("Directory " , dir_mpeg7_005 ,  " already exists")
-
-
-if not os.path.exists(dir_img_mpeg7_005):
-    os.makedirs(dir_img_mpeg7_005)
-    print("Directory " , dir_img_mpeg7_005 ,  " Created ")
-else:    
-    print("Directory " , dir_img_mpeg7_005 ,  " already exists")
-
-if not os.path.exists(dir_mpeg7_extra_005):
-    os.makedirs(dir_mpeg7_extra_005)
-    print("Directory " , dir_mpeg7_extra_005 ,  " Created ")
-else:    
-    print("Directory " , dir_mpeg7_extra_005 ,  " already exists")
-
-# Make mpeg7 001 directories
-
-if not os.path.exists(dir_mpeg7_001):
-    os.makedirs(dir_mpeg7_001)
-    print("Directory " , dir_mpeg7_001 ,  " Created ")
-else:    
-    print("Directory " , dir_mpeg7_001 ,  " already exists")
-
-if not os.path.exists(dir_img_mpeg7_001):
-    os.makedirs(dir_img_mpeg7_001)
-    print("Directory " , dir_img_mpeg7_001 ,  " Created ")
-else:    
-    print("Directory " , dir_img_mpeg7_001 ,  " already exists")
-
-if not os.path.exists(dir_mpeg7_extra_001):
-    os.makedirs(dir_mpeg7_extra_001)
-    print("Directory " , dir_mpeg7_extra_001 ,  " Created ")
-else:    
-    print("Directory " , dir_mpeg7_extra_001 ,  " already exists")
-
-
-# Data url's
+# Data url's for mpeg7 and emnist data 
 url_mpeg7 = 'http://www.dabi.temple.edu/~shape/MPEG7/MPEG7dataset.zip'
 url_emnist = 'http://www.itl.nist.gov/iaui/vip/cs_links/EMNIST/matlab.zip'
 
