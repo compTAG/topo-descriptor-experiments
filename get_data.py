@@ -1,8 +1,6 @@
-# http://www.dabi.temple.edu/~shape/MPEG7/MPEG7dataset.zip
-
-
 import wget
 import os
+from backports import tempfile
 from zipfile import ZipFile
 
 URL_MPEG7 = 'http://www.dabi.temple.edu/~shape/MPEG7/MPEG7dataset.zip'
@@ -12,23 +10,25 @@ dir_data = 'data'
 
 dir_list = [
     dir_data,
-    os.path.concat('graphs_005_approx','mnist'),
-    'graphs_005_approx/mnist_imgs',
-    'graphs_001_approx/mnist',
-    'graphs_001_approx/mnist_imgs',
-    'graphs_005_approx/mpeg7',
-    'graphs_005_approx/mpeg7_imgs',
-    'graphs_005_approx/mpeg7_extra',
-    'graphs_001_approx/mpeg7',
-    'graphs_001_approx/mpeg7_imgs',
-    'graphs_001_approx/mpeg7_extra',
+    os.path.join('graphs_005_approx','mnist'),
+    os.path.join('graphs_005_approx','mnist_imgs'),
+    os.path.join('graphs_001_approx', 'mnist'),
+    os.path.join('graphs_001_approx', 'mnist_imgs'),
+    os.path.join('graphs_005_approx','mpeg7'),
+    os.path.join('graphs_005_approx', 'mpeg7_imgs'),
+    os.path.join('graphs_005_approx', 'mpeg7_extra'),
+    os.path.join('graphs_001_approx', 'mpeg7'),
+    os.path.join('graphs_001_approx', 'mpeg7_imgs'),
+    os.path.join('graphs_001_approx', 'mpeg7_extra'),
+    os.path.join('graphs', 'random_imgs'),
+    os.path.join('graphs', 'random'),
 ]
 
 
 # Make directories so that generate_graphs runs properly
 def make_folders(dir_list):
-  for x in dir_list:
-    make_folder(x)
+  for path in dir_list:
+    make_folder(path)
     
 def make_folder(folder_path):
   if not os.path.exists(folder_path):
@@ -40,28 +40,22 @@ def make_folder(folder_path):
     
 def get_data(url, target_dir, data_set_name):
   # first check if we should do any downloading
-  if os.path.exists(target_dir):
-    print("Warning: directory %s alreday exists, not redownloading %s dataset" % target_dir, data_set_name)
+  if os.path.exists(os.path.join(target_dir, data_set_name)):
+    print("Warning: directory %s already exists, not re-downloading %s dataset" % target_dir, data_set_name)
     return
 
-  data = wget.download(url)
+  with tempfile.TemporaryDirectory() as tmp:
+    data = wget.download(url,tmp)
 
-  # Unzip data and store in data folder
-  with ZipFile(mpeg7_data, 'r') as zip_ref:
-    # TODO: python has a set of tools for creating tmp paths for file.
-    # can we rename with extractall
-    # can we get the name without assumeing "original"
-    # when concating paths, use os.path.concat(...)
-    tmp = 'tmp'
-    zip_ref.extractall(tmp)
-
-  # move
-  dst = target_dir + data_set_name
-  os.rename(tmp+'original', dst)
-  print("Directory " , dst,  " Created ")
-  
-  # cleanup tmp  
-  os.remove(tmp)
+    # Unzip data and store in data folder
+    with ZipFile(data, 'r') as zip_ref:
+      zip_ref.extractall(tmp)
+      temp_dir = os.path.dirname(zip_ref.namelist()[1])
+      
+      # move and rename
+      dst = os.path.join(target_dir, data_set_name)
+      os.rename(os.path.join(tmp,temp_dir), dst)
+      print("Directory " , dst,  " Created ")
 
   return dst
     
@@ -69,7 +63,7 @@ def get_mpeg7(url, target_dir):
   dst = get_data(url, target_dir, 'mpeg7')
   
   # clean bad files
-  os.remove(dst + 'rat-09.gif')
+  os.remove(os.path.join(dst,'rat-09.gif'))
     
 
 def get_emnist(url, target_dir):
@@ -77,5 +71,5 @@ def get_emnist(url, target_dir):
     
 
 def download_data():
-  get_mpeg7(URL_MPEG7, data_dir)
-  get_emnist(URL_EMNIST, data_dir)
+  get_mpeg7(URL_MPEG7, dir_data)
+  get_emnist(URL_EMNIST, dir_data)
