@@ -19,20 +19,23 @@ def generate():
 	t = time.time()
 
 	#original eps is .005, change according to how close we want the approx
-	eps = .005
-	graphs_dir = "graphs_005_approx"
+	eps= .005
+	graphs_dir = "graphs_005_approx" 
+	
+	#eps = (scale/1000)
+	#graphs_dir = "graphs_00" + str(scale) + "_approx"
 
-	# Random point clouds
-	# for g_size in k:
-	# 	pcs = generate_point_clouds(n,g_size,l,m)
-	# 	for pc in pcs:
-	# 		G = pc["pc"]
-	# 		index = pc["id"]
-	# 		output_file = "RAND_"+str(len(G.nodes()))+"_"+str(index)
-	# 		draw_graph(G, G.graph['stratum'], "graphs/random_imgs/"+output_file)
-	# 		nx.write_gpickle(G, "graphs/random/"+str(output_file)+".gpickle")
-	# 		print(output_file+ ": " +str(time.time() - t)+ "(s)")
-	# 		t = time.time()
+	#Random point clouds
+	for g_size in k:
+	 pcs = generate_point_clouds(n,g_size,l,m)
+	 for pc in pcs:
+	 	G = pc["pc"]
+	 	index = pc["id"]
+	 	output_file = "RAND_"+str(len(G.nodes()))+"_"+str(index)
+	 	draw_graph(G, G.graph['stratum'], "graphs/random_imgs/"+output_file)
+	 	nx.write_gpickle(G, "graphs/random/"+str(output_file)+".gpickle")
+	 	print(output_file+ ": " +str(time.time() - t)+ "(s)")
+	 	t = time.time()
 
 
 	#### FOR MPEG7, MAKE SURE RAT-09 IS NOT IN THE DATA SET
@@ -98,7 +101,7 @@ def main():
 	# make sure we have the same seeds as main
 	random.seed(423652346)
 	np.random.seed(423652346)
-
+	
 	# generate all random graphs
 	generate()
 if __name__=='__main__':main()
