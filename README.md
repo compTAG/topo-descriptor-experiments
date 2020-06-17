@@ -1,4 +1,4 @@
-## Instructions for Preprocessing Data
+## Instructions
 
 1. Clone repo to local machine and cd into topo-descriptor-experiments
 2. To load environment run:
@@ -8,9 +8,5 @@
     jupyter-lab
     Note: You can exit out of jupyterlab with CNTRL + C in terminal. 
 
-4. In juypter-lab, open preprocess.ipynb. 
-    Run each of the two kernals. 
-
-5. Creating the directories and downloading the data takes a couple minutes. 
-
-6. Generating the graphs will take about 75 minutes. 
+4. In juypter-lab, open supplementary.ipynb notebook 
+ 
