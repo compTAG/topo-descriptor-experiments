@@ -41,7 +41,7 @@ def make_folder(folder_path):
 def get_data(url, target_dir, data_set_name):
   # first check if we should do any downloading
   if os.path.exists(os.path.join(target_dir, data_set_name)):
-    print("Warning: directory %s already exists, not re-downloading %s dataset" % target_dir, data_set_name)
+    print("Warning: directory %s already exists, not re-downloading %s dataset" % (target_dir, data_set_name))
     return
 
   with tempfile.TemporaryDirectory() as tmp:
@@ -63,8 +63,9 @@ def get_mpeg7(url, target_dir):
   dst = get_data(url, target_dir, 'mpeg7')
   
   # clean bad files
-  os.remove(os.path.join(dst,'rat-09.gif'))
-    
+  if os.path.exists('mpeg7/rat-09.gif'):
+    os.remove('mpeg7/rat-09.gif')
+  
 
 def get_emnist(url, target_dir):
   dst = get_data(url, target_dir, 'emnist')
@@ -73,3 +74,7 @@ def get_emnist(url, target_dir):
 def download_data():
   get_mpeg7(URL_MPEG7, dir_data)
   get_emnist(URL_EMNIST, dir_data)
+
+def preprocess_data(dir_list):
+    make_folders(dir_list)
+    download_data()
