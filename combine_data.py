@@ -23,21 +23,21 @@ def write_stats(error_stats,out_file):
           str(graph['fineStratum'])+","+
           str(graph['necessaryStratum'])+"\n")
 
-def random(approx):
+def random(approx, exp):
   num_points = [3, 5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
   for k in num_points:
     error_stats = []
-    out_file = "analysis_" + approx+ "_approx/smallest_angle_exp/combined_data/random/angle_stats_"+str(k)+".txt"
+    out_file = "analysis_" + approx + "_approx/" + exp + "/combined_data/random/angle_stats_"+str(k)+".txt"
     for i in range(0,100):
-      in_file = 'output_' + approx + '_approx/smallest_angle_exp/random/RAND_'+str(k)+"_"+str(i)+".txt"
+      in_file = 'output_' + approx + '_approx/' + exp + '/random/RAND_'+str(k)+"_"+str(i)+".txt"
       error_stats.append(find_stats(in_file))
     write_stats(error_stats, out_file)
 
-def mpeg7_mnist(data_type, approx):
+def mpeg7_mnist(data_type, exp, approx):
   error_stats = []
-  out_file = 'analysis_' + approx + '_approx/smallest_angle_exp/combined_data/'+data_type+'/angle_stats.txt'
-  for filename in os.listdir('output_' + approx + '_approx/smallest_angle_exp/'+data_type):
-    in_file = 'output_' + approx + '_approx/smallest_angle_exp/'+data_type+"/"+filename
+  out_file = 'analysis_' + approx + '_approx' + exp + '/combined_data/'+data_type+'/angle_stats.txt'
+  for filename in os.listdir('output_' + approx + '_approx/' +exp + '/'+data_type):
+    in_file = 'output_' + approx + '_approx/' + exp + '/' + data_type+"/"+filename
     error_stats.append(find_stats(in_file))
   write_stats(error_stats, out_file)
 
