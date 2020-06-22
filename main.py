@@ -52,7 +52,7 @@ def stratum_experiment(G,arcs,outFile):
 # @param list sample_sizes: different numbers of random samples to take
 # @param str outFile: string of file name (please include extension) to pickle point clouds to
 # stores the results in designated outfiles
-def sample_experiment(G,arcs,sample_sizes,outFile):
+def sample_experiment(G,arcs,sample_sizes,outFile,out_graphs_dir):
 	print("Sample experiment")
 	# open up a file to write the outputs to for this pc size
 	with open(out_graphs_dir+"/sample_exp/"+outFile, "w+") as f:
@@ -90,7 +90,7 @@ def sample_experiment(G,arcs,sample_sizes,outFile):
 # @param list sample_sizes: different numbers of random samples to take
 # @param str outFile: string of file name (please include extension) to pickle point clouds to
 # stores the results in designated outfiles
-def uniform_sample_experiment(G,arcs,sample_sizes,outFile):
+def uniform_sample_experiment(G,arcs,sample_sizes,outFile,out_graphs_dir):
 	if len(arcs) < 5000:
 		print("Num arcs: "+str(len(arcs)))
 		# open up a file to write the outputs to for this pc size
@@ -134,7 +134,7 @@ def uniform_sample_experiment(G,arcs,sample_sizes,outFile):
 # @param str outFile: string of file name to write results to (see headers in function)
 # stores the results in designated outfiles
 #### NOTE, THIS EXPERIMENT IS ACTUALLY THE SMALLEST STRATUM SIZE, NOT ANGLE
-def smallest_angle_experiment(G,arcs,outFile):
+def smallest_angle_experiment(G,arcs,outFile,out_graphs_dir):
 	print("Smallest angle experiment")
 	with open(out_graphs_dir+"/smallest_angle_exp/"+outFile, "w+") as f:
 		# Add headers to output file
@@ -187,7 +187,7 @@ def overlap_exp(G,arcs,outFile):
 # @param string output_file: where to write results
 # @param int exp_type: type of experiment to run (specified in main)
 # stores the results in outfiles defined below
-def exp(G,output_file,exp_type):
+def exp(G,output_file,exp_type,out_graphs_dir):
 	sample_sizes=[8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384]
 	G, arcs = stratify(G)
 	if exp_type == 1:
@@ -195,9 +195,9 @@ def exp(G,output_file,exp_type):
 	elif exp_type == 2:
 		sample_experiment(G,arcs,sample_sizes,output_file)
 	elif exp_type == 3:
-		smallest_angle_experiment(G,arcs,output_file)
+		smallest_angle_experiment(G,arcs,output_file,out_graphs_dir)
 	elif exp_type == 4:
-		uniform_sample_experiment(G,arcs,sample_sizes,output_file)
+		uniform_sample_experiment(G,arcs,sample_sizes,output_file,out_graphs_dir)
 	elif exp_type == 5:
 		stratum_experiment(copy.deepcopy(G),copy.deepcopy(arcs),output_file)
 		sample_experiment(copy.deepcopy(G),copy.deepcopy(arcs),sample_sizes,output_file)
@@ -226,12 +226,12 @@ def exp_wrapper(args):
    exp(*args)
 
 
-def get_exp_graphs(data_type):
+def get_exp_graphs(data_type,graphs_dir,out_graphs_dir):
 	exp_list = []
 	# random experiment
 	if data_type == 1 or data_type == 4:
-		for filename in os.listdir('graphs_random/'):
-			G = nx.read_gpickle('graphs_random/' + filename)
+		for filename in os.listdir('graphs/random/'):
+			G = nx.read_gpickle('graphs/random/' + filename)
 			output_file = "random/"+filename[:-8]+".txt"
 			exp_list.append({"G":G, "output_file":output_file})
 	# MPEG7 dataset
@@ -287,14 +287,14 @@ if __name__ == "__main__":
 	#				3 for smallest angle experiment (smallest_angle_exp)
 	#				4 for a uniform random sample experiment (uniform_sample_exp)
 	#				5 for all four exps
-	exp_type = 4
+	exp_type = 5
 	#### data is:
 	#				1 for random
 	#				2 for MPEG7 (classes from PHT paper - Turner et al.)
 	#				3 for EMNIST
 	#				4 for all three
 	#				5 for test
-	data_type = 3
+	data_type = 2
 
 	exp_list = get_exp_graphs(data_type)
 
@@ -314,7 +314,7 @@ if __name__ == "__main__":
 	counter = 1
 	for e in exp_list:
 		print("Graph "+str(counter)+" of "+str(len(exp_list)))
-		exp(e["G"], e["output_file"], exp_type)
+		exp(e["G"], e["output_file"], exp_type, graphs_dir,out_graphs_dir)
 		counter+=1
 
 	print("Execution time: "+str(time.time() - start)+"(s)")
