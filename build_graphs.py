@@ -14,10 +14,16 @@ from tqdm import tqdm
 #Do they need to run each time or just once?
 
 #Change eps so that we generate graphs for eps= .001 approx and store in graphs_001_approx
-eps = .001
-graphs_dir = "graphs_001_approx"
+#eps = .005
+#graphs_dir = "graphs_005_approx"
 
 def randpts_graphs():
+  t = time.time()
+
+  # make sure we have the same seeds as main
+  random.seed(423652346)
+  np.random.seed(423652346)
+
   ##### For random graph experiments
   # number of pt clouds to generate of each size
   n = 100
@@ -29,34 +35,41 @@ def randpts_graphs():
 
   #Random point clouds
   for g_size in k:
-   for graph in tqdm (k, desc = "Generating RANDPT graphs for each point cloud size..."): 
-     pcs = generate_point_clouds(n,g_size,l,m)
-     for pc in pcs:
-      G = pc["pc"]
-      index = pc["id"]
-      output_file = "RAND_"+str(len(G.nodes()))+"_"+str(index)
-      draw_graph(G, G.graph['stratum'], "graphs/random_imgs/"+output_file)
-      nx.write_gpickle(G, "graphs/random/"+str(output_file)+".gpickle")
+   pcs = generate_point_clouds(n,g_size,l,m)
+   for pc in pcs:
+    G = pc["pc"]
+    index = pc["id"]
+    output_file = "RAND_"+str(len(G.nodes()))+"_"+str(index)
+    draw_graph(G, G.graph['stratum'], "graphs/random_imgs/"+output_file)
+    nx.write_gpickle(G, "graphs/random/"+str(output_file)+".gpickle")
+    print(output_file+ ": " +str(time.time() - t)+ "(s)")
+    t = time.time()
 
-def mpeg7_graphs():
+def mpeg7_graphs(eps, graphs_dir):
+  t = time.time()
+
+  # make sure we have the same seeds as main
+  random.seed(423652346)
+  np.random.seed(423652346)
+
   #### FOR MPEG7, MAKE SURE RAT-09 IS NOT IN THE DATA SET
   unused_mpeg7 = []
-
   # MPEG7 data
   for f in os.listdir('data/mpeg7/'):
-    for graph in tqdm (range(len(os.listdir('data/mpeg7/'))), desc = "Generating MPEG7 graphs..."):
-      if f.endswith(".gif"):
-        # original eps is .005
-        
-        G, ret = get_img_data_approx(get_mpegSeven_img(f),eps,0)
-        # G = get_img_data(get_mpegSeven_img(f))
-        output_file = "MPEG7_"+str(f[:-4])
-        draw_graph(G, G.graph['stratum'], graphs_dir+"/mpeg7_imgs/"+output_file)
-        if ret != -2 and ret !=-1 and ret != 0:
-          nx.write_gpickle(G, graphs_dir+"/mpeg7/"+str(output_file)+".gpickle")
-        else:
-          unused_mpeg7.append((output_file, ret))
-              
+    if f.endswith(".gif"):
+      # original eps is .005
+      print("Starting on graph: "+str(f))
+      G, ret = get_img_data_approx(get_mpegSeven_img(f),eps,0)
+      # G = get_img_data(get_mpegSeven_img(f))
+      output_file = "MPEG7_"+str(f[:-4])
+      draw_graph(G, G.graph['stratum'], graphs_dir+"/mpeg7_imgs/"+output_file)
+      if ret != -2 and ret !=-1 and ret != 0:
+        nx.write_gpickle(G, graphs_dir+"/mpeg7/"+str(output_file)+".gpickle")
+      else:
+        unused_mpeg7.append((output_file, ret))
+        print(output_file + " was not used")
+      print(output_file+ ": " +str(time.time() - t)+ "(s)")
+      t = time.time()
   with open(graphs_dir+"/unused_mpeg7.txt","w+") as f:
     f.write(str(len(unused_mpeg7))+"\n")
     for u in unused_mpeg7:
@@ -64,8 +77,15 @@ def mpeg7_graphs():
 
 
 
-def mnist_graphs():
+def mnist_graphs(eps, graphs_dir):
+  t = time.time()
+
+  # make sure we have the same seeds as main
+  random.seed(423652346)
+  np.random.seed(423652346)
+
   unused_mnist = []
+
   # MNIST data
   ####
   # classes 0 -> 9 are integers 0->9
@@ -80,21 +100,26 @@ def mnist_graphs():
   for c in classes:
     images = get_mnist_img(c, samples)
     samp_count = 0
-    for graph in tqdm (range(len(images)), desc = "Generating EMNIST graphs..."):
-      for img in images:
-        # original eps is .005
-        G, ret = get_img_data_approx(img,eps,102.951612903)
-        # G = get_img_data(img)
-        output_file = "MNIST_C"+str(c)+"_S"+str(samp_count)
-        draw_graph(G, G.graph['stratum'], graphs_dir+"/mnist_imgs/"+output_file)
-        if ret != -2 and ret != -1 and ret != 0:
-          nx.write_gpickle(G, graphs_dir+"/mnist/"+str(output_file)+".gpickle")
-        else:
-          unused_mnist.append((output_file, ret))
-        samp_count+=1
+    for img in images:
+      # original eps is .005
+      G, ret = get_img_data_approx(img,eps,102.951612903)
+      # G = get_img_data(img)
+      output_file = "MNIST_C"+str(c)+"_S"+str(samp_count)
+      draw_graph(G, G.graph['stratum'], graphs_dir+"/mnist_imgs/"+output_file)
+      if ret != -2 and ret != -1 and ret != 0:
+        nx.write_gpickle(G, graphs_dir+"/mnist/"+str(output_file)+".gpickle")
+      else:
+        unused_mnist.append((output_file, ret))
+        print(output_file + " graph was not used")
+      samp_count+=1
+      print(output_file+ ": " +str(time.time() - t)+ "(s)")
+      t = time.time()
 
   with open(graphs_dir+"/unused_mnist.txt","w+") as f:
     f.write(str(len(unused_mnist)) + "\n")
     for u in unused_mnist:
       f.write(str(u)+"\n")
+
+
+
 
