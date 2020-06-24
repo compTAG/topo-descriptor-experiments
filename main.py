@@ -296,7 +296,7 @@ if __name__ == "__main__":
 	#				5 for test
 	data_type = 2
 
-	exp_list = get_exp_graphs(data_type)
+	exp_list = get_exp_graphs(data_typ,graphs_dir,out_graphs_dir)
 
 	# G,arcs = stratify(exp_list[0]["G"])
 	# print G.graph["stratum"]
@@ -311,10 +311,10 @@ if __name__ == "__main__":
 
 	# Run the experiments
 	# p.map(exp_wrapper, [(e["G"],e["output_file"],exp_type) for e in exp_list])
-	counter = 1
+	counter = 1 
 	for e in exp_list:
 		print("Graph "+str(counter)+" of "+str(len(exp_list)))
-		exp(e["G"], e["output_file"], exp_type, graphs_dir,out_graphs_dir)
+		exp(e["G"], e["output_file"], exp_type, out_graphs_dir)
 		counter+=1
 
 	print("Execution time: "+str(time.time() - start)+"(s)")
