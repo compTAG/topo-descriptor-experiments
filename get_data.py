@@ -43,6 +43,9 @@ dir_list = [
     os.path.join('figs', 'smallest_angle_exp', 'random'),
     os.path.join('figs', 'smallest_angle_exp', 'mnist'),
     os.path.join('figs', 'smallest_angle_exp', 'mpeg7'),
+    os.path.join('figs', 'uniform_sample_exp', 'random'),
+    os.path.join('figs', 'uniform_sample_exp', 'mnist'),
+    os.path.join('figs', 'uniform_sample_exp', 'mpeg7'),
 ]
 
 
@@ -101,5 +104,5 @@ def preprocess_data(dir_list):
     download_data()
 
 
-make_folders(dir_list)
+#make_folders(dir_list)
 
