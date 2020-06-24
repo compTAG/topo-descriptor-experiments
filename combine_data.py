@@ -35,7 +35,7 @@ def random(approx, exp):
 
 def mpeg7_mnist(data_type, exp, approx):
   error_stats = []
-  out_file = 'analysis_' + approx + '_approx' + exp + '/combined_data/'+data_type+'/angle_stats.txt'
+  out_file = 'analysis_' + approx + '_approx/' + exp + '/combined_data/'+data_type+'/angle_stats.txt'
   for filename in os.listdir('output_' + approx + '_approx/' +exp + '/'+data_type):
     in_file = 'output_' + approx + '_approx/' + exp + '/' + data_type+"/"+filename
     error_stats.append(find_stats(in_file))
