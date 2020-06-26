@@ -275,7 +275,7 @@ def get_img_data_approx(img, eps, threshold):
     G = nx.Graph()
     # get the thresholded image (thresh)
     ret, thresh = cv2.threshold(img, threshold, 255, cv2.THRESH_BINARY)
-    contours, hierarchy = cv2.findContours(thresh,
+    _, contours, hierarchy  = cv2.findContours(thresh,
         cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
     # sort the contours by length (in descending order)
