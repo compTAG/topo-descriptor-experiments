@@ -104,5 +104,6 @@ def preprocess_data(dir_list):
     download_data()
 
 
-#make_folders(dir_list)
+
+
 
