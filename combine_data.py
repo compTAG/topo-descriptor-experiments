@@ -42,8 +42,8 @@ def mpeg7_mnist(data_type, exp, approx):
   write_stats(error_stats, out_file)
 
 def main():
-  random("001")
-  mpeg7_mnist("mpeg7", "001")
-  mpeg7_mnist("mnist", "001")
+  random("001","smallest_angle_exp")
+  mpeg7_mnist("mpeg7", "smallest_angle_exp", "001")
+  mpeg7_mnist("mnist","smallest_angle_exp", "001")
 
 if __name__ == '__main__':main()
