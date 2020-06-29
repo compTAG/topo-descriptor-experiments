@@ -3,6 +3,26 @@ import csv
 import numpy as np
 import copy
 import sys
+from PIL import Image
+
+def combine_pngs(exp):
+  images = [Image.open(x) for x in ['figs/' + exp +'/random/random_' + exp +'.png', 
+                                  'figs/' + exp + '/mnist/mnist_001_approx_' + exp + '.png', 
+                                  'figs/' + exp + '/mpeg7/mpeg7_001_approx_' + exp + '.png']]
+  widths, heights = zip(*(i.size for i in images))
+
+  total_width = sum(widths)
+  max_height = max(heights)
+
+  new_im = Image.new('RGB', (total_width, max_height))
+
+  x_offset = 0
+  for im in images:
+    new_im.paste(im, (x_offset,0))
+    x_offset += im.size[0]
+
+  new_im.save('figs/' + exp + '/' + exp +'.png')
+
 
 def find_stats(in_file):
   with open(in_file) as f:
