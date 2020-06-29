@@ -187,7 +187,7 @@ par(mar=c(5, 5, 5, 5))
 plot(log(rand$n), log(rand$minSize),
      xlab="Number of Vertices",
      ylab="Smallest Stratum Size",
-     # main="Minimum Stratum Size in Random Graphs",
+     main="Minimum Stratum Size in Random Graphs",
      family="serif",cex.lab=3, cex.main=2,
      cex.sub=2,cex.axis=2)
 m3 <- lm(log(rand$minSize) ~ log(rand$n))
