@@ -4,18 +4,7 @@ import networkx as nx
 import numpy as np
 import time
 import os
-from tqdm import tqdm 
 
-#Take downloaded data and make graphs for experiments 
-#One issue is that generate() does not take a parameter to change eps from .005 to .001. 
-#When adding a parameter, this function runs much slower for mpeg7 and emnist. 
-
-#What are the random seeds needed for? They are the same in main.py and generate_graphs.py?
-#Do they need to run each time or just once?
-
-#Change eps so that we generate graphs for eps= .001 approx and store in graphs_001_approx
-#eps = .005
-#graphs_dir = "graphs_005_approx"
 
 def randpts_graphs():
   t = time.time()
