@@ -21,9 +21,6 @@ def generate():
 	#original eps is .005, change according to how close we want the approx
 	eps= .005
 	graphs_dir = "graphs_005_approx" 
-	
-	#eps = (scale/1000)
-	#graphs_dir = "graphs_00" + str(scale) + "_approx"
 
 	#Random point clouds
 	for g_size in k:
