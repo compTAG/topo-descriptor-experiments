@@ -43,7 +43,7 @@ def write_stats(error_stats,out_file):
           str(graph['fineStratum'])+","+
           str(graph['necessaryStratum'])+"\n")
 
-def random(approx, exp):
+def random(exp, approx):
   num_points = [3, 5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
   for k in num_points:
     error_stats = []
@@ -62,7 +62,7 @@ def mpeg7_mnist(data_type, exp, approx):
   write_stats(error_stats, out_file)
 
 def main():
-  random("001","smallest_angle_exp")
+  random("smallest_angle_exp", "001")
   mpeg7_mnist("mpeg7", "smallest_angle_exp", "001")
   mpeg7_mnist("mnist","smallest_angle_exp", "001")
 
