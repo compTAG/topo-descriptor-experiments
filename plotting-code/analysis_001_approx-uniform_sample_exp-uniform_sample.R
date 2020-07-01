@@ -5,55 +5,90 @@
 #   y-axis: the ratio number of generated stratum using smallest size/number of
 #		stratum
 
-mnist_file <- read.table(("combined_data/mnist/sample_stats.txt"), header=TRUE, sep=",")
+uniform_sample_exp_stat_001 <- function(){
 
-mpeg7_file <- read.table(("combined_data/mpeg7/sample_stats.txt"), header=TRUE, sep=",")
+mnist_file <- read.table(("analysis_001_approx/uniform_sample_exp/combined_data/mnist/sample_stats.txt"), header=TRUE, sep=",")
 
+mpeg7_file <- read.table(("analysis_001_approx/uniform_sample_exp/combined_data/mpeg7/sample_stats.txt"), header=TRUE, sep=",")
 
+rand_three <- read.table(("analysis_001_approx/uniform_sample_exp/combined_data/random/sample_stats_3.txt"), header=TRUE, sep=",")
+rand_five <- read.table(("analysis_001_approx/uniform_sample_exp/combined_data/random/sample_stats_5.txt"), header=TRUE, sep=",")
+rand_ten <- read.table(("analysis_001_approx/uniform_sample_exp/combined_data/random/sample_stats_10.txt"), header=TRUE, sep=",")
+rand_twenty <- read.table(("analysis_001_approx/uniform_sample_exp/combined_data/random/sample_stats_20.txt"), header=TRUE, sep=",")
+rand_thirty <- read.table(("analysis_001_approx/uniform_sample_exp/combined_data/random/sample_stats_30.txt"), header=TRUE, sep=",")
+rand_forty <- read.table(("analysis_001_approx/uniform_sample_exp/combined_data/random/sample_stats_40.txt"), header=TRUE, sep=",")
+rand_fifty <- read.table(("analysis_001_approx/uniform_sample_exp/combined_data/random/sample_stats_50.txt"), header=TRUE, sep=",")
+rand_sixty <- read.table(("analysis_001_approx/uniform_sample_exp/combined_data/random/sample_stats_60.txt"), header=TRUE, sep=",")
+rand_seventy <- read.table(("analysis_001_approx/uniform_sample_exp/combined_data/random/sample_stats_70.txt"), header=TRUE, sep=",")
+#rand_eighty <- read.table(("analysis_001_approx/uniform_sample_exp/combined_data/random/angle_stats_80.txt"), header=TRUE, sep=",")
+#rand_ninety <- read.table(("analysis_001_approx/uniform_sample_exp/combined_data/random/angle_stats_90.txt"), header=TRUE, sep=",")
+#rand_hundred <- read.table(("analysis_001_approx/uniform_sample_exp/combined_data/random/angle_stats_100.txt"), header=TRUE, sep=",")
+
+rand <- rbind(rand_three, rand_five, rand_ten, rand_twenty, rand_thirty,
+              rand_forty, rand_fifty, rand_sixty, rand_seventy)
+              #, rand_eighty,
+              #rand_ninety, rand_hundred)
 
 
 ############
 ############ MNIST
 ############
 ##### Code to generate graphs for the samples
-# pdf("../../figs/uniform_sample_exp/mnist/mnist_001_approx_uniform_sample_exp.pdf")
-# par(mar=c(5, 5, 5, 5))
-# mnist_ratio <- mnist_file$hits / mnist_file$num_stratum
-# plot(mnist_file$n, mnist_ratio,
-#   xlab="Number of Vertices",
-#   ylab="Hits over Number of Stratum",
-#   # main="MNIST Uniform Sampling (16384 samples)",
-#   family="serif",cex.lab=3, cex.main=2,
-#   cex.sub=2,cex.axis=2)
-# m1 <- lm(mnist_ratio ~ mnist_file$n)
-# summary(m1)
-# print("Length")
-# print(length(mnist_file$n))
-# print("MSE")
-# mean(m1$residuals^2)
-# abline(m1,lty=1,col="red",lwd=3)
+pdf("figs/uniform_sample_exp/mnist/mnist_001_approx_uniform_sample_exp.pdf")
+par(mar=c(5, 5, 5, 5))
+mnist_ratio <- mnist_file$hits / mnist_file$num_stratum
+plot(mnist_file$n, mnist_ratio,
+  xlab="Number of Vertices",
+  ylab="Hits over Number of Stratum",
+  main="MNIST Uniform Sampling",
+  family="serif",cex.lab=3, cex.main=2,
+  cex.sub=2,cex.axis=2)
+ m1 <- lm(mnist_ratio ~ mnist_file$n)
+ summary(m1)
+ print("Length")
+ print(length(mnist_file$n))
+ print("MSE")
+ mean(m1$residuals^2)
+ abline(m1,lty=1,col="red",lwd=3)
 # # lines(sort(mnist_file$num_stratum), predict(m1)[sort(mnist_file$num_stratum,index.return=TRUE)$ix],lty=1,col="red",lwd=3)
-# dev.off()
-# pdf("diag-mnist")
-# plot(m1)
-# dev.off()
+ dev.off()
 
+##Create PNG for Jupyter Notebook
+png("figs/uniform_sample_exp/mnist/mnist_001_approx_uniform_sample_exp.png")
+par(mar=c(5, 5, 5, 5))
+mnist_ratio <- mnist_file$hits / mnist_file$num_stratum
+plot(mnist_file$n, mnist_ratio,
+  xlab="Number of Vertices",
+  ylab="Hits over Number of Stratum",
+  main="MNIST Uniform Sampling",
+  family="serif",cex.lab=3, cex.main=2,
+  cex.sub=2,cex.axis=2)
+ m1 <- lm(mnist_ratio ~ mnist_file$n)
+ summary(m1)
+ print("Length")
+ print(length(mnist_file$n))
+ print("MSE")
+ mean(m1$residuals^2)
+ abline(m1,lty=1,col="red",lwd=3)
+# # lines(sort(mnist_file$num_stratum), predict(m1)[sort(mnist_file$num_stratum,index.return=TRUE)$ix],lty=1,col="red",lwd=3)
+ dev.off()
 
-
-
+ pdf("diag-mnist")
+ plot(m1)
+ dev.off()
 
 
 
 ############
 ############ MPEG7
 ############
-pdf("../../figs/uniform_sample_exp/mpeg7/mpeg7_001_approx_uniform_sample_exp.pdf")
+pdf("figs/uniform_sample_exp/mpeg7/mpeg7_001_approx_uniform_sample_exp.pdf")
 par(mar=c(5, 5, 5, 5))
 mpeg7_ratio <- mpeg7_file$hits / mpeg7_file$num_stratum
 plot(mpeg7_file$n, mpeg7_ratio,
   xlab="Number of Vertices",
   ylab="Hits over Number of Stratum",
-  # main="MPEG7 Uniform Sampling (16384 samples)",
+  main="MPEG7 Uniform Sampling",
   family="serif",cex.lab=3, cex.main=2,
   cex.sub=2,cex.axis=2)
 m2 <- lm(mpeg7_ratio ~ mpeg7_file$n)
@@ -65,6 +100,27 @@ mean(m2$residuals^2)
 abline(m2,lty=1,col="red",lwd=3)
 # lines(sort(mpeg7_file$num_stratum^2), predict(m2)[sort(mpeg7_file$num_stratum,index.return=TRUE)$ix],lty=1,col="red",lwd=3)
 dev.off()
+
+##Create PNG for Jupyter Notebook
+png("figs/uniform_sample_exp/mpeg7/mpeg7_001_approx_uniform_sample_exp.png")
+par(mar=c(5, 5, 5, 5))
+mpeg7_ratio <- mpeg7_file$hits / mpeg7_file$num_stratum
+plot(mpeg7_file$n, mpeg7_ratio,
+  xlab="Number of Vertices",
+  ylab="Hits over Number of Stratum",
+  main="MPEG7 Uniform Sampling",
+  family="serif",cex.lab=3, cex.main=2,
+  cex.sub=2,cex.axis=2)
+m2 <- lm(mpeg7_ratio ~ mpeg7_file$n)
+summary(m2)
+print("Length")
+print(length(mpeg7_file$n))
+print("MSE")
+mean(m2$residuals^2)
+abline(m2,lty=1,col="red",lwd=3)
+# lines(sort(mpeg7_file$num_stratum^2), predict(m2)[sort(mpeg7_file$num_stratum,index.return=TRUE)$ix],lty=1,col="red",lwd=3)
+dev.off()
+
 pdf("diag-mpeg7")
 plot(m2)
 dev.off()
@@ -106,3 +162,58 @@ plot(mpeg7_file_cleaned$n, mpeg7_ratio_cleaned,
   cex.sub=2,cex.axis=2)
 abline(lm22,lty=1,col="red",lwd=3)
 dev.off()
+
+
+############
+############ RANDOM
+############
+ pdf("figs/uniform_sample_exp/random/random_uniform_sample_exp.pdf")
+# # par(mar=c(5, 5, 5, 5))
+ rand_ratio <- rand$hits / rand$num_stratum
+# # plot(poly(rand$n,2)[,1], rand_ratio,
+ plot(rand$n, rand_ratio,
+   xlab="Number of Vertices",
+   ylab="Hits over Number of Stratum",
+   main="Random Data Uniform Sampling",
+   family="serif",cex.lab=3, cex.main=2,
+   cex.sub=2,cex.axis=2)
+ m3 <- lm(rand_ratio ~ poly(rand$n,2))
+ summary(m3)
+ print("Length")
+ print(length(rand$n))
+ print("MSE")
+ mean(m3$residuals^2)
+ lines(sort(rand$n), predict(m3)[sort(rand$n,index.return=TRUE)$ix],lty=1,col="red",lwd=3)
+# # abline(m3)
+ dev.off()
+ pdf("diag-rand")
+ plot(m3)
+ dev.off()
+
+ ##Create PNG for Jupyter Notebook
+ png("figs/uniform_sample_exp/random/random_uniform_sample_exp.png")
+ # # par(mar=c(5, 5, 5, 5))
+ rand_ratio <- rand$hits / rand$num_stratum
+ # # plot(poly(rand$n,2)[,1], rand_ratio,
+ plot(rand$n, rand_ratio,
+      xlab="Number of Vertices",
+      ylab="Hits over Number of Stratum",
+      main="Random Data Uniform Sampling",
+      family="serif",cex.lab=3, cex.main=2,
+      cex.sub=2,cex.axis=2)
+ m3 <- lm(rand_ratio ~ poly(rand$n,2))
+ summary(m3)
+ print("Length")
+ print(length(rand$n))
+ print("MSE")
+ mean(m3$residuals^2)
+ lines(sort(rand$n), predict(m3)[sort(rand$n,index.return=TRUE)$ix],lty=1,col="red",lwd=3)
+ # # abline(m3)
+ dev.off()
+ pdf("diag-rand")
+ plot(m3)
+ dev.off()
+
+}
+
+#IFrame("figs/smallest_angle_exp/smallest_angle_exp.png", width="1500", height="500")
