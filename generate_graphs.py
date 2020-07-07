@@ -19,8 +19,8 @@ def generate():
 	t = time.time()
 
 	#original eps is .005, change according to how close we want the approx
-	eps= .005
-	graphs_dir = "graphs_005_approx" 
+	eps= .001
+	graphs_dir = "graphs_001_approx" 
 
 	#Random point clouds
 	for g_size in k:
