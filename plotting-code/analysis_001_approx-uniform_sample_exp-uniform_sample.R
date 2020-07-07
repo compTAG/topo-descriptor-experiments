@@ -214,6 +214,27 @@ dev.off()
  plot(m3)
  dev.off()
 
+print("Best Fit Summary RANDPTS")
+print(summary(m3)) 
+
+print("Best Fit Summary Mnist 001")
+print(summary(m1))
+
+print("Best Fit Summary MPEG7 001")
+print(summary(m2))
+
+
+
+print("Best Fit Summary RANDPTS")
+cat(as.numeric(m3$coef[1]), ' + ', as.numeric(m3$coef[2]), ' + ', as.numeric(m3$coef[3]))
+
+
+print("Best Fit Summary Mnist 001")
+cat(as.numeric(m1$coef[1]), ' + ', as.numeric(m1$coef[2]))
+
+print("Best Fit Summary MPEG7 001")
+cat(as.numeric(m2$coef[1]),' + ', as.numeric(m2$coef[2]))
+
 }
 
 #IFrame("figs/smallest_angle_exp/smallest_angle_exp.png", width="1500", height="500")
