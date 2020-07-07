@@ -225,4 +225,20 @@ dev.off()
 pdf("diag_smallest_rand")
 plot(m3)
 dev.off()
+
+
+print(summary(m3))
+print(summary(m1))
+print(summary(m2))
+
+print("Best Fit Summary RANDPTS")
+cat(as.numeric(m3$coef[1]), ' + ', as.numeric(m3$coef[2]))
+
+print("Best Fit Summary Mnist 001")
+cat(as.numeric(m1$coef[1]), ' + ', as.numeric(m1$coef[2]))
+
+print("Best Fit Summary MPEG7 001")
+cat(as.numeric(m2$coef[1]),' + ', as.numeric(m2$coef[2]))
+
+
 }
