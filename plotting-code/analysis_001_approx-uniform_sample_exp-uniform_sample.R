@@ -7,19 +7,19 @@
 
 uniform_sample_exp_stat_001 <- function(){
 
-mnist_file <- read.table(("analysis_001_approx/uniform_sample_exp/combined_data/mnist/sample_stats.txt"), header=TRUE, sep=",")
+mnist_file <- read.table((file.path("analysis_001_approx", "uniform_sample_exp", "combined_data", "mnist", "sample_stats.txt")), header=TRUE, sep=",")
 
-mpeg7_file <- read.table(("analysis_001_approx/uniform_sample_exp/combined_data/mpeg7/sample_stats.txt"), header=TRUE, sep=",")
+mpeg7_file <- read.table((file.path("analysis_001_approx", "uniform_sample_exp", "combined_data", "mpeg7", "sample_stats.txt")), header=TRUE, sep=",")
 
-rand_three <- read.table(("analysis_001_approx/uniform_sample_exp/combined_data/random/sample_stats_3.txt"), header=TRUE, sep=",")
-rand_five <- read.table(("analysis_001_approx/uniform_sample_exp/combined_data/random/sample_stats_5.txt"), header=TRUE, sep=",")
-rand_ten <- read.table(("analysis_001_approx/uniform_sample_exp/combined_data/random/sample_stats_10.txt"), header=TRUE, sep=",")
-rand_twenty <- read.table(("analysis_001_approx/uniform_sample_exp/combined_data/random/sample_stats_20.txt"), header=TRUE, sep=",")
-rand_thirty <- read.table(("analysis_001_approx/uniform_sample_exp/combined_data/random/sample_stats_30.txt"), header=TRUE, sep=",")
-rand_forty <- read.table(("analysis_001_approx/uniform_sample_exp/combined_data/random/sample_stats_40.txt"), header=TRUE, sep=",")
-rand_fifty <- read.table(("analysis_001_approx/uniform_sample_exp/combined_data/random/sample_stats_50.txt"), header=TRUE, sep=",")
-rand_sixty <- read.table(("analysis_001_approx/uniform_sample_exp/combined_data/random/sample_stats_60.txt"), header=TRUE, sep=",")
-rand_seventy <- read.table(("analysis_001_approx/uniform_sample_exp/combined_data/random/sample_stats_70.txt"), header=TRUE, sep=",")
+rand_three <- read.table((file.path("analysis_001_approx", "uniform_sample_exp", "combined_data", "random", "sample_stats_3.txt")), header=TRUE, sep=",")
+rand_five <- read.table((file.path("analysis_001_approx", "uniform_sample_exp", "combined_data", "random", "sample_stats_5.txt")), header=TRUE, sep=",")
+rand_ten <- read.table((file.path("analysis_001_approx", "uniform_sample_exp", "combined_data", "random", "sample_stats_10.txt")), header=TRUE, sep=",")
+rand_twenty <- read.table((file.path("analysis_001_approx", "uniform_sample_exp", "combined_data", "random", "sample_stats_20.txt")), header=TRUE, sep=",")
+rand_thirty <- read.table((file.path("analysis_001_approx", "uniform_sample_exp", "combined_data", "random", "sample_stats_30.txt")), header=TRUE, sep=",")
+rand_forty <- read.table((file.path("analysis_001_approx", "uniform_sample_exp", "combined_data", "random", "sample_stats_40.txt")), header=TRUE, sep=",")
+rand_fifty <- read.table((file.path("analysis_001_approx", "uniform_sample_exp", "combined_data", "random", "sample_stats_50.txt")), header=TRUE, sep=",")
+rand_sixty <- read.table((file.path("analysis_001_approx", "uniform_sample_exp", "combined_data", "random", "sample_stats_60.txt")), header=TRUE, sep=",")
+rand_seventy <- read.table((file.path("analysis_001_approx", "uniform_sample_exp", "combined_data", "random", "sample_stats_70.txt")), header=TRUE, sep=",")
 #rand_eighty <- read.table(("analysis_001_approx/uniform_sample_exp/combined_data/random/angle_stats_80.txt"), header=TRUE, sep=",")
 #rand_ninety <- read.table(("analysis_001_approx/uniform_sample_exp/combined_data/random/angle_stats_90.txt"), header=TRUE, sep=",")
 #rand_hundred <- read.table(("analysis_001_approx/uniform_sample_exp/combined_data/random/angle_stats_100.txt"), header=TRUE, sep=",")
@@ -34,7 +34,7 @@ rand <- rbind(rand_three, rand_five, rand_ten, rand_twenty, rand_thirty,
 ############ MNIST
 ############
 ##### Code to generate graphs for the samples
-pdf("figs/uniform_sample_exp/mnist/mnist_001_approx_uniform_sample_exp.pdf")
+pdf(file.path("figs", "uniform_sample_exp", "mnist", "mnist_001_approx_uniform_sample_exp.pdf"))
 par(mar=c(5, 5, 5, 5))
 mnist_ratio <- mnist_file$hits / mnist_file$num_stratum
 plot(mnist_file$n, mnist_ratio,
@@ -54,7 +54,7 @@ plot(mnist_file$n, mnist_ratio,
  dev.off()
 
 ##Create PNG for Jupyter Notebook
-png("figs/uniform_sample_exp/mnist/mnist_001_approx_uniform_sample_exp.png")
+png(file.path("figs", "uniform_sample_exp", "mnist", "mnist_001_approx_uniform_sample_exp.png"))
 par(mar=c(5, 5, 5, 5))
 mnist_ratio <- mnist_file$hits / mnist_file$num_stratum
 plot(mnist_file$n, mnist_ratio,
@@ -82,7 +82,7 @@ plot(mnist_file$n, mnist_ratio,
 ############
 ############ MPEG7
 ############
-pdf("figs/uniform_sample_exp/mpeg7/mpeg7_001_approx_uniform_sample_exp.pdf")
+pdf(file.path("figs", "uniform_sample_exp", "mpeg7", "mpeg7_001_approx_uniform_sample_exp.pdf"))
 par(mar=c(5, 5, 5, 5))
 mpeg7_ratio <- mpeg7_file$hits / mpeg7_file$num_stratum
 plot(mpeg7_file$n, mpeg7_ratio,
@@ -102,7 +102,7 @@ abline(m2,lty=1,col="red",lwd=3)
 dev.off()
 
 ##Create PNG for Jupyter Notebook
-png("figs/uniform_sample_exp/mpeg7/mpeg7_001_approx_uniform_sample_exp.png")
+png(file.path("figs", "uniform_sample_exp", "mpeg7", "mpeg7_001_approx_uniform_sample_exp.png"))
 par(mar=c(5, 5, 5, 5))
 mpeg7_ratio <- mpeg7_file$hits / mpeg7_file$num_stratum
 plot(mpeg7_file$n, mpeg7_ratio,
@@ -167,7 +167,7 @@ dev.off()
 ############
 ############ RANDOM
 ############
- pdf("figs/uniform_sample_exp/random/random_uniform_sample_exp.pdf")
+ pdf(file.path("figs", "uniform_sample_exp", "random", "random_uniform_sample_exp.pdf"))
 # # par(mar=c(5, 5, 5, 5))
  rand_ratio <- rand$hits / rand$num_stratum
 # # plot(poly(rand$n,2)[,1], rand_ratio,
@@ -191,7 +191,7 @@ dev.off()
  dev.off()
 
  ##Create PNG for Jupyter Notebook
- png("figs/uniform_sample_exp/random/random_uniform_sample_exp.png")
+ png(file.path("figs", "uniform_sample_exp", "random", "random_uniform_sample_exp.png"))
  # # par(mar=c(5, 5, 5, 5))
  rand_ratio <- rand$hits / rand$num_stratum
  # # plot(poly(rand$n,2)[,1], rand_ratio,
@@ -224,16 +224,6 @@ print("Best Fit Summary MPEG7 001")
 print(summary(m2))
 
 
-
-print("Best Fit Summary RANDPTS")
-cat(as.numeric(m3$coef[1]), ' + ', as.numeric(m3$coef[2]), ' + ', as.numeric(m3$coef[3]))
-
-
-print("Best Fit Summary Mnist 001")
-cat(as.numeric(m1$coef[1]), ' + ', as.numeric(m1$coef[2]))
-
-print("Best Fit Summary MPEG7 001")
-cat(as.numeric(m2$coef[1]),' + ', as.numeric(m2$coef[2]))
 
 }
 
