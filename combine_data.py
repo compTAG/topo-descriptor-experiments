@@ -6,9 +6,9 @@ import sys
 from PIL import Image
 
 def combine_pngs(exp,approx):
-  images = [Image.open(x) for x in ['figs/' + exp +'/random/random_' + exp +'.png', 
-                                  'figs/' + exp + '/mnist/mnist_' +  approx + '_approx_' + exp + '.png', 
-                                  'figs/' + exp + '/mpeg7/mpeg7_' + approx + '_approx_' + exp + '.png']]
+  images = [Image.open(x) for x in [os.path.join('figs',exp,'random', 'random_' + exp +'.png'), 
+                                  os.path.join('figs', exp, 'mnist', 'mnist_' +  approx + '_approx_' + exp + '.png'), 
+                                  os.path.join('figs', exp, 'mpeg7', 'mpeg7_' + approx + '_approx_' + exp + '.png')]]
   widths, heights = zip(*(i.size for i in images))
 
   total_width = sum(widths)
@@ -21,7 +21,7 @@ def combine_pngs(exp,approx):
     new_im.paste(im, (x_offset,0))
     x_offset += im.size[0]
 
-  new_im.save('figs/' + exp + '/' + exp + '_' + approx +'.png')
+  new_im.save(os.path.join('figs', exp, exp + '_' + approx +'.png'))
 
 
 def find_stats(in_file):
@@ -48,17 +48,17 @@ def random(exp, approx, file_name):
   num_points = [3, 5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
   for k in num_points:
     error_stats = []
-    out_file = "analysis_" + approx + "_approx/" + exp + "/combined_data/random/" + file_name + "_" + str(k)+".txt"
+    out_file = os.path.join("analysis_" + approx + "_approx", exp, "combined_data", "random", file_name + "_" + str(k)+".txt")
     for i in range(0,100):
-      in_file = 'output_' + approx + '_approx/' + exp + '/random/RAND_'+str(k)+"_"+str(i)+".txt"
+      in_file = os.path.join('output_' + approx + '_approx', exp, 'random', 'RAND_'+str(k)+"_"+str(i)+".txt")
       error_stats.append(find_stats(in_file))
     write_stats(error_stats, out_file)
 
 def mpeg7_mnist(data_type, exp, approx,file_name):
   error_stats = []
-  out_file = 'analysis_' + approx + '_approx/' + exp + '/combined_data/' + data_type +'/' + file_name + '.txt'
-  for filename in os.listdir('output_' + approx + '_approx/' +exp + '/'+data_type):
-    in_file = 'output_' + approx + '_approx/' + exp + '/' + data_type+"/"+filename
+  out_file = os.path.join('analysis_' + approx + '_approx', exp, 'combined_data', data_type, file_name + '.txt')
+  for filename in os.listdir(os.path.join('output_' + approx + '_approx', exp, data_type)):
+    in_file = os.path.join('output_' + approx + '_approx', exp, data_type, filename)
     error_stats.append(find_stats(in_file))
   write_stats(error_stats, out_file)
 
