@@ -10,8 +10,8 @@ def randpts_graphs():
   t = time.time()
 
   # make sure we have the same seeds as main
-  random.seed(423652346)
-  np.random.seed(423652346)
+  #random.seed(423652346)
+  #np.random.seed(423652346)
 
   ##### For random graph experiments
   # number of pt clouds to generate of each size
@@ -38,8 +38,8 @@ def mpeg7_graphs(eps, graphs_dir):
   t = time.time()
 
   # make sure we have the same seeds as main
-  random.seed(423652346)
-  np.random.seed(423652346)
+  #random.seed(423652346)
+  #np.random.seed(423652346)
 
   #### FOR MPEG7, MAKE SURE RAT-09 IS NOT IN THE DATA SET
   unused_mpeg7 = []
@@ -70,8 +70,8 @@ def mnist_graphs(eps, graphs_dir):
   t = time.time()
 
   # make sure we have the same seeds as main
-  random.seed(423652346)
-  np.random.seed(423652346)
+  #random.seed(423652346)
+  #np.random.seed(423652346)
 
   unused_mnist = []
 
