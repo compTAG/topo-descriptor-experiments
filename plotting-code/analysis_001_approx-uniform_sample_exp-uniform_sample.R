@@ -29,7 +29,6 @@ rand <- rbind(rand_three, rand_five, rand_ten, rand_twenty, rand_thirty,
               #, rand_eighty,
               #rand_ninety, rand_hundred)
 
-
 ############
 ############ MNIST
 ############
