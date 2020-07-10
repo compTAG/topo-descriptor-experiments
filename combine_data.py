@@ -5,24 +5,6 @@ import copy
 import sys
 from PIL import Image
 
-def combine_pngs(exp,approx):
-  images = [Image.open(x) for x in [os.path.join('figs',exp,'random', 'random_' + exp +'.png'), 
-                                  os.path.join('figs', exp, 'mnist', 'mnist_' +  approx + '_approx_' + exp + '.png'), 
-                                  os.path.join('figs', exp, 'mpeg7', 'mpeg7_' + approx + '_approx_' + exp + '.png')]]
-  widths, heights = zip(*(i.size for i in images))
-
-  total_width = sum(widths)
-  max_height = max(heights)
-
-  new_im = Image.new('RGB', (total_width, max_height))
-
-  x_offset = 0
-  for im in images:
-    new_im.paste(im, (x_offset,0))
-    x_offset += im.size[0]
-
-  new_im.save(os.path.join('figs', exp, exp + '_' + approx +'.png'))
-
 
 def find_stats(in_file,exp):
   with open(in_file) as f:
@@ -110,6 +92,23 @@ def mpeg7_mnist(data_type, exp, approx,file_name):
     # print(len(error_stats))
     write_stats(error_stats, out_file,exp)
 
+def combine_pngs(exp,approx):
+  images = [Image.open(x) for x in [os.path.join('figs',exp,'random', 'random_' + exp +'.png'), 
+                                  os.path.join('figs', exp, 'mnist', 'mnist_' +  approx + '_approx_' + exp + '.png'), 
+                                  os.path.join('figs', exp, 'mpeg7', 'mpeg7_' + approx + '_approx_' + exp + '.png')]]
+  widths, heights = zip(*(i.size for i in images))
+
+  total_width = sum(widths)
+  max_height = max(heights)
+
+  new_im = Image.new('RGB', (total_width, max_height))
+
+  x_offset = 0
+  for im in images:
+    new_im.paste(im, (x_offset,0))
+    x_offset += im.size[0]
+
+  new_im.save(os.path.join('figs', exp, exp + '_' + approx +'.png'))
 
 
 #def main():
