@@ -3,7 +3,7 @@
 # Graphs show:
 #   x-axis: number of vertices
 #   y-axis: the ratio number of generated stratum using smallest size/number of
-#		stratum
+#   stratum
 
 smallest_angle_exp_stat_001 <- function(){
 
@@ -27,6 +27,8 @@ rand_hundred <- read.table((file.path("analysis_001_approx", "smallest_angle_exp
 rand <- rbind(rand_three, rand_five, rand_ten, rand_twenty, rand_thirty,
               rand_forty, rand_fifty, rand_sixty, rand_seventy, rand_eighty,
               rand_ninety, rand_hundred)
+
+
 
 ##### Code to generate graphs for the ratios
 # pdf("../../figs/smallest_angle_exp/mnist/mnist_001_approx_ratio_smallest_angle_exp.pdf")
@@ -136,7 +138,6 @@ par(mar=c(5, 5, 5, 5))
 plot(log(mpeg7_file$n), log(mpeg7_file$minSize),
   xlab="Number of Vertices",
   ylab="Smallest Stratum Size",
-  
   main="Minimum Stratum Size in MPEG7 Graphs",
   family="serif",cex.lab=3, cex.main=2,
   cex.sub=2,cex.axis=2)
