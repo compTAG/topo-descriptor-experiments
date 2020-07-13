@@ -4,6 +4,7 @@ import numpy as np
 import copy
 import sys
 from PIL import Image
+from PyPDF2 import PdfFileMerger, PdfFileReader
 
 
 def find_stats(in_file,exp):
@@ -110,10 +111,21 @@ def combine_pngs(exp,approx):
 
   new_im.save(os.path.join('figs', exp, exp + '_' + approx +'.png'))
 
+  #Convert and save a pdf version
+  image = Image.open(os.path.join('figs', exp, exp + '_' + approx +'.png'))
+  img_pdf = image.convert('RGB')
+  img_pdf.save(os.path.join('figs', exp, exp + '_' + approx +'.pdf'))
 
-#def main():
-  #random("smallest_angle_exp", "001", 'angle_stats')
-  #mpeg7_mnist("mpeg7", "smallest_angle_exp", "001", 'angle_stats')
-  #mpeg7_mnist("mnist","smallest_angle_exp", "001", 'angle_stats')
 
-#if __name__ == '__main__':main()
+def combine_pdfs(exp,approx):
+  file_names = [os.path.join('figs',exp,'random', 'random_' + exp +'.pdf'), 
+                                  os.path.join('figs', exp, 'mnist', 'mnist_' +  approx + '_approx_' + exp + '.pdf'), 
+                                  os.path.join('figs', exp, 'mpeg7', 'mpeg7_' + approx + '_approx_' + exp + '.pdf')]
+  merger = PdfFileMerger()
+  for file in file_names:
+      merger.append(file)
+
+  merger.write(os.path.join('figs', exp, exp + '_' + approx +'.pdf'))                              
+
+
+
