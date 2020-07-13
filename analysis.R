@@ -244,13 +244,13 @@ uniform_sample_exp_analysis_png <-function(in_file, exp, data_type, approx){
 
 
 # Functions for grabbing combined data and running statistical analysis
-perform_smallest_angle_analysis <- function(random, mnist, mpeg7){
-m1 <- smallest_angle_exp_analysis_pdf(random, "smallest_angle_exp", "random", "001")
-m2 <- smallest_angle_exp_analysis_pdf(mnist, "smallest_angle_exp", "mnist", "001")
-m3 <- smallest_angle_exp_analysis_pdf(mpeg7, "smallest_angle_exp", "mpeg7", "001")
-smallest_angle_exp_analysis_png(random, "smallest_angle_exp", "random", "001")
-smallest_angle_exp_analysis_png(mnist, "smallest_angle_exp", "mnist", "001")
-smallest_angle_exp_analysis_png(mpeg7, "smallest_angle_exp", "mpeg7", "001")
+perform_smallest_angle_analysis <- function(random, mnist, mpeg7, approx){
+m1 <- smallest_angle_exp_analysis_pdf(random, "smallest_angle_exp", "random", approx)
+m2 <- smallest_angle_exp_analysis_pdf(mnist, "smallest_angle_exp", "mnist", approx)
+m3 <- smallest_angle_exp_analysis_pdf(mpeg7, "smallest_angle_exp", "mpeg7", approx)
+smallest_angle_exp_analysis_png(random, "smallest_angle_exp", "random", approx)
+smallest_angle_exp_analysis_png(mnist, "smallest_angle_exp", "mnist", approx)
+smallest_angle_exp_analysis_png(mpeg7, "smallest_angle_exp", "mpeg7", approx)
 
 print("Best Fit Summary RANDPTS")
 print(summary(m1))
@@ -263,13 +263,13 @@ print(summary(m3))
 }
 
 
-perform_uniform_sample_analysis <- function(random, mnist, mpeg7){
-m1 <- uniform_sample_exp_analysis_pdf(random, "uniform_sample_exp", "random", "001")
-m2 <- uniform_sample_exp_analysis_pdf(mnist, "uniform_sample_exp", "mnist", "001")
-m3 <- uniform_sample_exp_analysis_pdf(mpeg7, "uniform_sample_exp", "mpeg7", "001")
-uniform_sample_exp_analysis_png(random, "uniform_sample_exp", "random", "001")
-uniform_sample_exp_analysis_png(mnist, "uniform_sample_exp", "mnist", "001")
-uniform_sample_exp_analysis_png(mpeg7, "uniform_sample_exp", "mpeg7", "001")
+perform_uniform_sample_analysis <- function(random, mnist, mpeg7,approx){
+m1 <- uniform_sample_exp_analysis_pdf(random, "uniform_sample_exp", "random", approx)
+m2 <- uniform_sample_exp_analysis_pdf(mnist, "uniform_sample_exp", "mnist", approx)
+m3 <- uniform_sample_exp_analysis_pdf(mpeg7, "uniform_sample_exp", "mpeg7", approx)
+uniform_sample_exp_analysis_png(random, "uniform_sample_exp", "random", approx)
+uniform_sample_exp_analysis_png(mnist, "uniform_sample_exp", "mnist", approx)
+uniform_sample_exp_analysis_png(mpeg7, "uniform_sample_exp", "mpeg7", approx)
 
 print("Best Fit Summary RANDPTS")
 print(summary(m1))
