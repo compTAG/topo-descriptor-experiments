@@ -20,9 +20,9 @@ from visualize import *
 
 # modify for that approximation type for emnist and mpeg7
 # choices include graphs_001_approx and graphs_005_approx
-graphs_dir = "graphs_005_approx"
+graphs_dir = "graphs_001_approx"
 # same as above but specifies where to write results
-out_graphs_dir = "output_005_approx"
+out_graphs_dir = "output_001_approx"
 
 # NOTE THAT THERE ARE MORE VARIABLES TO SET IN main()
 
@@ -38,9 +38,9 @@ def stratify(G):
 # @param networkx Graph G: the graph containing the points
 # @param str outFile: string of file name to write the stratum sizes to
 # stores the results in designated outfiles
-def stratum_experiment(G,arcs,outFile):
+def stratum_experiment(G,arcs,outFile,out_graphs_dir):
 	print("Stratum experiment")
-	with open(out_graphs_dir+"/distribution_exp/"+outFile, "w+") as f:
+	with open(os.path.join(out_graphs_dir,"distribution_exp", outFile), "w+") as f:
 		f.write("startv1,startv2,endv1,endv2,length\n")
 		f.write("\n".join([(str(arc["start"]["vertex1"])+","+str(arc["start"]["vertex2"]) +
 			","+str(arc["end"]["vertex1"])+","+str(arc["end"]["vertex2"])+","+str(arc["length"]))
@@ -55,7 +55,7 @@ def stratum_experiment(G,arcs,outFile):
 def sample_experiment(G,arcs,sample_sizes,outFile,out_graphs_dir):
 	print("Sample experiment")
 	# open up a file to write the outputs to for this pc size
-	with open(out_graphs_dir+"/sample_exp/"+outFile, "w+") as f:
+	with open(os.path.join(out_graphs_dir,"sample_exp",outFile), "w+") as f:
 		# we store three values: samples, hits (number of stratum hit), num_stratum (total number of stratum on this graph)
 		f.write("n,samples,hits,num_stratum")
 		f.write("\n")
@@ -94,8 +94,8 @@ def uniform_sample_experiment(G,arcs,sample_sizes,outFile,out_graphs_dir):
 	if len(arcs) < 5000:
 		print("Num arcs: "+str(len(arcs)))
 		# open up a file to write the outputs to for this pc size
-		print(out_graphs_dir+"/uniform_sample_exp/"+outFile)
-		with open(out_graphs_dir+"/uniform_sample_exp/"+outFile, "w+") as f:
+		print(os.path.join(out_graphs_dir,"uniform_sample_exp",outFile))
+		with open(os.path.join(out_graphs_dir,"uniform_sample_exp",outFile), "w+") as f:
 			# we store three values: samples, hits (number of stratum hit), num_stratum (total number of stratum on this graph)
 			f.write("n,samples,hits,num_stratum")
 			f.write("\n")
@@ -136,7 +136,7 @@ def uniform_sample_experiment(G,arcs,sample_sizes,outFile,out_graphs_dir):
 #### NOTE, THIS EXPERIMENT IS ACTUALLY THE SMALLEST STRATUM SIZE, NOT ANGLE
 def smallest_angle_experiment(G,arcs,outFile,out_graphs_dir):
 	print("Smallest angle experiment")
-	with open(out_graphs_dir+"/smallest_angle_exp/"+outFile, "w+") as f:
+	with open(os.path.join(out_graphs_dir,"smallest_angle_exp",outFile), "w+") as f:
 		# Add headers to output file
 		f.write("n,min_angle,num_stratum,num_needed_stratum,ratio")
 		f.write("\r\n")
@@ -191,9 +191,9 @@ def exp(G,output_file,exp_type,out_graphs_dir):
 	sample_sizes=[8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384]
 	G, arcs = stratify(G)
 	if exp_type == 1:
-		stratum_experiment(G,arcs,output_file)
+		stratum_experiment(G,arcs,output_file,out_graphs_dir)
 	elif exp_type == 2:
-		sample_experiment(G,arcs,sample_sizes,output_file)
+		sample_experiment(G,arcs,sample_sizes,output_file,out_graphs_dir)
 	elif exp_type == 3:
 		smallest_angle_experiment(G,arcs,output_file,out_graphs_dir)
 	elif exp_type == 4:
@@ -230,24 +230,24 @@ def get_exp_graphs(data_type,graphs_dir,out_graphs_dir):
 	exp_list = []
 	# random experiment
 	if data_type == 1 or data_type == 4:
-		for filename in os.listdir('graphs/random/'):
-			G = nx.read_gpickle('graphs/random/' + filename)
-			output_file = "random/"+filename[:-8]+".txt"
+		for filename in os.listdir(os.path.join('graphs','random')):
+			G = nx.read_gpickle(os.path.join('graphs','random' , filename))
+			output_file = os.path.join("random", filename[:-8]+".txt")
 			exp_list.append({"G":G, "output_file":output_file})
 	# MPEG7 dataset
 	if data_type == 2 or data_type == 4:
-		for filename in os.listdir(graphs_dir+'/mpeg7/'):
-			G = nx.read_gpickle(graphs_dir+'/mpeg7/' + filename)
-			output_file = "mpeg7/"+filename[:-8]+".txt"
+		for filename in os.listdir(os.path.join(graphs_dir,'mpeg7')):
+			G = nx.read_gpickle(os.path.join(graphs_dir,'mpeg7', filename))
+			output_file = os.path.join("mpeg7", filename[:-8]+".txt")
 			exp_list.append({"G":G, "output_file":output_file})
 	# MNIST
 	if data_type == 3 or data_type == 4:
-		for filename in os.listdir(graphs_dir+'/mnist/'):
-			test_output_file = "mnist/"+filename[:-8]+".txt"
-			if not os.path.exists(out_graphs_dir+"/uniform_sample_exp/"+test_output_file):
-				G = nx.read_gpickle(graphs_dir+'/mnist/' + filename)
-				output_file = "mnist/"+filename[:-8]+".txt"
-				exp_list.append({"G":G, "output_file":output_file})
+		for filename in os.listdir(os.path.join(graphs_dir,'mnist')):
+			#test_output_file = "mnist/"+filename[:-8]+".txt"
+			#if not os.path.exists(out_graphs_dir+"/uniform_sample_exp/"+test_output_file):
+			G = nx.read_gpickle(os.path.join(graphs_dir,'mnist', filename))
+			output_file = os.path.join("mnist", filename[:-8]+".txt")
+			exp_list.append({"G":G, "output_file":output_file})
 
 	# Test experiment
 	if data_type == 5:
@@ -287,16 +287,16 @@ if __name__ == "__main__":
 	#				3 for smallest angle experiment (smallest_angle_exp)
 	#				4 for a uniform random sample experiment (uniform_sample_exp)
 	#				5 for all four exps
-	exp_type = 5
+	exp_type = 4
 	#### data is:
 	#				1 for random
 	#				2 for MPEG7 (classes from PHT paper - Turner et al.)
 	#				3 for EMNIST
 	#				4 for all three
 	#				5 for test
-	data_type = 2
+	data_type = 4
 
-	exp_list = get_exp_graphs(data_typ,graphs_dir,out_graphs_dir)
+	exp_list = get_exp_graphs(data_type,graphs_dir,out_graphs_dir)
 
 	# G,arcs = stratify(exp_list[0]["G"])
 	# print G.graph["stratum"]
