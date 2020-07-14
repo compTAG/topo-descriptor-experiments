@@ -19,7 +19,7 @@ from planar import Polygon
 
 # takes a sample from each emnist class and determines the threshold we should use
 def determine_emnist_threshold():
-    data = sio.loadmat('data/emnist/emnist-byclass.mat')
+    data = sio.loadmat(os.path.join('data','emnist','emnist-byclass.mat'))
     images = data['dataset'][0][0][0][0][0][0]
     labels = data['dataset'][0][0][0][0][0][1]
     imgs = []
@@ -163,7 +163,7 @@ def get_pht_mpegSeven_data(file_path):
 # @param String filemane: the name of the mpeg7 file (.gif)
 # returns a img from the input gif file
 def get_mpegSeven_img(filename):
-    return np.array(Image.open("data/mpeg7/" + filename))
+    return np.array(Image.open(os.path.join("data","mpeg7", filename)))
 
 #EMNIST
 # load a data set and extract a list of images from emnist
@@ -171,7 +171,7 @@ def get_mpegSeven_img(filename):
 # @param int n: the number of images to sample from the class (takes the first n)
 # returns a list of the first n images from class c
 def get_mnist_img(c, n):
-    data = sio.loadmat('data/emnist/emnist-byclass.mat')
+    data = sio.loadmat(os.path.join('data','emnist','emnist-byclass.mat'))
     images = data['dataset'][0][0][0][0][0][0]
     labels = data['dataset'][0][0][0][0][0][1]
     indexes = [i for i, label in enumerate(x[0] for x in labels) if label == c][:n]
@@ -189,18 +189,18 @@ def get_mnist_img(c, n):
 # and the original image with contours (after)
 def save_contour_img(thresh, contours, img, filename):
     plt.imshow(img)
-    plt.savefig("output/imgs/orig_"+str(filename)+".pdf")
+    plt.savefig(os.path.join("output","imgs","orig_"+str(filename)+".pdf"))
     plt.clf()
 
     plt.imshow(thresh)
-    plt.savefig("output/imgs/thresh_"+str(filename)+".pdf")
+    plt.savefig(os.path.join("output","imgs","thresh_"+str(filename)+".pdf"))
     plt.clf()
 
     for contour in contours:
         cv2.drawContours(img, contour, -1, (0,255,0), 1)
 
     plt.imshow(img)
-    plt.savefig("output/imgs/contours_"+str(filename)+".pdf")
+    plt.savefig(os.path.join("output","imgs","contours_"+str(filename)+".pdf"))
     plt.clf()
 
 # takes an img from the MNIST data set and returns a networkx graph with the
