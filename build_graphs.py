@@ -29,8 +29,8 @@ def randpts_graphs():
     G = pc["pc"]
     index = pc["id"]
     output_file = "RAND_"+str(len(G.nodes()))+"_"+str(index)
-    draw_graph(G, G.graph['stratum'], "graphs/random_imgs/"+output_file)
-    nx.write_gpickle(G, "graphs/random/"+str(output_file)+".gpickle")
+    draw_graph(G, G.graph['stratum'], os.path.join("graphs", "random_imgs", output_file))
+    nx.write_gpickle(G, os.path.join("graphs","random", str(output_file)+".gpickle"))
     print(output_file+ ": " +str(time.time() - t)+ "(s)")
     t = time.time()
 
@@ -44,22 +44,22 @@ def mpeg7_graphs(eps, graphs_dir):
   #### FOR MPEG7, MAKE SURE RAT-09 IS NOT IN THE DATA SET
   unused_mpeg7 = []
   # MPEG7 data
-  for f in os.listdir('data/mpeg7/'):
+  for f in os.listdir(os.path.join('data', 'mpeg7')):
     if f.endswith(".gif"):
       # original eps is .005
       print("Starting on graph: "+str(f))
       G, ret = get_img_data_approx(get_mpegSeven_img(f),eps,0)
       # G = get_img_data(get_mpegSeven_img(f))
       output_file = "MPEG7_"+str(f[:-4])
-      draw_graph(G, G.graph['stratum'], graphs_dir+"/mpeg7_imgs/"+output_file)
+      draw_graph(G, G.graph['stratum'], os.path.join(graphs_dir,"mpeg7_imgs",output_file))
       if ret != -2 and ret !=-1 and ret != 0:
-        nx.write_gpickle(G, graphs_dir+"/mpeg7/"+str(output_file)+".gpickle")
+        nx.write_gpickle(G, os.path.join(graphs_dir, "mpeg7", str(output_file)+".gpickle"))
       else:
         unused_mpeg7.append((output_file, ret))
         print(output_file + " was not used")
       print(output_file+ ": " +str(time.time() - t)+ "(s)")
       t = time.time()
-  with open(graphs_dir+"/unused_mpeg7.txt","w+") as f:
+  with open(os.path.join(graphs_dir, "unused_mpeg7.txt"),"w+") as f:
     f.write(str(len(unused_mpeg7))+"\n")
     for u in unused_mpeg7:
       f.write(str(u)+"\n")
@@ -94,9 +94,9 @@ def mnist_graphs(eps, graphs_dir):
       G, ret = get_img_data_approx(img,eps,102.951612903)
       # G = get_img_data(img)
       output_file = "MNIST_C"+str(c)+"_S"+str(samp_count)
-      draw_graph(G, G.graph['stratum'], graphs_dir+"/mnist_imgs/"+output_file)
+      draw_graph(G, G.graph['stratum'], os.path.join(graphs_dir,"mnist_imgs",output_file))
       if ret != -2 and ret != -1 and ret != 0:
-        nx.write_gpickle(G, graphs_dir+"/mnist/"+str(output_file)+".gpickle")
+        nx.write_gpickle(G, os.path.join(graphs_dir,"mnist",str(output_file)+".gpickle"))
       else:
         unused_mnist.append((output_file, ret))
         print(output_file + " graph was not used")
@@ -104,7 +104,7 @@ def mnist_graphs(eps, graphs_dir):
       print(output_file+ ": " +str(time.time() - t)+ "(s)")
       t = time.time()
 
-  with open(graphs_dir+"/unused_mnist.txt","w+") as f:
+  with open(os.path.join(graphs_dir,"unused_mnist.txt"),"w+") as f:
     f.write(str(len(unused_mnist)) + "\n")
     for u in unused_mnist:
       f.write(str(u)+"\n")
