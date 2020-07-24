@@ -3,113 +3,52 @@ import os
 from backports import tempfile
 from zipfile import ZipFile
 
+import path
+
 URL_MPEG7 = 'http://www.dabi.temple.edu/~shape/MPEG7/MPEG7dataset.zip'
 URL_EMNIST = 'http://www.itl.nist.gov/iaui/vip/cs_links/EMNIST/matlab.zip'
 
-dir_data = 'data'
 
-dir_list = [
-    dir_data,
-    os.path.join('graphs_005_approx','mnist'),
-    os.path.join('graphs_005_approx','mnist_imgs'),
-    os.path.join('graphs_001_approx', 'mnist'),
-    os.path.join('graphs_001_approx', 'mnist_imgs'),
-    os.path.join('graphs_005_approx','mpeg7'),
-    os.path.join('graphs_005_approx', 'mpeg7_imgs'),
-    os.path.join('graphs_005_approx', 'mpeg7_extra'),
-    os.path.join('graphs_001_approx', 'mpeg7'),
-    os.path.join('graphs_001_approx', 'mpeg7_imgs'),
-    os.path.join('graphs_001_approx', 'mpeg7_extra'),
-    os.path.join('graphs', 'random_imgs'),
-    os.path.join('graphs', 'random'),
-    os.path.join('output_001_approx', 'smallest_angle_exp', 'mnist'),
-    os.path.join('output_001_approx', 'smallest_angle_exp', 'mpeg7'),
-    os.path.join('output_001_approx', 'smallest_angle_exp', 'random'),
-    os.path.join('output_001_approx', 'uniform_sample_exp', 'mnist'),
-    os.path.join('output_001_approx', 'uniform_sample_exp', 'mpeg7'),
-    os.path.join('output_001_approx', 'uniform_sample_exp', 'random'),
-    os.path.join('output_005_approx', 'smallest_angle_exp', 'mnist'),
-    os.path.join('output_005_approx', 'smallest_angle_exp', 'mpeg7'),
-    os.path.join('output_005_approx', 'smallest_angle_exp', 'random'),
-    os.path.join('output_005_approx', 'uniform_sample_exp', 'mnist'),
-    os.path.join('output_005_approx', 'uniform_sample_exp', 'mpeg7'),
-    os.path.join('output_005_approx', 'uniform_sample_exp', 'random'),
-    os.path.join('analysis_005_approx', 'smallest_angle_exp', 'combined_data', 'mnist'),
-    os.path.join('analysis_005_approx', 'smallest_angle_exp', 'combined_data', 'mpeg7'),
-    os.path.join('analysis_005_approx', 'smallest_angle_exp', 'combined_data', 'random'),
-    os.path.join('analysis_001_approx', 'smallest_angle_exp', 'combined_data', 'mnist'),
-    os.path.join('analysis_001_approx', 'smallest_angle_exp', 'combined_data', 'mpeg7'),
-    os.path.join('analysis_001_approx', 'smallest_angle_exp', 'combined_data', 'random'),
-    os.path.join('analysis_005_approx', 'uniform_sample_exp', 'combined_data', 'mnist'),
-    os.path.join('analysis_005_approx', 'uniform_sample_exp', 'combined_data', 'mpeg7'),
-    os.path.join('analysis_005_approx', 'uniform_sample_exp', 'combined_data', 'random'),
-    os.path.join('analysis_001_approx', 'uniform_sample_exp', 'combined_data', 'mnist'),
-    os.path.join('analysis_001_approx', 'uniform_sample_exp', 'combined_data', 'mpeg7'),
-    os.path.join('analysis_001_approx', 'uniform_sample_exp', 'combined_data', 'random'),
-    os.path.join('figs', 'smallest_angle_exp', 'random'),
-    os.path.join('figs', 'smallest_angle_exp', 'mnist'),
-    os.path.join('figs', 'smallest_angle_exp', 'mpeg7'),
-    os.path.join('figs', 'uniform_sample_exp', 'random'),
-    os.path.join('figs', 'uniform_sample_exp', 'mnist'),
-    os.path.join('figs', 'uniform_sample_exp', 'mpeg7'),
-]
+def get_data(url, target_dir):
+    # first check if we should do any downloading
+    if os.path.exists(target_dir):
+        print("Warning: directory \"%s\" already exists, not re-downloading dataset" % target_dir)
+        return
 
 
-# Make directories so that generate_graphs runs properly
-def make_folders(dir_list):
-  for path in dir_list:
-    make_folder(path)
+    with tempfile.TemporaryDirectory() as tmp:
+        data = wget.download(url,tmp)
 
-def make_folder(folder_path):
-  if not os.path.exists(folder_path):
-    os.makedirs(folder_path)
-    print("Directory %s created" % folder_path)
-  else:
-    print("Directory %s already exists" % folder_path)
+        # Unzip data and store in data folder
+        with ZipFile(data, 'r') as zip_ref:
+            zip_ref.extractall(tmp)
+            temp_dir = os.path.dirname(zip_ref.namelist()[1])
 
+        # move and rename
+        os.rename(os.path.join(tmp,temp_dir), target_dir)
+        print("Directory %s created" % target_dir)
 
-def get_data(url, target_dir, data_set_name):
-  # first check if we should do any downloading
-  if os.path.exists(os.path.join(target_dir, data_set_name)):
-    print("Warning: directory %s already exists, not re-downloading %s dataset" % (target_dir, data_set_name))
-    return
-
-  with tempfile.TemporaryDirectory() as tmp:
-    data = wget.download(url,tmp)
-
-    # Unzip data and store in data folder
-    with ZipFile(data, 'r') as zip_ref:
-      zip_ref.extractall(tmp)
-      temp_dir = os.path.dirname(zip_ref.namelist()[1])
-
-      # move and rename
-      dst = os.path.join(target_dir, data_set_name)
-      os.rename(os.path.join(tmp,temp_dir), dst)
-      print("Directory " , dst,  " Created ")
-
-  return dst
 
 def get_mpeg7(url, target_dir):
-  dst = get_data(url, target_dir, 'mpeg7')
+    dst = get_data(url, target_dir)
 
-  # clean bad files
-  if os.path.exists(os.path.join('data', 'mpeg7', 'rat-09.gif')):
-    os.remove('data/mpeg7/rat-09.gif')
+    # clean bad files
+    rat9 = os.path.join(target_dir, 'rat-09.gif')
+    if os.path.exists(rat9):
+        os.remove(rat9)
 
 
 def get_emnist(url, target_dir):
-  dst = get_data(url, target_dir, 'emnist')
+    get_data(url, target_dir)
 
 
-def download_data():
-  get_mpeg7(URL_MPEG7, dir_data)
-  get_emnist(URL_EMNIST, dir_data)
-
-def preprocess_data(dir_list):
-    make_folders(dir_list)
-    download_data()
+def download_data(path_manager):
+    get_mpeg7(URL_MPEG7, path_manager.data_mpeg7_dir)
+    get_emnist(URL_EMNIST, path_manager.data_mnist_dir)
 
 
-
+def preprocess_data(path_manager):
+    path.FolderMaker().make_folder(path_manager.data_dir)
+    download_data(path_manager)
 
 
