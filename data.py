@@ -45,6 +45,6 @@ def get_emnist(url, target_dir):
 def fetch(path_manager):
     path.FolderMaker().make_folder(path_manager.data_dir)
 
-    get_mpeg7(URL_MPEG7, path_manager.data_mpeg7_dir)
-    get_emnist(URL_EMNIST, path_manager.data_mnist_dir)
+    get_mpeg7(URL_MPEG7, path_manager.mpeg7_data_dir)
+    get_emnist(URL_EMNIST, path_manager.mnist_data_dir)
 

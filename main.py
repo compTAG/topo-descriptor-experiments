@@ -12,6 +12,7 @@ import os
 import copy
 import numpy as np
 import networkx as nx
+import experiment
 from visualize import *
 
 ###############################
@@ -29,154 +30,6 @@ out_graphs_dir = "output_001_approx"
 ######################################################
 ##### Functions for experiments ######################
 ######################################################
-
-def stratify(G):
-	fillangmatrix(G.graph["stratum"], len(G.nodes()), list(G.nodes(data=True)))
-	arcs = find_arc_lengths(G.graph["stratum"])
-	return G, arcs
-
-# @param networkx Graph G: the graph containing the points
-# @param str outFile: string of file name to write the stratum sizes to
-# stores the results in designated outfiles
-def stratum_experiment(G,arcs,outFile,out_graphs_dir):
-	print("Stratum experiment")
-	with open(os.path.join(out_graphs_dir,"distribution_exp", outFile), "w+") as f:
-		f.write("startv1,startv2,endv1,endv2,length\n")
-		f.write("\n".join([(str(arc["start"]["vertex1"])+","+str(arc["start"]["vertex2"]) +
-			","+str(arc["end"]["vertex1"])+","+str(arc["end"]["vertex2"])+","+str(arc["length"]))
-			for arc in arcs]))
-
-# runs an experiment randomly sampling from the unit sphere and marking off arcs we hit
-# @param Graph G: graph to perform experiment on
-# @param list arcs: list of arcs for the stratified regions of the sphere for G
-# @param list sample_sizes: different numbers of random samples to take
-# @param str outFile: string of file name (please include extension) to pickle point clouds to
-# stores the results in designated outfiles
-def sample_experiment(G,arcs,sample_sizes,outFile,out_graphs_dir):
-	print("Sample experiment")
-	# open up a file to write the outputs to for this pc size
-	with open(os.path.join(out_graphs_dir,"sample_exp",outFile), "w+") as f:
-		# we store three values: samples, hits (number of stratum hit), num_stratum (total number of stratum on this graph)
-		f.write("n,samples,hits,num_stratum")
-		f.write("\n")
-		# iterate through each number of samples, each of these loops is an experiment
-		for num_samples in sample_sizes:
-			for j in range(0,num_samples):
-				# take a random sample in radians
-				sample = random.uniform(0.0, 2*math.pi)
-				for arc in arcs:
-					# test to see which stratum this sample falls into and update that stratum to designate a hit
-					if ((arc["start"]["location"] < arc["end"]["location"])
-						and (sample >= arc["start"]["location"])
-						and (sample < arc["end"]["location"])):
-						arc["hit"] = 1
-					elif ((arc["start"]["location"] > arc["end"]["location"])
-						and ((sample >= arc["start"]["location"])
-							or (sample < arc["end"]["location"]))):
-						arc["hit"] = 1
-
-			# keep track of total number of hits
-			hit_count = sum([arc["hit"] for arc in arcs])
-			# reset hits to 0 for next iteration
-			for arc in arcs:
-				arc["hit"] = 0
-
-			f.write(str(len(G))+","+str(num_samples)+","+str(hit_count)+","+str(len(arcs)))
-			f.write("\n")
-
-# runs an experiment randomly sampling uniformly alon the unit sphere and marking off arcs we hit
-# @param Graph G: graph to perform experiment on
-# @param list arcs: list of arcs for the stratified regions of the sphere for G
-# @param list sample_sizes: different numbers of random samples to take
-# @param str outFile: string of file name (please include extension) to pickle point clouds to
-# stores the results in designated outfiles
-def uniform_sample_experiment(G,arcs,sample_sizes,outFile,out_graphs_dir):
-	if len(arcs) < 5000:
-		print("Num arcs: "+str(len(arcs)))
-		# open up a file to write the outputs to for this pc size
-		print(os.path.join(out_graphs_dir,"uniform_sample_exp",outFile))
-		with open(os.path.join(out_graphs_dir,"uniform_sample_exp",outFile), "w+") as f:
-			# we store three values: samples, hits (number of stratum hit), num_stratum (total number of stratum on this graph)
-			f.write("n,samples,hits,num_stratum")
-			f.write("\n")
-			# iterate through each number of samples, each of these loops is an experiment
-			for num_samples in sample_sizes:
-				increment = (2*math.pi) / num_samples
-				# print("INCREMENT "+str(increment))
-				sample = 0
-				for j in range(0,num_samples):
-					for arc in arcs:
-						# test to see which stratum this sample falls into and update that stratum to designate a hit
-						if ((arc["start"]["location"] < arc["end"]["location"])
-							and (sample >= arc["start"]["location"])
-							and (sample < arc["end"]["location"])):
-							arc["hit"] = 1
-						elif ((arc["start"]["location"] > arc["end"]["location"])
-							and ((sample >= arc["start"]["location"])
-								or (sample < arc["end"]["location"]))):
-							arc["hit"] = 1
-					sample += increment
-
-				# keep track of total number of hits
-				hit_count = sum([arc["hit"] for arc in arcs])
-				# reset hits to 0 for next iteration
-				for arc in arcs:
-					arc["hit"] = 0
-
-				# print(str(len(G.nodes()))+","+str(num_samples)+","+str(hit_count)+","+str(len(arcs)))
-				f.write(str(len(G.nodes()))+","+str(num_samples)+","+str(hit_count)+","+str(len(arcs)))
-				f.write("\n")
-	else:
-		print("Not running exp, too many arcs: "+str(len(arcs)))
-
-# @param networkx Graph G: graph to run experiments on
-# @param list arcs: stratum along the sphere for G
-# @param str outFile: string of file name to write results to (see headers in function)
-# stores the results in designated outfiles
-#### NOTE, THIS EXPERIMENT IS ACTUALLY THE SMALLEST STRATUM SIZE, NOT ANGLE
-def smallest_angle_experiment(G,arcs,outFile,out_graphs_dir):
-	print("Smallest angle experiment")
-	with open(os.path.join(out_graphs_dir,"smallest_angle_exp",outFile), "w+") as f:
-		# Add headers to output file
-		f.write("n,min_angle,num_stratum,num_needed_stratum,ratio")
-		f.write("\r\n")
-		min_arc = min([a["length"] for a in arcs])
-
-		num_stratum = math.ceil((2*math.pi)/min_arc)
-		num_needed_stratum = len(arcs)
-		num_unneeded_stratum = num_stratum - num_needed_stratum
-		ratio = (num_needed_stratum / num_stratum)
-
-		f.write(str(len(G.nodes()))+","+str(min_arc)+","+str(num_stratum)+","+str(num_needed_stratum)+","+str(ratio))
-		f.write("\r\n")
-
-
-def overlap_exp(G,arcs,outFile):
-	for i in range(0, len(arcs)):
-		for j in range(0, len(arcs)):
-			if i != j:
-				overlap = False
-				if ((arcs[i]["start"]["location"] < arcs[i]["end"]["location"])
-					and (arcs[j]["start"]["location"] > arcs[i]["start"]["location"])
-					and (arcs[j]["start"]["location"] < arcs[i]["end"]["location"])):
-						overlap=True
-				elif ((arcs[i]["start"]["location"] < arcs[i]["end"]["location"])
-					and (arcs[j]["end"]["location"] > arcs[i]["start"]["location"])
-					and (arcs[j]["end"]["location"] < arcs[i]["end"]["location"])):
-						overlap=True
-				elif ((arcs[i]["start"]["location"] > arcs[i]["end"]["location"])
-					and ((arcs[j]["start"]["location"] > arcs[i]["start"]["location"])
-					or (arcs[j]["start"]["location"] < arcs[i]["end"]["location"]))):
-						overlap=True
-				elif ((arcs[i]["start"]["location"] > arcs[i]["end"]["location"])
-					and ((arcs[j]["end"]["location"] > arcs[i]["start"]["location"])
-					or (arcs[j]["end"]["location"] < arcs[i]["end"]["location"]))):
-						overlap=True
-				if overlap:
-					print "Overlap on graph "+str(outFile)
-					print("i start: "+str(arcs[i]["start"]["location"]) + " end " +str(arcs[i]["end"]["location"]))
-					print("j start: "+str(arcs[j]["start"]["location"]) + " end " +str(arcs[j]["end"]["location"]))
-					sys.exit(1)
 
 ######################################################
 ##### Functions for running different experiments ####
@@ -228,26 +81,19 @@ def exp_wrapper(args):
 
 def get_exp_graphs(data_type,graphs_dir,out_graphs_dir):
 	exp_list = []
+        manager = experiment.PathManager()
+
 	# random experiment
 	if data_type == 1 or data_type == 4:
-		for filename in os.listdir(os.path.join('graphs','random')):
-			G = nx.read_gpickle(os.path.join('graphs','random' , filename))
-			output_file = os.path.join("random", filename[:-8]+".txt")
-			exp_list.append({"G":G, "output_file":output_file})
+            exp_list = manager.random_paths()
+
 	# MPEG7 dataset
 	if data_type == 2 or data_type == 4:
-		for filename in os.listdir(os.path.join(graphs_dir,'mpeg7')):
-			G = nx.read_gpickle(os.path.join(graphs_dir,'mpeg7', filename))
-			output_file = os.path.join("mpeg7", filename[:-8]+".txt")
-			exp_list.append({"G":G, "output_file":output_file})
+            exp_list = manager.mpeg_paths()
+
 	# MNIST
 	if data_type == 3 or data_type == 4:
-		for filename in os.listdir(os.path.join(graphs_dir,'mnist')):
-			#test_output_file = "mnist/"+filename[:-8]+".txt"
-			#if not os.path.exists(out_graphs_dir+"/uniform_sample_exp/"+test_output_file):
-			G = nx.read_gpickle(os.path.join(graphs_dir,'mnist', filename))
-			output_file = os.path.join("mnist", filename[:-8]+".txt")
-			exp_list.append({"G":G, "output_file":output_file})
+            exp_list = manager.mnist_paths()
 
 	# Test experiment
 	if data_type == 5:
@@ -266,6 +112,7 @@ def get_exp_graphs(data_type,graphs_dir,out_graphs_dir):
 		output_file = "random/RAND_3_1.txt"
 		exp_list.append({"G":G2, "output_file":output_file})
 	return exp_list
+
 
 ######################################################
 ##### Main: for setting exp parameters ###############
@@ -311,7 +158,7 @@ if __name__ == "__main__":
 
 	# Run the experiments
 	# p.map(exp_wrapper, [(e["G"],e["output_file"],exp_type) for e in exp_list])
-	counter = 1 
+	counter = 1
 	for e in exp_list:
 		print("Graph "+str(counter)+" of "+str(len(exp_list)))
 		exp(e["G"], e["output_file"], exp_type, out_graphs_dir)

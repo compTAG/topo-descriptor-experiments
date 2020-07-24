@@ -91,7 +91,7 @@ dir_list = [
 class FolderMaker(object):
     def make_folders(self, dir_list):
       for path in dir_list:
-        make_folder(path)
+        self.make_folder(path)
 
     def make_folder(self, folder_path):
       if not os.path.exists(folder_path):
@@ -100,6 +100,30 @@ class FolderMaker(object):
       else:
         print("Directory %s already exists" % folder_path)
 
+
+class GraphPath(object):
+    def __init__(self, base):
+        self.base = base
+
+    @property
+    def graph_dir(self):
+        return os.path.join(self.base, 'graph')
+
+    @property
+    def image_dir(self):
+        return os.path.join(self.base, 'image')
+
+    @property
+    def not_used_filename(self):
+        return os.path.join(self.base, 'not-used.txt')
+
+
+    def make_dirs(self):
+        FolderMaker().make_folders([
+            self.base,
+            self.graph_dir,
+            self.image_dir,
+        ])
 
 
 class PathManager(object):
@@ -112,7 +136,6 @@ class PathManager(object):
     ANALYSIS_005_APPROX = 'analysis_005_approx'
     MPEG7 = 'mpeg7'
     MNIST = 'mnist'
-    RANDOM = 'random'
     FIGS = 'figs'
 
     def __init__(self, working_dir='tmp'):
@@ -126,13 +149,26 @@ class PathManager(object):
         return self.concat(self.working_dir, 'data')
 
     @property
-    def data_mpeg7_dir(self):
+    def mpeg7_data_dir(self):
         return self.concat(self.data_dir, 'mpeg7')
 
     @property
-    def data_mnist_dir(self):
+    def mnist_data_dir(self):
         return self.concat(self.data_dir, 'mnist')
 
+    @property
+    def graphs_dir(self):
+        return self.concat(self.working_dir, 'graphs')
+
+    @property
+    def rand_graphs(self):
+        p = self.concat(self.graphs_dir, 'random')
+        return GraphPath(p)
+
+    @property
+    def mpeg7_approx001_graphs(self):
+        p = self.concat(self.graphs_dir, 'mpeg7-001')
+        return GraphPath(p)
 
 
 

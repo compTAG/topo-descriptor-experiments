@@ -162,8 +162,8 @@ def get_pht_mpegSeven_data(file_path):
 # Takes an input filename from the mpeg7 dataset and loads it in
 # @param String filemane: the name of the mpeg7 file (.gif)
 # returns a img from the input gif file
-def get_mpegSeven_img(filename):
-    return np.array(Image.open(os.path.join("data","mpeg7", filename)))
+def get_mpegSeven_img(data_dir, filename):
+    return np.array(Image.open(os.path.join(data_dir, filename)))
 
 #EMNIST
 # load a data set and extract a list of images from emnist
