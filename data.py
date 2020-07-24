@@ -9,7 +9,7 @@ URL_MPEG7 = 'http://www.dabi.temple.edu/~shape/MPEG7/MPEG7dataset.zip'
 URL_EMNIST = 'http://www.itl.nist.gov/iaui/vip/cs_links/EMNIST/matlab.zip'
 
 
-def get_data(url, target_dir):
+def download(url, target_dir):
     # first check if we should do any downloading
     if os.path.exists(target_dir):
         print("Warning: directory \"%s\" already exists, not re-downloading dataset" % target_dir)
@@ -30,7 +30,7 @@ def get_data(url, target_dir):
 
 
 def get_mpeg7(url, target_dir):
-    dst = get_data(url, target_dir)
+    dst = download(url, target_dir)
 
     # clean bad files
     rat9 = os.path.join(target_dir, 'rat-09.gif')
@@ -39,15 +39,12 @@ def get_mpeg7(url, target_dir):
 
 
 def get_emnist(url, target_dir):
-    get_data(url, target_dir)
+    download(url, target_dir)
 
 
-def download_data(path_manager):
+def fetch(path_manager):
+    path.FolderMaker().make_folder(path_manager.data_dir)
+
     get_mpeg7(URL_MPEG7, path_manager.data_mpeg7_dir)
     get_emnist(URL_EMNIST, path_manager.data_mnist_dir)
-
-
-def get_data(path_manager):
-    path.FolderMaker().make_folder(path_manager.data_dir)
-    download_data(path_manager)
 
