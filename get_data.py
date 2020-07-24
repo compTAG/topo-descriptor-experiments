@@ -47,8 +47,7 @@ def download_data(path_manager):
     get_emnist(URL_EMNIST, path_manager.data_mnist_dir)
 
 
-def preprocess_data(path_manager):
+def get_data(path_manager):
     path.FolderMaker().make_folder(path_manager.data_dir)
     download_data(path_manager)
-
 
