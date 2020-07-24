@@ -59,15 +59,15 @@ dir_list = [
 def make_folders(dir_list):
   for path in dir_list:
     make_folder(path)
-    
+
 def make_folder(folder_path):
   if not os.path.exists(folder_path):
     os.makedirs(folder_path)
     print("Directory %s created" % folder_path)
-  else:    
+  else:
     print("Directory %s already exists" % folder_path)
 
-    
+
 def get_data(url, target_dir, data_set_name):
   # first check if we should do any downloading
   if os.path.exists(os.path.join(target_dir, data_set_name)):
@@ -81,25 +81,25 @@ def get_data(url, target_dir, data_set_name):
     with ZipFile(data, 'r') as zip_ref:
       zip_ref.extractall(tmp)
       temp_dir = os.path.dirname(zip_ref.namelist()[1])
-      
+
       # move and rename
       dst = os.path.join(target_dir, data_set_name)
       os.rename(os.path.join(tmp,temp_dir), dst)
       print("Directory " , dst,  " Created ")
 
   return dst
-    
+
 def get_mpeg7(url, target_dir):
   dst = get_data(url, target_dir, 'mpeg7')
-  
+
   # clean bad files
   if os.path.exists(os.path.join('data', 'mpeg7', 'rat-09.gif')):
     os.remove('data/mpeg7/rat-09.gif')
-  
+
 
 def get_emnist(url, target_dir):
   dst = get_data(url, target_dir, 'emnist')
-    
+
 
 def download_data():
   get_mpeg7(URL_MPEG7, dir_data)
