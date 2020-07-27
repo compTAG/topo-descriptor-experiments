@@ -114,8 +114,6 @@ def get_map_data(url, target_dir, data_set_name):
 
       #Move files up one directory and delete unwanted data folder
       maps_dir = os.path.join(target_dir,data_set_name,'maps')
-
-      #shutil.rmtree(tracks_dir)
       shutil.move(os.path.join(target_dir,data_set_name,'data','maps'), maps_dir)
       if os.path.exists(os.path.join(target_dir,data_set_name, 'data')):
         os.rmdir(os.path.join(target_dir,data_set_name, 'data'))
@@ -161,4 +159,3 @@ def preprocess_data(dir_list):
     make_folders(dir_list)
     download_data()
 
-get_maps(URL_MAP_CONSTRUCTION, dir_data)
