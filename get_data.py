@@ -100,12 +100,12 @@ def get_map_data(url, target_dir, data_set_name):
   with tempfile.TemporaryDirectory() as tmp:
     data = wget.download(url,tmp)
 
-    # Unzip data and store in data folder
+    # Pull only maps data
     with ZipFile(data, 'r') as zip_ref:
       file_list = zip_ref.namelist()
       temp_dir = os.path.dirname(zip_ref.namelist()[1])
       for file in file_list:
-        if file.endswith('.zip'):
+        if file.startswith('pfoser-mapconstruction-bf67921/data/maps/'):
           zip_ref.extract(file,tmp)
       
       # move and rename
@@ -113,10 +113,9 @@ def get_map_data(url, target_dir, data_set_name):
       os.rename(os.path.join(tmp,temp_dir), dst)
 
       #Move files up one directory and delete unwanted data folder
-      tracks_dir = os.path.join(target_dir,data_set_name,'data','tracks')
       maps_dir = os.path.join(target_dir,data_set_name,'maps')
 
-      shutil.rmtree(tracks_dir)
+      #shutil.rmtree(tracks_dir)
       shutil.move(os.path.join(target_dir,data_set_name,'data','maps'), maps_dir)
       if os.path.exists(os.path.join(target_dir,data_set_name, 'data')):
         os.rmdir(os.path.join(target_dir,data_set_name, 'data'))
@@ -129,13 +128,13 @@ def get_map_data(url, target_dir, data_set_name):
   return dst
 
 def unzip_contents(dir_name):
-  for item in os.listdir(dir_name): # loop through items in dir
-    if item.endswith('.zip'): # check for ".zip" extension
-        file_name = os.path.join(dir_name, item) # get full path of files
-        zip_ref = ZipFile(file_name) # create zipfile object
-        zip_ref.extractall(dir_name) # extract file to dir
-        zip_ref.close() # close file
-        os.remove(file_name) # delete zipped file
+  for item in os.listdir(dir_name): 
+    if item.endswith('.zip'): 
+        file_name = os.path.join(dir_name, item) 
+        zip_ref = ZipFile(file_name) 
+        zip_ref.extractall(dir_name)
+        zip_ref.close()
+        os.remove(file_name)
     
 def get_mpeg7(url, target_dir):
   dst = get_data(url, target_dir, 'mpeg7')
@@ -163,4 +162,3 @@ def preprocess_data(dir_list):
     download_data()
 
 get_maps(URL_MAP_CONSTRUCTION, dir_data)
-
