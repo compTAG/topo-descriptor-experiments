@@ -113,10 +113,10 @@ def get_map_data(url, target_dir, data_set_name):
       os.rename(os.path.join(tmp,temp_dir), dst)
 
       #Move files up one directory and delete unwanted data folder
-      tracks_dir = os.path.join(target_dir,data_set_name,'tracks')
+      tracks_dir = os.path.join(target_dir,data_set_name,'data','tracks')
       maps_dir = os.path.join(target_dir,data_set_name,'maps')
 
-      shutil.move(os.path.join(target_dir,data_set_name,'data','tracks'),tracks_dir)
+      shutil.rmtree(tracks_dir)
       shutil.move(os.path.join(target_dir,data_set_name,'data','maps'), maps_dir)
       if os.path.exists(os.path.join(target_dir,data_set_name, 'data')):
         os.rmdir(os.path.join(target_dir,data_set_name, 'data'))
@@ -124,7 +124,6 @@ def get_map_data(url, target_dir, data_set_name):
       print("Directory " , dst,  " Created ")
 
   #Unzip files
-  unzip_contents(tracks_dir)
   unzip_contents(maps_dir)
 
   return dst
@@ -163,5 +162,5 @@ def preprocess_data(dir_list):
     make_folders(dir_list)
     download_data()
 
-
+get_maps(URL_MAP_CONSTRUCTION, dir_data)
 
