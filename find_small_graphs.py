@@ -8,17 +8,17 @@ output_dir = "output_005_approx"
 
 def get_mnist():
 	exp_list=[]
-	for filename in os.listdir(graphs_dir+'/mnist/'):
-		G = nx.read_gpickle(graphs_dir+'/mnist/' + filename)
-		output_file = "mnist/"+filename[:-8]+".txt"
+	for filename in os.listdir(os.path.join(graphs_dir,'mnist')):
+		G = nx.read_gpickle(os.path.join(graphs_dir,'mnist',  filename))
+		output_file = os.path.join("mnist", filename[:-8]+".txt")
 		exp_list.append({"G":G, "output_file":output_file})
 	return exp_list
 
 def get_mpeg7():
 	exp_list=[]
-	for filename in os.listdir(graphs_dir+'/mpeg7/'):
-		G = nx.read_gpickle(graphs_dir+'/mpeg7/' + filename)
-		output_file = "mpeg7/"+filename[:-8]+".txt"
+	for filename in os.listdir(os.path.join(graphs_dir,'mpeg7')):
+		G = nx.read_gpickle(os.path.join(graphs_dir,'mpeg7', filename))
+		output_file = os.path.join("mpeg7", filename[:-8]+".txt")
 		exp_list.append({"G":G, "output_file":output_file})
 	return exp_list
 
