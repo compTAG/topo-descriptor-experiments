@@ -9,8 +9,8 @@ def find_max(G):
 # MNIST
 x_list_mnist = []
 y_list_mnist = []
-for filename in os.listdir('graphs/mnist/'):
-	G = nx.read_gpickle('graphs/mnist/' + filename)
+for filename in os.listdir(os.path.join('graphs', 'mnist')):
+	G = nx.read_gpickle(os.path.join('graphs', 'mnist', filename))
 	x,y = find_max(G)
 	x_list_mnist.append(x)
 	y_list_mnist.append(y)
@@ -22,8 +22,8 @@ print(max(y_list_mnist))
 #MPEG7
 x_list_mpeg7 = []
 y_list_mpeg7 = []
-for filename in os.listdir('graphs/mpeg7/'):
-	G = nx.read_gpickle('graphs/mpeg7/' + filename)
+for filename in os.listdir(os.path.join('graphs','mpeg7')):
+	G = nx.read_gpickle(os.path.join('graphs','mpeg7', filename))
 	x,y = find_max(G)
 	if x == 1108.0836907535127 or y == 1108.0836907535127:
 		print filename
@@ -37,8 +37,8 @@ print(max(y_list_mpeg7))
 #Rand
 x_list_rand = []
 y_list_rand = []
-for filename in os.listdir('graphs_random/'):
-	G = nx.read_gpickle('graphs_random/' + filename)
+for filename in os.listdir(os.path.join('graphs_random')):
+	G = nx.read_gpickle(os.path.join('graphs_random' , filename))
 	x,y = find_max(G)
 	x_list_rand.append(x)
 	y_list_rand.append(y)
