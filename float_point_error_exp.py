@@ -7,7 +7,7 @@ from main import get_exp_graphs
 # @param Networkx Graph G
 # @param String outFile: the file to write experiment results to
 def error_exp(G, outFile):
-	with open("output_005_approx/error_exp/"+outFile, "w+") as f:
+	with open(os.path.join("output_005_approx", "error_exp", outFile), "w+") as f:
 		minimum = min([v[1]['v'].get_x() for v in list(G.nodes(data=True))])
 		maximum = max([v[1]['v'].get_x() for v in list(G.nodes(data=True))])
 		width = maximum-minimum
