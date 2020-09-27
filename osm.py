@@ -7,8 +7,124 @@ import matplotlib.cm as cm
 import matplotlib.colors as colors
 import matplotlib.pyplot as plt
 import math
+import planar
+from planar.line import LineSegment
+from planar.vector import Vec2
 from shapely.geometry import Polygon
+import pickle
+from operator import itemgetter, attrgetter, methodcaller
 
+class Node:
+    def __init__(self, osmid, x, y, edges):
+        self.osmid = osmid
+        self.x = x
+        self.y = y
+        self.edges = edges
+        self.theta = 0
+        self.angles = []
+        self.distances = []
+
+    def get_osmid(self):
+        return self.osmid
+
+    def get_x(self):
+        return self.x
+
+    def get_y(self):
+        return self.y
+
+    def get_edges(self):
+        return self.edges
+
+    def get_theta(self):
+        return self.theta
+
+    def delete_edges(self):
+        #Delete duplicate edges if they exist
+        for e_1, e_2 in zip(self.edges, self.edges[1:]):
+            if(e_1.osmid == e_2.osmid):
+                e_2.osmid = -1
+
+        bad_edges = []
+        for i in range(len(self.edges)):
+            if (self.edges[i].get_osmid() == -1):
+                bad_edges.append("e"+str(i))
+            
+        self.edges.drop(labels=bad_edges,inplace=True)
+
+
+    def find_thetas(self):
+        for edge in self.edges:
+            x_1 = edge.x.values[0]
+            y_1 = edge.y.values[0]
+
+            x_2 = x_1 - self.x.values[0]
+            y_2 = y_1 - self.y.values[0]
+            edge.theta = cart2pol(x_2,y_2)
+        self.edges = sorted(self.edges, key=lambda x: x.theta, reverse=True)
+
+    def get_angles(self):
+        for e_1, e_2 in zip(self.edges, self.edges[1:]):
+                vert = [self.x.values[0], self.y.values[0]]
+                p_1 = [e_1.x.values[0], e_1.y.values[0]]
+                p_2 = [e_2.x.values[0], e_2.y.values[0]]
+
+                #print(np.subtract(p_1, vert))
+                
+                a = np.subtract(p_1, vert)
+                b = np.subtract(p_2, vert)
+
+                dot = np.dot(a,b)
+                mag_a = np.linalg.norm(a)
+                mag_b = np.linalg.norm(b)
+                radians = math.acos((dot)/(mag_a*mag_b))
+                degrees = math.degrees(radians)
+                self.angles.append(degrees)
+        for e_1, e_2 in zip(self.edges, self.edges[-1:]):
+                vert = [self.x.values[0], self.y.values[0]]
+                p_1 = [e_1.x.values[0], e_1.y.values[0]]
+                p_2 = [e_2.x.values[0], e_2.y.values[0]]
+
+                #print(np.subtract(p_1, vert))
+                
+                a = np.subtract(p_1, vert)
+                b = np.subtract(p_2, vert)
+
+                dot = np.dot(a,b)
+                mag_a = np.linalg.norm(a)
+                mag_b = np.linalg.norm(b)
+                radians = math.acos((dot)/(mag_a*mag_b))
+                degrees = math.degrees(radians)
+                self.angles.append(degrees)
+
+        #print(self.angles)          
+      
+    def get_distances(self):
+        for e_1, e_2 in zip(self.edges, self.edges[1:]):
+            p_1 = planar.Vec2(self.x.values[0], self.y.values[0])
+            p_2 = planar.Vec2(e_1.x.values[0], e_1.y.values[0])
+            p_3 = planar.Vec2(e_2.x.values[0], e_2.y.values[0])
+
+            anchor = p_2
+            vector = p_3 - p_2
+            segment = planar.line.LineSegment(anchor,vector)
+            distance = segment.distance_to(p_1)
+            self.distances.append(distance)
+
+        for e_1, e_2 in zip(self.edges, self.edges[-1:]):
+            p_1 = planar.Vec2(self.x.values[0], self.y.values[0])
+            p_2 = planar.Vec2(e_1.x.values[0], e_1.y.values[0])
+            p_3 = planar.Vec2(e_2.x.values[0], e_2.y.values[0])
+
+            anchor = p_2
+            vector = p_3 - p_2
+            segment = planar.line.LineSegment(anchor,vector)
+            distance = segment.distance_to(p_1)
+            self.distances.append(distance)
+  
+        #print(self.distances) 
+       
+            
 
 def find_triangles(G):
     G_proj = ox.project_graph(G)
@@ -18,102 +134,152 @@ def find_triangles(G):
 
     return triad_cliques, nodes_proj
 
-def get_angles(triad_cliques, nodes_proj):
-    triangles = {}
+#check if any matching triangles
+def check_duplicates(G):
+    G_proj = ox.project_graph(G)
+    nodes_proj = ox.graph_to_gdfs(G_proj, edges=False)
+    all_cliques= nx.enumerate_all_cliques(G)
+    triad_cliques = [set(x) for x in all_cliques if len(x)==3 ]
     for i in range(len(triad_cliques)):
-        angles = []
-        triangles[i] = {}
-        triangles[i]['nodes'] = triad_cliques[i]
-        node_1 = nodes_proj.loc[nodes_proj['osmid'] == triad_cliques[i][0]]
-        node_2 = nodes_proj.loc[nodes_proj['osmid'] == triad_cliques[i][1]]
-        node_3 = nodes_proj.loc[nodes_proj['osmid'] == triad_cliques[i][2]]
-
-        p_1 = [node_1.iloc[0]['x'], node_1.iloc[0]['y']]
-        p_2 = [node_2.iloc[0]['x'], node_2.iloc[0]['y']]
-        p_3 = [node_3.iloc[0]['x'], node_3.iloc[0]['y']]
-
-        triangles[i]['positions'] = [p_1,p_2,p_3]
-
-        vectors = [[np.subtract(p_2, p_1),np.subtract(p_3, p_1)],
-                [np.subtract(p_1, p_2),np.subtract(p_3, p_2)],
-                [np.subtract(p_1, p_3),np.subtract(p_2, p_3)]]
-        for vector in vectors: 
-            a= vector[0]
-            b= vector[1]
-            dot = np.dot(a,b)
-            mag_a = np.linalg.norm(a)
-            mag_b = np.linalg.norm(b)
-            radians = math.acos((dot)/(mag_a*mag_b))
-            degrees = math.degrees(radians)
-            angles.append(degrees)
-        triangles[i]['angles'] = angles
-    print(triangles)
-    return triangles
+        for j in range(i+1,len(triad_cliques)):
+            if triad_cliques[i] == triad_cliques[j]:
+                print("Duplicate")
 
 
-def get_distance(data,output):
-    max_angle = np.max(data['angles'])
-    print(max_angle)
-    output[i] = {}
-    output[i]['max_angle'] = max_angle
-    angle_position = data['angles'].index(max_angle)
-    vertex = data['nodes'][angle_position]
-    p_1 = [data['positions'][angle_position][0],data['positions'][angle_position][1]]
-
-    
-    data['positions'].pop(angle_position)
-   
-
-    p_2 = [data['positions'][0][0],data['positions'][0][1]]
-    p_3 = [data['positions'][1][0],data['positions'][1][1]]
-    
-
-    distance = abs((p_3[1]-p_2[1])*p_1[0] - (p_3[0]-p_2[0])*p_1[1] + (p_3[0]*p_2[1]) 
-        - (p_3[1]*p_2[0]))/math.sqrt(((p_3[1]-p_2[1])**2) + ((p_3[0]-p_2[0])**2) )
-    
-
-    output[i]['distance'] = distance
-    return output
-
-'''
-G = nx.read_gpickle("graphs/maps/BerlinGermany.gpickle")
-G_1 = G.to_undirected()
-
-triangles, nodes_proj = find_triangles(G_1)
-
-data = get_angles(triangles, nodes_proj)
 
 
-output = {}
-for i in range(len(data)):
-    get_distance(data[i],output)
-'''
-'''
-df = pd.DataFrame.from_dict(output, orient='index')
-print(df.head())
+def cart2pol(x, y):
+    rho = np.sqrt(x**2 + y**2)
+    phi = np.arctan2(y, x)
+    return(phi)
 
-plt.scatter(df['max_angle'], df['distance'])
-plt.xlabel("Max Angle from each Triangle")
-plt.ylabel("Distance to Edge")
-plt.show()
-'''
+#Find all edges for each node
+def build_df(city_map):
+    G = nx.read_gpickle(city_map)
+    G = G.to_undirected()
+    node_edges = {}
+    G_proj = ox.project_graph(G)
+    nodes_proj, gdf_edges = ox.graph_to_gdfs(G_proj, edges=True, nodes = True)
+
+    df = nodes_proj[['osmid', 'x', 'y']]
+
+    all_nodes = list(nodes_proj['osmid'])
+    node_edges = {}
+    for i in range(len(all_nodes)):
+        node_edges[i] = G.edges(all_nodes[i])
 
 
+    df_2 = pd.DataFrame(node_edges.values())
+
+    df_2[['osmid','edge_1']] = pd.DataFrame(df_2[0].tolist(), index= df_2.index)
+    df_2 = df_2.drop(['edge_1'], axis=1)
+
+    df = pd.merge(df, df_2, on="osmid")
+
+    df = df.stack().unstack(fill_value=(-1, -1))
+
+    edge_df = df[['osmid', 'x', 'y']].copy()
+    for i in range(len(df.columns) - 3):
+        edge_df[['test','e' + str(i)]] = pd.DataFrame(df[i].tolist(), index= df.index)
+        edge_df = edge_df.drop(['test'], axis=1)
+
+
+    print(edge_df.head())
+    #edge_df.to_pickle("nodes_edges.pkl")
+
+test = pd.read_pickle("nodes_edges.pkl")
+print(test.head())
+
+city_map = "graphs/maps/BerlinGermany.gpickle"
+build_df(city_map)
+
+
+
+def create_edge_node(df, osmid, edges):
+    x = df.loc[df['osmid'] == osmid]['x']
+    y = df.loc[df['osmid'] == osmid]['y']
+    node = Node(osmid,x,y,edges)
+    return node
 
 '''
-Plot nodes from all triangles vs actual graph of Berlin
-G_proj = ox.project_graph(G_1)
-nodes_proj = ox.graph_to_gdfs(G_proj, edges=False)
-all_cliques= nx.enumerate_all_cliques(G_1)
-triad_cliques = [x for x in all_cliques if len(x)==3 ]
-nodes = []
-for sublist in triad_cliques:
-    for item in sublist:
-        nodes.append(item)
-print(nodes)
-test = G_1.subgraph(nodes)
-fig, ax = ox.plot_graph(test)
-fig, ax = ox.plot_graph(G)
+pd.set_option('display.max_rows', None)
+pd.set_option('display.max_columns', None)
+pd.set_option('display.width', None)
+pd.set_option('display.max_colwidth', None)
+
+df_2 = pd.read_pickle("nodes_edges.pkl")
+df = df_2[df_2['e1'] != -1]
+
+for column in df.columns[3:]:
+    df[column] = df.apply(lambda row: create_edge_node(df_2, row[column], []), axis =1)
+
+df['vertex'] = df.apply(lambda row: create_edge_node(df_2, row['osmid'], row[3:]), axis =1)
+
+
+df.to_pickle("final_df.pkl")
+
 '''
+
+'''
+df = pd.read_pickle("final_df.pkl")
+pd.set_option('display.max_rows', None)
+pd.set_option('display.max_columns', None)
+pd.set_option('display.width', None)
+pd.set_option('display.max_colwidth', None)
+
+
+
+df['vertex'].apply(lambda row: row.delete_edges())
+df['vertex'].apply(lambda row: row.find_thetas())
+df['vertex'].apply(lambda row: row.get_angles())
+df['vertex'].apply(lambda row: row.get_distances())
+df.to_pickle("angles_distances.pkl")
+'''
+'''
+df = pd.read_pickle("angles_distances.pkl")
+data = df['vertex']
+
+#print(data.head())
+
+result_df = pd.DataFrame(columns = ["angle", "distance"])
+
+def results(data,result_df):
+    for row in data.iterrows():
+        for angle in row[1]['vertex'].angles:
+            result_df = result_df.append({'angle': angle},ignore_index=True)
+        for distance in row[1]['vertex'].distances:
+            result_df = result_df.append({'distance': distance}, ignore_index=True)
+
+    return result_df
+
+
+test = results(df,result_df)
+
+print(test.head())
+test.to_pickle("final_results.pkl")
+'''
+
+'''
+data = df[df['osmid'] == 6269042792]
+
+vertex = data['vertex'].values[0]
+
+vertex.delete_edges()
+
+edges = vertex.edges
+
+for edge in edges:
+    print(edge.osmid)
+'''
+
+
+
+
+
+
+
+
+
+
 
 
