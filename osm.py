@@ -95,9 +95,11 @@ class Node:
                 mag_b = np.linalg.norm(b)
                 radians = math.acos((dot)/(mag_a*mag_b))
                 degrees = math.degrees(radians)
+                if(math.isnan(degrees)):
+                    print(self.osmid)
                 self.angles.append(degrees)
 
-        #print(self.angles)          
+        print(self.angles)          
       
     def get_distances(self):
         for e_1, e_2 in zip(self.edges, self.edges[1:]):
@@ -109,6 +111,8 @@ class Node:
             vector = p_3 - p_2
             segment = planar.line.LineSegment(anchor,vector)
             distance = segment.distance_to(p_1)
+            if(math.isnan(distance)):
+                print(self.osmid)
             self.distances.append(distance)
 
         for e_1, e_2 in zip(self.edges, self.edges[-1:]):
@@ -122,7 +126,7 @@ class Node:
             distance = segment.distance_to(p_1)
             self.distances.append(distance)
   
-        #print(self.distances) 
+        print(self.distances) 
        
             
 
@@ -166,7 +170,12 @@ def build_df(city_map):
     all_nodes = list(nodes_proj['osmid'])
     node_edges = {}
     for i in range(len(all_nodes)):
-        node_edges[i] = G.edges(all_nodes[i])
+        for edge in G.edges(all_nodes[i]):
+            if (edge == all_nodes[i]):
+                break
+        else: 
+            node_edges[i] = G.edges(all_nodes[i])
+            continue
 
 
     df_2 = pd.DataFrame(node_edges.values())
@@ -185,13 +194,13 @@ def build_df(city_map):
 
 
     print(edge_df.head())
-    #edge_df.to_pickle("nodes_edges.pkl")
+    edge_df.to_pickle("nodes_edges.pkl")
 
-test = pd.read_pickle("nodes_edges.pkl")
-print(test.head())
+#test = pd.read_pickle("nodes_edges.pkl")
+#print(test.head())
 
-city_map = "graphs/maps/BerlinGermany.gpickle"
-build_df(city_map)
+#city_map = "graphs/maps/BerlinGermany.gpickle"
+#build_df(city_map)
 
 
 
@@ -208,7 +217,7 @@ pd.set_option('display.width', None)
 pd.set_option('display.max_colwidth', None)
 
 df_2 = pd.read_pickle("nodes_edges.pkl")
-df = df_2[df_2['e1'] != -1]
+df = df_2[df_2['e1'] != -1].copy()
 
 for column in df.columns[3:]:
     df[column] = df.apply(lambda row: create_edge_node(df_2, row[column], []), axis =1)
@@ -217,8 +226,8 @@ df['vertex'] = df.apply(lambda row: create_edge_node(df_2, row['osmid'], row[3:]
 
 
 df.to_pickle("final_df.pkl")
-
 '''
+
 
 '''
 df = pd.read_pickle("final_df.pkl")
@@ -235,42 +244,47 @@ df['vertex'].apply(lambda row: row.get_angles())
 df['vertex'].apply(lambda row: row.get_distances())
 df.to_pickle("angles_distances.pkl")
 '''
+
+
 '''
-df = pd.read_pickle("angles_distances.pkl")
-data = df['vertex']
+#df = pd.read_pickle("angles_distances.pkl")
+#data = df['vertex']
 
 #print(data.head())
 
 result_df = pd.DataFrame(columns = ["angle", "distance"])
+angles = pd.DataFrame(columns = ["angle"])
+distances = pd.DataFrame(columns = ["distance"])
 
-def results(data,result_df):
+def results(data,result_df, angles, distances):
     for row in data.iterrows():
         for angle in row[1]['vertex'].angles:
-            result_df = result_df.append({'angle': angle},ignore_index=True)
+            angles= angles.append({'angle': angle},ignore_index=True)
         for distance in row[1]['vertex'].distances:
-            result_df = result_df.append({'distance': distance}, ignore_index=True)
+            distances = distances.append({'distance': distance}, ignore_index=True)
 
+    result_df = angles.join(distances, how='outer')
     return result_df
 
+pd.set_option('display.max_rows', None)
+pd.set_option('display.max_columns', None)
+pd.set_option('display.width', None)
+pd.set_option('display.max_colwidth', None)
 
-test = results(df,result_df)
-
-print(test.head())
-test.to_pickle("final_results.pkl")
+results = results(df,result_df,angles,distances)
+print(results.head())
+results.to_pickle("final_results.pkl")
 '''
 
-'''
-data = df[df['osmid'] == 6269042792]
+df = pd.read_pickle("final_results.pkl")
 
-vertex = data['vertex'].values[0]
+#df= df[df['distance'] < 1000]
 
-vertex.delete_edges()
+df.plot(kind='scatter',x='angle',y='distance',color='black')
+plt.show()
 
-edges = vertex.edges
 
-for edge in edges:
-    print(edge.osmid)
-'''
+
 
 
 
