@@ -14,7 +14,9 @@ from shapely.geometry import Polygon
 from shapely.geometry import Point
 import pickle
 from operator import itemgetter, attrgetter, methodcaller
-
+import seaborn as sns
+from matplotlib.ticker import FormatStrFormatter
+import os
 
 class Node:
     def __init__(self, osmid, x, y, edges):
@@ -25,6 +27,7 @@ class Node:
         self.theta = 0
         self.angles = []
         self.distances = []
+        self.vector_lengths = []
 
     def get_osmid(self):
         return self.osmid
@@ -57,6 +60,7 @@ class Node:
 
     def find_thetas(self):
         for edge in self.edges:
+            print(edge.x.values)
             x_1 = edge.x.values[0]
             y_1 = edge.y.values[0]
 
@@ -123,6 +127,7 @@ class Node:
             if(math.isnan(distance)):
                 print(self.osmid)
             self.distances.append(distance)
+            self.vector_lengths.append(segment.length)
 
         if (len(self.edges) > 2):
             for e_1, e_2 in zip(self.edges, self.edges[-1:]):
@@ -135,8 +140,8 @@ class Node:
                 segment = planar.line.LineSegment(anchor,vector)
                 distance = segment.distance_to(p_1)
                 self.distances.append(distance)
-  
-        print(self.distances) 
+                self.vector_lengths.append(segment.length)
+        #print(self.distances) 
        
             
 
@@ -153,8 +158,8 @@ def create_edge_node(df, osmid, edges):
     return node
 
 #Find all edges for each node
-def build_df(city,state):
-    G = ox.graph_from_place(','.join([city, state]), simplify=False, network_type='drive')
+def build_df(city,state, country):
+    G = ox.graph_from_place(','.join([city, state, country]), simplify=False, network_type='drive')
     G = G.to_undirected()
     node_edges = {}
     G_proj = ox.project_graph(G)
@@ -202,32 +207,20 @@ def build_df(city,state):
 
     df.to_pickle('_'.join([city, state]) +".pkl")
 
+#ox.config(log_console=True, use_cache=True)
+#build_df("Bozeman", "MT", "USA")
 
-#build_df("Berlin", "Germany")
-
-
-
-def create_edge_node(df, osmid, edges):
-    x = df.loc[df['osmid'] == osmid]['x']
-    y = df.loc[df['osmid'] == osmid]['y']
-    node = Node(osmid,x,y,edges)
-    return node
 
 '''
 pd.set_option('display.max_rows', None)
 pd.set_option('display.max_columns', None)
 pd.set_option('display.width', None)
 pd.set_option('display.max_colwidth', None)
-
 df_2 = pd.read_pickle("bozeman_nodes_edges.pkl")
 df = df_2[df_2['e1'] != -1].copy()
-
 for column in df.columns[3:]:
     df[column] = df.apply(lambda row: create_edge_node(df_2, row[column], []), axis =1)
-
 df['vertex'] = df.apply(lambda row: create_edge_node(df_2, row['osmid'], row[3:]), axis =1)
-
-
 df.to_pickle("bozeman_final_df.pkl")
 '''
 
@@ -250,71 +243,85 @@ df.to_pickle("bozeman_angles_distances.pkl")
 
 
 '''
-df = pd.read_pickle("Berlin_Germany.pkl")
+df = pd.read_pickle("bozeman_angles_distances.pkl")
 data = df['vertex']
 
 #print(data.head())
 
-result_df = pd.DataFrame(columns = ["osmid", "angle", "distance"])
+result_df = pd.DataFrame(columns = ["osmid", "angle", "distance","vector_length"])
 angles = pd.DataFrame(columns = ["angle"])
 distances = pd.DataFrame(columns = ["distance"])
+vector_lengths = pd.DataFrame(columns = ["vector_length"])
 
-def results(data,result_df, angles, distances):
+def results(data,result_df, angles, distances, vector_lengths):
     for row in data.iterrows():
         for angle in row[1]['vertex'].angles:
-            angles = angles.append({'osmid': row[1]['osmid'], 'angle': angle}, ignore_index=True)
+            angles = angles.append({'osmid': str(row[1]['osmid']), 'angle': angle}, ignore_index=True)
             #angles = angles.append({'angle': angle}, ignore_index=True)
         for distance in row[1]['vertex'].distances:
             distances = distances.append({'distance': distance}, ignore_index=True)
 
+        for vector_length in row[1]['vertex'].vector_lengths:
+            vector_lengths = vector_lengths.append({'vector_length': vector_length}, ignore_index=True)
+
     result_df = angles.join(distances, how='outer')
+    result_df = result_df.join(vector_lengths, how='outer')
     return result_df
 
-results = results(df,result_df,angles,distances)
+results = results(df,result_df,angles,distances,vector_lengths)
 results = results.sort_values(by=['angle']).reset_index(drop=True)
 results['observations'] = len(results) - results.index.values
 results['max'] = results.angle.apply(lambda row: results['distance'][(results['angle'] >= row)].max())
-results.to_pickle("Berlin_Germany_final_results.pkl")
+results.to_pickle("bozeman_final_results.pkl")
 '''
 
 
+df = pd.read_pickle("bozeman_final_results.pkl")
+
+df = df[["angle","distance","vector_length"]]
+
+# Function to color scatter plot by vector length
+def color_vector_length(df, city):
+  sns.set()
+  ax = sns.scatterplot(data=df, x="angle", y="distance", hue="vector_length", palette="crest",linewidth=0 )
+
+  norm = plt.Normalize(df['vector_length'].min(), df['vector_length'].max())
+  sm = plt.cm.ScalarMappable(cmap="crest", norm=norm)
+  sm.set_array([])
+
+  # Remove the legend and add a colorbar
+  ax.get_legend().remove()
+  ax.figure.colorbar(sm)
+
+  plt.savefig(os.path.join('graphs','maps',city)+"_colored.png")
 
 
-df = pd.read_pickle("Berlin_Germany_final_results.pkl")
-
-#df.plot(kind='scatter',x='angle',y='distance',color='black')
-#plt.title('Berlin Scatter')
-#plt.xlabel('Angle')
-#plt.ylabel('Distance')
-
-#plt.plot(df.index, df['max'])
-#plt.title('Berlin')
-#plt.xlabel('n')
-#plt.ylabel('Max Beyond B_n')
-df.plot.line(x='observations', y = 'angle')
-plt.title('Berlin')
-plt.xlabel('n')
-plt.ylabel('Count >= B_n')
-plt.show()
-
-'''
-fig, (ax1, ax2, ax3) = plt.subplots(3)
-ax1.plot(x, y)
-ax2.plot(x, -y)
-
-df.plot.line(x='observations', y = 'angle')
-#plt.show()
-
-#df.plot(kind='scatter',x='angle',y='distance',color='black')
-#plt.show()
+#Angle distance scatter plot
+def scatter_plot(df,city):
+  df.plot(kind='scatter',x='angle',y='distance',color='black')
+  plt.title(city+ ' Scatter')
+  plt.xlabel('Angle')
+  plt.ylabel('Distance')
+  plt.savefig(os.path.join('graphs','maps',city)+"_scatter.png")
 
 
-print(df.head())
-df = df.drop_duplicates(subset=['max'])
+#Max beyond 
+def max_beyond(df,city):
+  plt.plot(df.index, df['max'])
+  plt.title('Berlin')
+  plt.xlabel('n')
+  plt.ylabel('Max Beyond B_n')
+  plt.savefig(os.path.join('graphs','maps',city)+"_max_beyond.png")
 
-plt.plot(df.index, df['max'])
-plt.show()
-'''
+
+#Count greater than B_n
+def greater_bn(df,city)
+  df.plot.line(x='observations', y = 'angle')
+  plt.title('Berlin')
+  plt.xlabel('n')
+  plt.ylabel('Count >= B_n')
+  plt.savefig(os.path.join('graphs','maps',city)+"_count.png")
+
 
 
 
