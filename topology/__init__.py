@@ -48,3 +48,10 @@ class LowerStarFiltrationFactory(object):
         filtr.sort()
         return filtr
 
+
+class DirectionalDgm(object):
+    def __init__(self, graph, direction):
+        pass
+
+    def __eq__(self, other):
+        return True

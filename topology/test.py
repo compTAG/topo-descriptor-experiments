@@ -74,4 +74,7 @@ class TestDirectionDgm(unittest.TestCase):
         edges2 = ( (1, 2), )
         graph2 = create_graph(verts, edges2)
 
-        self.assertTrue(True)
+        direction = (1,0)
+        dgm1 = topology.DirectionalDgm(graph1, direction)
+        dgm2 = topology.DirectionalDgm(graph2, direction)
+        self.assertTrue(dgm1 == dgm2)
