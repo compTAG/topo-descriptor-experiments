@@ -51,7 +51,20 @@ class LowerStarFiltrationFactory(object):
 
 class DirectionalDiagram(object):
     def __init__(self, graph, direction):
-        pass
+        filtr = LowerStarFiltrationFactory(direction).create(graph)
+        m = dionysus.homology_persistence(filtr)
+        self._dgms = dionysus.init_diagrams(m, filtr)
+
+    def _dgm_equal(self, dgm1, dgm2):
+        if len(dgm1) != len(dgm2):
+            return False
+
+        for i in range(len(dgm1)):
+            if dgm1[i] != dgm2[i]:
+                return False
+
+        return True
 
     def __eq__(self, other):
-        return True
+        return self._dgm_equal(self._dgms[0], other._dgms[0]) and \
+            self._dgm_equal(self._dgms[1], other._dgms[1])

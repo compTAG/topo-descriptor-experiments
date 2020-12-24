@@ -61,7 +61,7 @@ class TestLowerStartFiltrationFactory(unittest.TestCase):
 
 
 class TestDirectionDiagram(unittest.TestCase):
-    def test_equal(self):
+    def init_graphs(self):
         verts = (
             (0,0),
             (2,1),
@@ -74,7 +74,20 @@ class TestDirectionDiagram(unittest.TestCase):
         edges2 = ( (1, 2), )
         graph2 = create_graph(verts, edges2)
 
-        direction = (1,0)
+        return graph1, graph2
+
+    def test_equal_when_equal(self):
+        graph1, graph2 = self.init_graphs()
+
+        direction = (0,1)
         dgm1 = topology.DirectionalDiagram(graph1, direction)
         dgm2 = topology.DirectionalDiagram(graph2, direction)
         self.assertTrue(dgm1 == dgm2)
+
+    def test_equal_when_not_equal(self):
+        graph1, graph2 = self.init_graphs()
+
+        direction = (1,0)
+        dgm1 = topology.DirectionalDiagram(graph1, direction)
+        dgm2 = topology.DirectionalDiagram(graph2, direction)
+        self.assertFalse(dgm1 == dgm2)
