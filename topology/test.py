@@ -40,6 +40,6 @@ class TestLowerStartFiltrationFactory(unittest.TestCase):
         direction = (1,0)
         graph = self.create_graph()
 
-        fltr = topology.LowerStarFiltrationFactory(direction)
+        fltr = topology.LowerStarFiltrationFactory(direction).create(graph)
         self.assertTrue(True)
 
