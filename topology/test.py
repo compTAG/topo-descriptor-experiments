@@ -2,6 +2,8 @@ import unittest
 
 import networkx as nx
 
+import topology
+
 class TestLowerStartFiltrationFactory(unittest.TestCase):
 
     def create_graph(self):
@@ -38,4 +40,6 @@ class TestLowerStartFiltrationFactory(unittest.TestCase):
         direction = (1,0)
         graph = self.create_graph()
 
+        fltr = topology.LowerStarFiltrationFactory(direction)
+        self.assertTrue(True)
 
