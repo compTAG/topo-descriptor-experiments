@@ -47,3 +47,4 @@ class LowerStarFiltrationFactory(object):
 
         filtr.sort()
         return filtr
+

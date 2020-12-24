@@ -61,3 +61,9 @@ class TestLowerStartFiltrationFactory(unittest.TestCase):
         self.assertEqualVert(5, fltr[10])
         self.assertEqualEdge((3, 5), fltr[11])
         self.assertEqualEdge((4, 5), fltr[12])
+
+
+class TestDirectionDgm(unittest.TestCase):
+
+    def test_setup(self):
+        self.assertTrue(True)
