@@ -49,7 +49,7 @@ class LowerStarFiltrationFactory(object):
         return filtr
 
 
-class DirectionalDgm(object):
+class DirectionalDiagram(object):
     def __init__(self, graph, direction):
         pass
 

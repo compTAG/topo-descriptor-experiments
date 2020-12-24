@@ -60,7 +60,7 @@ class TestLowerStartFiltrationFactory(unittest.TestCase):
         self.assertEqualEdge((4, 5), fltr[12])
 
 
-class TestDirectionDgm(unittest.TestCase):
+class TestDirectionDiagram(unittest.TestCase):
     def test_equal(self):
         verts = (
             (0,0),
@@ -75,6 +75,6 @@ class TestDirectionDgm(unittest.TestCase):
         graph2 = create_graph(verts, edges2)
 
         direction = (1,0)
-        dgm1 = topology.DirectionalDgm(graph1, direction)
-        dgm2 = topology.DirectionalDgm(graph2, direction)
+        dgm1 = topology.DirectionalDiagram(graph1, direction)
+        dgm2 = topology.DirectionalDiagram(graph2, direction)
         self.assertTrue(dgm1 == dgm2)
