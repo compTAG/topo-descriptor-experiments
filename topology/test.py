@@ -4,6 +4,17 @@ import networkx as nx
 
 import topology
 
+def create_graph(verts, edges):
+    g = nx.Graph()
+    g.add_nodes_from(range(len(verts)))
+    for i, coords in enumerate(verts):
+        g.nodes[i]['pos'] = coords
+
+    g.add_edges_from(edges)
+
+    return g
+
+
 class TestLowerStartFiltrationFactory(unittest.TestCase):
     def assertEqualEdge(self, e, s):
         self.assertTrue(len(s) == 2 and e == (s[0], s[1]))
@@ -11,11 +22,8 @@ class TestLowerStartFiltrationFactory(unittest.TestCase):
     def assertEqualVert(self, v, s):
         self.assertTrue(len(s) == 1 and v == s[0])
 
-
-    def create_graph(self):
-        g = nx.Graph()
-
-        vertex = (
+    def test_create(self):
+        verts = (
             (0,0),
             (2,2),
             (1,3),
@@ -33,19 +41,8 @@ class TestLowerStartFiltrationFactory(unittest.TestCase):
             (5, 4),
             (4, 3),
         )
-
-        g.add_nodes_from(range(len(vertex)))
-        for i, coords in enumerate(vertex):
-            g.nodes[i]['pos'] = coords
-
-        g.add_edges_from(edges)
-
-        return g
-
-    def test_create(self):
+        graph = create_graph(verts, edges)
         direction = (1,0)
-        graph = self.create_graph()
-
         fltr = topology.LowerStarFiltrationFactory(direction).create(graph)
 
         self.assertEqualVert(0, fltr[0])
