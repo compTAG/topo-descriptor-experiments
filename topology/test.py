@@ -61,6 +61,17 @@ class TestLowerStartFiltrationFactory(unittest.TestCase):
 
 
 class TestDirectionDgm(unittest.TestCase):
+    def test_equal(self):
+        verts = (
+            (0,0),
+            (2,1),
+            (1,2),
+        )
 
-    def test_setup(self):
+        edges1 = ( (0, 2), )
+        graph1 = create_graph(verts, edges1)
+
+        edges2 = ( (1, 2), )
+        graph2 = create_graph(verts, edges2)
+
         self.assertTrue(True)
