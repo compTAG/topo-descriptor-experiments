@@ -6,11 +6,18 @@
 
 3. In terminal to start jupyterlab run:
     jupyter-lab
-    Note: You can exit out of jupyterlab with CNTRL + C in terminal. 
+    Note: You can exit out of jupyterlab with CNTRL + C in terminal.
 
 4. In juypter-lab, open preprocess.ipynb notebook
     * Please run all cells in order to create graphs for experiment files
 5. Once the graphs have been created for all data sets, open the following files to run experiments
     * 4_2_smallest_stratum_exp.ipynb
     * 4_3_uniform_sample_exp.ipyb
- 
+
+## Testing
+
+Some of the modules, for example `topology` have tests.  To run the tests:
+
+    python -m unittest topology.test
+
+
