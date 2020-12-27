@@ -19,10 +19,10 @@ dependencies:
   - bwidget=1.9.14=0
   - bzip2=1.0.8=h0b31af3_2
   - c-ares=1.16.1=haf1e3a3_0
-  - ca-certificates=2020.6.20=hecda079_0
+  - ca-certificates=2020.12.5=h033912b_0
   - cairo=1.16.0=ha8983da_1005
   - cctools_osx-64=949.0.1=h5ba7a2e_2
-  - certifi=2020.6.20=py38h32f6830_0
+  - certifi=2020.12.5=py38h50d1736_0
   - cffi=1.14.1=py38hc4dd44e_0
   - cfitsio=3.470=hdf94aef_6
   - chardet=3.0.4=py38h32f6830_1006
@@ -41,6 +41,7 @@ dependencies:
   - decorator=4.4.2=py_0
   - defusedxml=0.6.0=py_0
   - descartes=1.1.0=py_4
+  - dionysus=2.0.8=py38h91fd998_1004
   - entrypoints=0.3=py38h32f6830_1001
   - expat=2.2.9=h4a8c4bd_2
   - ffmpeg=4.3=h9903f1f_0
@@ -142,7 +143,7 @@ dependencies:
   - opencv=4.4.0=py38_2
   - openh264=2.1.1=hd174df1_0
   - openjpeg=2.3.1=h254dc36_3
-  - openssl=1.1.1g=h0b31af3_1
+  - openssl=1.1.1i=h35c211d_0
   - osmnx=0.15.1=pyh9f0ad1d_0
   - packaging=20.4=pyh9f0ad1d_0
   - pandas=1.1.0=py38h11c0d25_0
