@@ -4,11 +4,10 @@ import numpy as np
 import networkx as nx
 import os
 import topology
-from topology.test import create_graph
 import dionysus as d
 import planarity
 import matplotlib.pyplot as plt
-from planar_graphs import get_graph, build_graphs,plot_graphs
+from planar_graphs import get_graph, build_graphs,plot_graphs, create_graph
 
 
 class DirectionalExp(object):
