@@ -7,6 +7,16 @@ import math
 import os
 
 
+def create_graph(verts, edges):
+    g = nx.Graph()
+    g.add_nodes_from(range(len(verts)))
+    for i, coords in enumerate(verts):
+        g.nodes[i]['pos'] = coords
+
+    g.add_edges_from(edges)
+
+    return g
+
 
 def get_graph(location_point, dist):
   G = ox.graph_from_point(location_point, dist=dist,simplify=False)
