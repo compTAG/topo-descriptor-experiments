@@ -5,10 +5,10 @@ import networkx as nx
 import os
 import topology
 import dionysus as d
-import planarity
+import planarity as p
 import matplotlib.pyplot as plt
-from planar_graphs import get_graph, build_graphs,plot_graphs, create_graph
-
+from planar_graphs import get_source_graph, find_all_planar_graphs, plot_graphs, create_graph
+import itertools
 
 class DirectionalExp(object):
   def __init__(self, G, verts, directions):
@@ -16,16 +16,16 @@ class DirectionalExp(object):
       self.main_diagram = topology.DirectionalDiagram(self.graph, (0,1))
       self.directional_diagrams = []
       self.verts = verts
-      self.graphs = build_graphs(len(verts))
+      self.graphs = find_all_planar_graphs(list(itertools.combinations(G.nodes(), 2)))
       self.planar_graphs = []
       self.pos = { i : verts[i] for i in range(0, len(verts) ) }
       self.directions = directions
 
   def plot_planar(self):
-    gs = build_graphs(len(self.graph.nodes()))
-    plot_graphs(gs)
+    plot_graphs(self.graphs[1:-1])
 
   def clean(self):
+    self.graphs.pop(0)
     for graph in self.graphs:
       g = create_graph(self.verts, graph)
       if (nx.check_planarity(g) and (g.edges() != self.graph.edges())):
@@ -71,18 +71,23 @@ class DirectionalExp(object):
     for diagram in self.directional_diagrams:
       self.build_graphs(diagram)
 
+  def bottlenecks(self):
+    dgm_1 = self.directional_diagrams[0]
+    dgm_2 = self.directional_diagrams[1]
+    b = d.bottleneck_distance(dgm_1._dgms[0], dgm_2._dgms[0])
+    print(b)
+
 
 
 if __name__ == "__main__":
   ox.config(log_console=True, use_cache=True)
   location_point = (45.67930061221573, -111.03874239039452)
   distance = 55
-  G,verts = get_graph(location_point,distance)
+  G,verts = get_source_graph(location_point,distance)
 
   directions = [(0,1), (1,0), (0,-1), (-1,0), (np.sqrt(2)/2,np.sqrt(2)/2)]
   test = DirectionalExp(G,verts,directions)
   test.show_graphs()
-
    
 
 
