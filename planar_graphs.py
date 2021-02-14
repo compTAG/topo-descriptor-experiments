@@ -5,7 +5,8 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import math
 import os
-
+import planarity as p
+import itertools
 
 def create_graph(verts, edges):
     g = nx.Graph()
@@ -17,13 +18,13 @@ def create_graph(verts, edges):
 
     return g
 
-
-def get_graph(location_point, dist):
+#Pull a graph from osmnx by location
+def get_source_graph(location_point, dist):
   G = ox.graph_from_point(location_point, dist=dist,simplify=False)
   G = ox.get_undirected(G)
 
-  fig, ax = ox.plot_graph(G,node_color='r',show=False, close=False)
-  plt.show()
+  #fig, ax = ox.plot_graph(G,node_color='r',show=False, close=False)
+  #plt.show()
   G_relable = nx.convert_node_labels_to_integers(G)
   G_proj = ox.project_graph(G_relable)
   nodes_proj, gdf_edges = ox.graph_to_gdfs(G_proj, edges=True, nodes = True)
@@ -36,27 +37,22 @@ def get_graph(location_point, dist):
   return G_relable,verts
 
 
-def build_graphs(n=2, i=None, j=None):
-    """Make a graph recursively, by either including, or skipping each edge.
-    Edges are given in lexicographical order by construction."""
-    out = []
-    if i is None: # First call
-        out  = [[(0,1)]+r for r in build_graphs(n=n, i=0, j=1)]
-    elif j<n-1:
-        out += [[(i,j+1)]+r for r in build_graphs(n=n, i=i, j=j+1)]
-        out += [          r for r in build_graphs(n=n, i=i, j=j+1)]
-    elif i<n-1:
-        out = build_graphs(n=n, i=i+1, j=i+1)
+def find_all_planar_graphs(edges):
+    G = []
+    if len(edges) != 0:
+        G = G + find_all_planar_graphs(edges[:-1])
+        for graph in G:
+            #print(graph + [edges[-1]])
+            if p.is_planar(graph + [edges[-1]]):
+                G = G + [graph + [edges[-1]]]
+        return G
     else:
-        out = [[]]
-    return out
+        return [G]
 
 def plot_graphs(graphs, figsize=14, dotsize=20):
-    """Utility to plot a lot of graphs from an array of graphs. 
-    Each graphs is a list of edges; each edge is a tuple."""
     n = len(graphs)
     fig = plt.figure(figsize=(figsize,figsize))
-    fig.patch.set_facecolor('white') # To make copying possible (no transparent background)
+    fig.patch.set_facecolor('white') 
     k = int(np.sqrt(n))
     for i in range(n):
         plt.subplot(k+1,k+1,i+1)
@@ -68,58 +64,11 @@ def plot_graphs(graphs, figsize=14, dotsize=20):
         print('.', end='')
     plt.show()                                             
 
-def perm(n, s=None):
-    """All permutations of n elements."""
-    if s is None: return perm(n, tuple(range(n)))
-    if not s: return [[]]
-    return [[i]+p for i in s for p in perm(n, tuple([k for k in s if k!=i]))]
 
 
 
-def permute(g, n):
-    """Create a set of all possible isomorphic codes for a graph, 
-    as nice hashable tuples. All edges are i<j, and sorted lexicographically."""
-    ps = perm(n)
-    out = set([])
-    for p in ps:
-        out.add(tuple(sorted([(p[i],p[j]) if p[i]<p[j] else (p[j],p[i]) for i,j in g])))
-    return list(out)
 
 
-def connected(g):
-    """Check if the graph is fully connected, with Union-Find."""
-    nodes = set([i for e in g for i in e])
-    roots = {node: node for node in nodes}
-    
-    def _root(node, depth=0):
-        if node==roots[node]: return (node, depth)
-        else: return _root(roots[node], depth+1)
-    
-    for i,j in g:
-        ri,di = _root(i)
-        rj,dj = _root(j)
-        if ri==rj: continue
-        if di<=dj: roots[ri] = rj
-        else:      roots[rj] = ri
-    return len(set([_root(node)[0] for node in nodes]))==1
-
-
-def filter(gs, target_nv):
-    """Filter all improper graphs: those with not enough nodes, 
-    those not fully connected, and those isomorphic to previously considered."""
-    mem = set({})
-    gs2 = []
-    for g in gs:
-        nv = len(set([i for e in g for i in e]))
-        if nv != target_nv:
-            continue
-        if not connected(g):
-            continue
-        if tuple(g) not in mem:
-            gs2.append(g)
-            mem |= set(permute(g, target_nv))
-        #print('\n'.join([str(a) for a in mem]))
-    return gs2
 
 
 
@@ -167,4 +116,42 @@ d.plot.plot_diagram(diag[0])
 
 '''
 
+'''
+ox.config(log_console=True, use_cache=True)
+location_point = (45.67930061221573, -111.03874239039452)
+distance = 55
+G,verts = get_source_graph(location_point,distance)
+
+#print(verts)
+
+
+unch = list(itertools.combinations(G.nodes(), 2))
+
+test = find_all_planar_graphs(unch)
+#test.pop(0)
+test.pop(0)
+print(test)
+#plot_graphs(test)
+'''
+
+'''
+# Example of the complete graph of 5 nodes, K5
+# K5 is not planar
+# any of the following formats can bed used for representing the graph
+
+edgelist = [(0, 1), (0, 2), (0, 3), (0, 4),
+            (1, 2),(1, 3),(1, 4),
+            (2, 3), (2, 4),
+            (3, 4)]
+P=p.PGraph(edgelist)
+#print(P.nodes()) # indexed from 1..n
+print(P.mapping()) # the node mapping
+#print(P.edges()) # edges
+print(P.is_planar())  # False
+#print(P.kuratowski_edges())
+
+edgelist.remove((0,1))
+P=p.PGraph(edgelist)
+print(P.is_planar())  
+'''
 
