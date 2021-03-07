@@ -7,6 +7,13 @@ import math
 import os
 import planarity as p
 import itertools
+from shapely.geometry import LineString, Point
+import pickle
+import glob
+from itertools import permutations
+import random
+import topology
+import dionysus as d
 
 def create_graph(verts, edges):
     g = nx.Graph()
@@ -18,15 +25,36 @@ def create_graph(verts, edges):
 
     return g
 
-#Pull a graph from osmnx by location
-def get_source_graph(location_point, dist):
+def get_city_map(city,state, country):
+    try:
+    # Create target Directory
+        dirname = os.path.join("graphs","maps",city)
+        os.mkdir(dirname)
+        print("Directory" , dirname ,  "Created ")
+    except FileExistsError:
+        print("Directory" , dirname ,  "already exists")
+
+
+    G = ox.graph_from_place(','.join([city, state, country]), simplify=False, network_type='drive')
+    #G = G.to_undirected()
+    G_proj = ox.project_graph(G)
+    nodes_proj, gdf_edges = ox.graph_to_gdfs(G_proj, edges=True, nodes = True)
+
+    nx.write_gpickle(G, os.path.join("graphs","maps",city,city)+".pkl")
+    
+def request_graph(location_point, dist):
   G = ox.graph_from_point(location_point, dist=dist,simplify=False)
   G = ox.get_undirected(G)
 
-  #fig, ax = ox.plot_graph(G,node_color='r',show=False, close=False)
+  return G
+
+#Pull a graph from osmnx by location
+def get_source_graph(graph):
+  #fig, ax = ox.plot_graph(graph,node_color='r',show=False, close=False)
   #plt.show()
-  G_relable = nx.convert_node_labels_to_integers(G)
+  G_relable = nx.convert_node_labels_to_integers(graph)
   G_proj = ox.project_graph(G_relable)
+
   nodes_proj, gdf_edges = ox.graph_to_gdfs(G_proj, edges=True, nodes = True)
   
   #Get node positions
@@ -36,18 +64,34 @@ def get_source_graph(location_point, dist):
 
   return G_relable,verts
 
+def is_intersection(vertices, edges,intersect = False):
+    check_vertices = []
+    intersection_points = []
+    for vertex in vertices:
+        check_vertices.append(Point(vertex))
+    for e_1,e_2 in itertools.combinations(edges, 2):
+        line1 = LineString([vertices[e_1[0]], vertices[e_1[1]]])
+        line2 = LineString([vertices[e_2[0]], vertices[e_2[1]]])
+        int_pt = line1.intersection(line2)
+        if line1.intersects(line2):
+            intersection_points.append(int_pt)
+    for i_p in intersection_points:
+        if any((i_p == v) for v in check_vertices):
+            continue
+        else:
+            intersect = True
+    return intersect 
 
-def find_all_planar_graphs(edges):
+def find_planar_graphs(vertices, edges):
     G = []
     if len(edges) != 0:
-        G = G + find_all_planar_graphs(edges[:-1])
+        G = G + find_planar_graphs(vertices, edges[:-1])
         for graph in G:
-            #print(graph + [edges[-1]])
-            if p.is_planar(graph + [edges[-1]]):
+            if not is_intersection(vertices, graph + [edges[-1]]):
                 G = G + [graph + [edges[-1]]]
         return G
     else:
-        return [G]
+        return [G]        
 
 def plot_graphs(graphs, figsize=14, dotsize=20):
     n = len(graphs)
@@ -65,93 +109,112 @@ def plot_graphs(graphs, figsize=14, dotsize=20):
     plt.show()                                             
 
 
-
-
-
-
-
-
+def circle_disc(d,n):
+    directions = []
+    points = np.linspace(d, d + 2*np.pi, n, endpoint=False)
+    for point in points:
+        x = np.cos(point)
+        y = np.sin(point)
+        directions.append((x, y))
+    return directions
 
 
 
 '''
-#direction = (0,1)
+# Testing code
 
-verts = (
-            (0,0),
-            (2,2),
-            (1,3),
-            (4,1),
-            (5,2),
-            (6,1),
-        )
-
-edges = (
-            (0, 1),
-            (1, 2),
-            (2, 0),
-            (1, 3),
-            (3, 5),
-            (5, 4),
-            (4, 3),
-        )
-
-graph = create_graph(verts, edges)
+graph = create_graph(verts,edges)
 pos = { i : verts[i] for i in range(0, len(verts) ) }
-nx.draw(graph,pos, labels={node:node for node in graph.nodes()},edge_labels=True)
-nx.draw_networkx_edge_labels(graph,pos,edge_labels={(0,1):'a',
-(1,2):'b',(2,0):'c',(1,3):'d',(3,5):'e',(5,4):'f',(4,3):'g'},font_color='red')
-xcoords = [0, 1, 2,4,5,6]
-colors = ['k','k','k','k','k','k']
-for xc,c in zip(xcoords,colors):
-    plt.axvline(x=xc, label='line at x = {}'.format(xc), c=c)
+print(pos)
+nx.draw(graph,pos, with_labels = True)
 plt.show()
-direction = (1,0)
-filtr = topology.LowerStarFiltrationFactory(direction).create(graph)
-m = d.homology_persistence(filtr)
-diag = d.init_diagrams(m, filtr)
-print(diag)
-print(type(diag[0]))
-d.plot.plot_diagram(diag[0])
-
-'''
-
-'''
-ox.config(log_console=True, use_cache=True)
-location_point = (45.67930061221573, -111.03874239039452)
-distance = 55
-G,verts = get_source_graph(location_point,distance)
-
-#print(verts)
 
 
-unch = list(itertools.combinations(G.nodes(), 2))
+source_dir = os.path.join("graphs","maps","Bozeman","graphs","4_graphs", "4_nodes.pickle")
+in_graph = open(source_dir,"rb")
+graphs = pickle.load(in_graph)
+G,verts = get_source_graph(graphs[3])
 
-test = find_all_planar_graphs(unch)
-#test.pop(0)
-test.pop(0)
+test = check_planar(verts,list(itertools.combinations(G.nodes(), 2)))
+print(len(test))
+
+test_1 = clean_planar(verts,test)
+print(test_1)
+print(len(test_1))
+
+verts = [(492476.236455919, 5059797.971598339), 
+        (492499.0750844237, 5059799.543931472), 
+        (492516.71305272356, 5059801.522552364), 
+        (492535.561073114, 5059812.687826383)]
+edges = [(0, 2), (1, 3), (2, 3)]
+#edges = [(0, 1), (1, 2), (2, 3)]
+test = is_intersection(verts,edges)
 print(test)
-#plot_graphs(test)
 '''
 
 '''
-# Example of the complete graph of 5 nodes, K5
-# K5 is not planar
-# any of the following formats can bed used for representing the graph
+verts = [(492476.236455919, 5059797.971598339), 
+        (492499.0750844237, 5059799.543931472), 
+        (492516.71305272356, 5059801.522552364), 
+        (492535.561073114, 5059812.687826383)]
+e = []
+unch = [(0, 1), (1, 2), (2, 3)]
 
-edgelist = [(0, 1), (0, 2), (0, 3), (0, 4),
-            (1, 2),(1, 3),(1, 4),
-            (2, 3), (2, 4),
-            (3, 4)]
-P=p.PGraph(edgelist)
-#print(P.nodes()) # indexed from 1..n
-print(P.mapping()) # the node mapping
-#print(P.edges()) # edges
-print(P.is_planar())  # False
-#print(P.kuratowski_edges())
+def find_planar(edges, unchecked):
+    G = []
+    if len(unchecked) == 0:
+        return edges
+    for e in unchecked:
+        G = edges +[e]
+        #G = G + find_planar(edges, unchecked[:-1])
+        #G = G + find_planar(edges + [unchecked[:-1]], unchecked[:-1])
+    return G
 
-edgelist.remove((0,1))
-P=p.PGraph(edgelist)
-print(P.is_planar())  
+test= find_planar(e,unch)
+print(test)
 '''
+
+'''
+verts = [(492476.236455919, 5059797.971598339), 
+        (492499.0750844237, 5059799.543931472), 
+        (492516.71305272356, 5059801.522552364), 
+        (492535.561073114, 5059812.687826383)]
+
+edges = [(0, 2), (2,3), (1, 3)]
+
+#test = is_intersection(verts,edges)
+#print(test)
+
+#test = test_planar(verts, edges)
+test = find_all_planar_graphs(edges)
+print(test)
+'''
+'''
+source_dir = os.path.join("graphs","maps","Bozeman","graphs","4_graphs", "4_nodes.pickle")
+in_graph = open(source_dir,"rb")
+graphs = pickle.load(in_graph)
+
+graph = graphs[3]
+G,verts = get_source_graph(graph)
+test = test_planar(verts,list(itertools.combinations(G.nodes(), 2)))
+print(test)
+'''
+'''
+source_dir = os.path.join("graphs","maps","Bozeman","graphs","4_graphs", "4_nodes.pickle")
+in_graph = open(source_dir,"rb")
+graphs = pickle.load(in_graph)
+print(len(graphs))
+
+for G in graphs[400:-1]:
+    fig, ax = ox.plot_graph(G,node_color='r',show=False, close=False)
+    plt.show()
+'''
+
+
+
+
+
+
+
+
 
