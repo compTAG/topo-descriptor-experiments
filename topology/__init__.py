@@ -72,3 +72,10 @@ class DirectionalDiagram(object):
     def __eq__(self, other):
         return self._dgm_equal(self._dgms[0], other._dgms[0]) and \
             self._dgm_equal(self._dgms[1], other._dgms[1])
+
+    def __hash__(self):
+        return hash((self._dgms[0],self._dgms[1]))
+
+    def __iter__(self):
+      return (d for d in self._dgms)
+
