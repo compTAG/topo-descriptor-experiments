@@ -113,7 +113,7 @@ class ExpGraph(object):
 
 if __name__ == "__main__":
   
-  source_dir = os.path.join("graphs","maps","Bozeman","graphs","4_graphs", "4_nodes.pickle")
+  source_dir = os.path.join("graphs","maps","Bozeman","graphs","Source", "Bozeman_graphs_from_source_6.pickle")
   in_graph = open(source_dir,"rb")
   graphs = pickle.load(in_graph)
   print(len(graphs))
@@ -157,13 +157,13 @@ if __name__ == "__main__":
   plt.xlim([min(alphas)-2, max(alphas)+2])
 
   plt.hist(alphas, bins=bins, alpha=0.5)
-  plt.title('Alpha Values on 4 Node Subgraphs (Random Equally Spaced Directions on Unit Circle)')
+  plt.title('Alpha Values on 6 Node Subgraphs (Random Equally Spaced Directions on Unit Circle)')
   plt.xlabel('Alpha (Number of Directions)')
   plt.ylabel('count')
 
   plt.show()
 
-  exp_file = os.path.join("graphs","maps","Bozeman","graphs","4_graphs", "4_nodes_exp_rand_4.pickle")
+  exp_file = os.path.join("graphs","maps","Bozeman","graphs","6_graphs", "6_nodes_exp_source.pickle")
   with open(exp_file, "wb") as f:
       pickle.dump(experiments, f)
 
