@@ -4,7 +4,7 @@ from backports import tempfile
 from zipfile import ZipFile
 import shutil
 
-URL_MPEG7 = 'http://www.dabi.temple.edu/~shape/MPEG7/MPEG7dataset.zip'
+URL_MPEG7 = 'https://dabi.temple.edu/external/shape/MPEG7/MPEG7dataset.zip'
 URL_EMNIST = 'http://www.itl.nist.gov/iaui/vip/cs_links/EMNIST/matlab.zip'
 URL_MAP_CONSTRUCTION = 'https://github.com/pfoser/mapconstruction/zipball/master'
 
