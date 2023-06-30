@@ -1,0 +1,11 @@
+
+analysis_001_approx\
+analysis_005_approx\
+graphs\
+figs\
+data\
+graphs_001_approx\
+graphs_005_approx\
+output_001_approx\
+output_005_approx\
+*.pyc
