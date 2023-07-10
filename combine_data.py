@@ -88,7 +88,7 @@ def mpeg7_mnist(data_type, exp, approx,file_name):
       if stats != -1:
         error_stats.append(stats)
       else:
-        print "Error"
+        print("Error")
         print(in_file)
     # print(len(error_stats))
     write_stats(error_stats, out_file,exp)
