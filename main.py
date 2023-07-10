@@ -173,7 +173,7 @@ def overlap_exp(G,arcs,outFile):
 					or (arcs[j]["end"]["location"] < arcs[i]["end"]["location"]))):
 						overlap=True
 				if overlap:
-					print "Overlap on graph "+str(outFile)
+					print("Overlap on graph "+str(outFile))
 					print("i start: "+str(arcs[i]["start"]["location"]) + " end " +str(arcs[i]["end"]["location"]))
 					print("j start: "+str(arcs[j]["start"]["location"]) + " end " +str(arcs[j]["end"]["location"]))
 					sys.exit(1)
@@ -210,8 +210,8 @@ def exp(G,output_file,exp_type,out_graphs_dir):
 def small_stratum_verification(G, arcs):
 	G, arcs = stratify(G)
 	for arc in arcs:
-		print arc
-		print "\n"
+		print(arc)
+		print("\n")
 	for v in list(G.nodes(data=True)):
 		print(str(v[1]['v'].get_id()) + " " +str(v[1]['v'].get_x()) + " "+ str(v[1]['v'].get_y()))
 
