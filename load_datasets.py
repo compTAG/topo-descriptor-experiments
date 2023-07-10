@@ -14,7 +14,7 @@ import sys
 import copy
 from visualize import draw_graph
 from itertools import combinations
-from planar import Polygon
+from shapely import Polygon
 
 
 # takes a sample from each emnist class and determines the threshold we should use
@@ -32,7 +32,7 @@ def determine_emnist_threshold():
     for img in imgs:
         ret, thresh = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY+cv2.THRESH_OTSU)
         thresholds.append(ret)
-    print thresholds
+    print(thresholds)
     print("Average: "+str(sum(thresholds) / len(thresholds)) + " Std: "+str(np.std(thresholds)))
 
 # generates and returns n point clouds of size k as a list
@@ -91,8 +91,9 @@ def simple_polygon(G):
     # our contours are a single closed curve so we can just
     # use the cycle basis to generate the polygon
     for i in nx.cycle_basis(G,root=0)[0]:
-        coords.append((G.node[i]['v'].get_x(), G.node[i]['v'].get_y()))
+        coords.append((G.nodes[i]['v'].get_x(), G.nodes[i]['v'].get_y()))
 
+   
     poly = Polygon(coords)
     return poly.is_simple
 
@@ -275,7 +276,7 @@ def get_img_data_approx(img, eps, threshold):
     G = nx.Graph()
     # get the thresholded image (thresh)
     ret, thresh = cv2.threshold(img, threshold, 255, cv2.THRESH_BINARY)
-    _, contours, hierarchy  = cv2.findContours(thresh,
+    contours, hierarchy  = cv2.findContours(thresh,
         cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
     # sort the contours by length (in descending order)
@@ -289,7 +290,7 @@ def get_img_data_approx(img, eps, threshold):
     c = cv2.approxPolyDP(curve = c_temp,
             epsilon = epsilon,
             closed = True)
-    # print c
+    # print(c)
 
     # add the vertices to a networkx graph
     node_id = 0
@@ -352,7 +353,7 @@ def main():
 
     # G = get_img_data(get_mpegSeven_img("cattle-3.gif"))
     # draw_graph(G, G.graph['stratum'], "graphs/test_data/cattle-3")
-    # print len(G.nodes())
+    # print(len(G.nodes()))
 
     # G = get_img_data_approx(get_mpegSeven_img("spring-4.gif"),.005, 0)
     # draw_graph(G, G.graph['stratum'], "graphs_005_approx/test_data/spring-4-approx")
@@ -367,7 +368,7 @@ def main():
     image = get_mnist_img(c,n)
     G,ret = get_img_data_approx(image[46],.001, 102.951612903)
     draw_graph(G, G.graph['stratum'], "graphs_005_approx/test_data/MNIST_C10_S46_test")
-    print len(G.nodes())
+    print(len(G.nodes()))
     # #test against old C3 S0
     # c8_s0 = nx.read_gpickle('graphs_005_approx/mnist/MNIST_C2_S20.gpickle')
     # print(len(c8_s0.nodes()))
@@ -375,7 +376,7 @@ def main():
 
     # G = get_img_data_approx(get_mnist_img(10))
     # draw_graph(G, G.graph['stratum'], "graphs/test_data/mnist10-approx")
-    # print len(G.nodes())
+    # print(len(G.nodes()))
 
 
 
