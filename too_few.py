@@ -7,8 +7,8 @@ import topology
 import dionysus as d
 import matplotlib.pyplot as plt
 import matplotlib
-from osmnx_requests import make_bounding_box, find_subgraphs,duplicate_graphs
-from planar_graphs import get_city_map, get_source_graph, plot_graphs, create_graph, circle_disc, is_intersection, find_planar_graphs, collinear
+#from osmnx_requests import make_bounding_box, find_subgraphs,duplicate_graphs
+from planar_graphs import get_city_map, get_source_graph, plot_graphs, create_graph, circle_disc, is_intersection, find_planar_graphs, collinear,make_bounding_box, find_subgraphs,duplicate_graphs
 import itertools
 import pickle
 import glob
@@ -203,8 +203,8 @@ if __name__ == "__main__":
 
 
   #In graphs location
-  #graphs_file = "Bozeman_" + str(vertices) + "graphs_from_source.pickle"
-  #run_experiment(os.path.join(source_dir,graphs_file),vertices,bbox)
+  graphs_file = "Bozeman_" + str(vertices) + "graphs_from_source_30.pickle"
+  run_experiment(os.path.join(source_dir,graphs_file),vertices,bbox)
   
 
   

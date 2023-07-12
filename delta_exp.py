@@ -39,7 +39,7 @@ def print_G(G):
 		print(str(G.node[e[1]]['v'].get_x()) + " " +str(G.node[e[1]]['v'].get_y()))
 
 def delta_exp(exp_list,exp_type):
-	with open(os.path.join(output_dir,"delta_exp", exp_type,"deltas.txt"), "w+") as f:
+	with open(os.path.join(output_dir,"delta_exp", exp_type,"deltas.txt"), 'w') as f:
 		f.write("n,delta,outFile\n")
 		for e in exp_list:
 			G = e['G']
@@ -50,22 +50,22 @@ def delta_exp(exp_list,exp_type):
 			### we get our deltas in R^2 from example 7.4 of Curry et al. 2018
 			delta_list = []
 			for i in range(0,len(G.nodes())):
-				neighbors = G.neighbors(i)
+				neighbors = list(G.neighbors(i))
 				if len(neighbors) != 2:
-					print ("ERROR, neighbors list is not size 2!")
-					print neighbors
-					print i
+					print("ERROR, neighbors list is not size 2!")
+					print(neighbors)
+					print(i)
 					print_G(G)
 					print(output_file)
 					sys.exit(1)
 
 				n1 = neighbors[0]
 				n2 = neighbors[1]
-				delta = math.pi - min(angle(G.node[n1]['v'], G.node[i]['v'], G.node[n2]['v']),
-					angle(G.node[n2]['v'], G.node[i]['v'], G.node[n1]['v']))
+				delta = math.pi - min(angle(G.nodes[n1]['v'], G.nodes[i]['v'], G.nodes[n2]['v']),
+					angle(G.nodes[n2]['v'], G.nodes[i]['v'], G.nodes[n1]['v']))
 				delta_list.append(delta)
 			delta = min(delta_list)
-			# print("Smallest delta: "+str(delta))
+			print("Smallest delta: "+str(delta))
 			f.write(str(len(G.nodes()))+","+str(delta)+","+output_file+"\n")
 
 def test_angle_func():
