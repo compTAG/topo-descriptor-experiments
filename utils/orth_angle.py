@@ -1,8 +1,8 @@
 import math
 import random
 import numpy as np
-import vertex
-from load_datasets import *
+import utils.vertex
+from utils.load_datasets import *
 # 4/12/19
 
 # potentially visualize with turtle graphics if I get bored/want to check if it looks correct visually

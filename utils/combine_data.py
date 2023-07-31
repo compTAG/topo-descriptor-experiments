@@ -47,7 +47,7 @@ def write_stats(error_stats,out_file, exp):
                                     str(graph['num_stratum'])+"\n")
 
 
-def random(exp, approx, file_name):
+def rando(exp, approx, file_name):
   if exp == "smallest_angle_exp":
     num_points = [3, 5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
     for k in num_points:

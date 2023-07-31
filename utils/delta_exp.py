@@ -1,10 +1,10 @@
 import networkx as nx
 import os
-from orth_angle import *
+from utils.orth_angle import *
 import math
 
-graphs_dir = "graphs_001_approx"
-output_dir = "output_001_approx"
+#graphs_dir = "graphs_001_approx"
+#output_dir = "output_001_approx"
 # Counterclockwise angle in degrees by turning from a to c around b
 # Returns a float between 0.0 and 2pi
 # found at https://python-forum.io/Thread-finding-angle-between-three-points-on-a-2d-graph
@@ -38,35 +38,30 @@ def print_G(G):
 		print(str(G.node[e[0]]['v'].get_x()) + " " +str(G.node[e[0]]['v'].get_y()))
 		print(str(G.node[e[1]]['v'].get_x()) + " " +str(G.node[e[1]]['v'].get_y()))
 
-def delta_exp(exp_list,exp_type):
-	with open(os.path.join(output_dir,"delta_exp", exp_type,"deltas.txt"), 'w') as f:
-		f.write("n,delta,outFile\n")
-		for e in exp_list:
-			G = e['G']
-			output_file = e['output_file']
-			# print_G(G)
-			# print(list(nx.cycle_basis(G)))
-
+def delta_exp(G,output_file,output_dir):
+	with open(os.path.join(output_dir,"delta_exp", output_file.split('/')[0],"deltas.txt"), 'a') as f:
+			
 			### we get our deltas in R^2 from example 7.4 of Curry et al. 2018
-			delta_list = []
-			for i in range(0,len(G.nodes())):
-				neighbors = list(G.neighbors(i))
-				if len(neighbors) != 2:
-					print("ERROR, neighbors list is not size 2!")
-					print(neighbors)
-					print(i)
-					print_G(G)
-					print(output_file)
-					sys.exit(1)
+		delta_list = []
+		for i in range(0,len(G.nodes())):
+			neighbors = list(G.neighbors(i))
+			if len(neighbors) != 2:
+				print("ERROR, neighbors list is not size 2!")
+				print(neighbors)
+				print(i)
+				print_G(G)
+				print(output_file)
+				sys.exit(1)
 
-				n1 = neighbors[0]
-				n2 = neighbors[1]
-				delta = math.pi - min(angle(G.nodes[n1]['v'], G.nodes[i]['v'], G.nodes[n2]['v']),
-					angle(G.nodes[n2]['v'], G.nodes[i]['v'], G.nodes[n1]['v']))
-				delta_list.append(delta)
-			delta = min(delta_list)
-			print("Smallest delta: "+str(delta))
-			f.write(str(len(G.nodes()))+","+str(delta)+","+output_file+"\n")
+			n1 = neighbors[0]
+			n2 = neighbors[1]
+			delta = math.pi - min(angle(G.nodes[n1]['v'], G.nodes[i]['v'], G.nodes[n2]['v']),
+				angle(G.nodes[n2]['v'], G.nodes[i]['v'], G.nodes[n1]['v']))
+			delta_list.append(delta)
+		delta = min(delta_list)
+		#print("Smallest delta: "+str(delta))
+		f.write(str(len(G.nodes()))+","+str(delta)+","+output_file+"\n")
+		f.close()
 
 def test_angle_func():
 	origin = Vertex(-1, 0.0, 0.0)
@@ -132,9 +127,9 @@ def main():
 	exp_list_mpeg7 = get_mpeg7()
 	print(len(exp_list_mpeg7))
 	delta_exp(exp_list_mpeg7,"mpeg7")
-	# exp_list_mnist = get_mnist()
-	# print(len(exp_list_mnist))
-	# delta_exp(exp_list_mnist,"mnist")
+	exp_list_mnist = get_mnist()
+	print(len(exp_list_mnist))
+	delta_exp(exp_list_mnist,"mnist")
 	# test_angle_func()
 
 if __name__ == '__main__':main()

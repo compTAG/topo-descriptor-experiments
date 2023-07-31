@@ -24,34 +24,39 @@ dir_list = [
     os.path.join('graphs_001_approx', 'mpeg7_extra'),
     os.path.join('graphs', 'random_imgs'),
     os.path.join('graphs', 'random'),
-    os.path.join('output_001_approx', 'smallest_angle_exp', 'mnist'),
-    os.path.join('output_001_approx', 'smallest_angle_exp', 'mpeg7'),
-    os.path.join('output_001_approx', 'smallest_angle_exp', 'random'),
+    os.path.join('output_001_approx', 'smallest_stratum_exp', 'mnist'),
+    os.path.join('output_001_approx', 'smallest_stratum_exp', 'mpeg7'),
+    os.path.join('output_001_approx', 'smallest_stratum_exp', 'random'),
     os.path.join('output_001_approx', 'uniform_sample_exp', 'mnist'),
     os.path.join('output_001_approx', 'uniform_sample_exp', 'mpeg7'),
     os.path.join('output_001_approx', 'uniform_sample_exp', 'random'),
     os.path.join('output_001_approx', 'delta_exp', 'mpeg7'),
-    os.path.join('output_005_approx', 'smallest_angle_exp', 'mnist'),
-    os.path.join('output_005_approx', 'smallest_angle_exp', 'mpeg7'),
-    os.path.join('output_005_approx', 'smallest_angle_exp', 'random'),
+    os.path.join('output_001_approx', 'delta_exp', 'mnist'),   
+    os.path.join('output_005_approx', 'delta_exp', 'mpeg7'),
+    os.path.join('output_005_approx', 'delta_exp', 'mnist'),
+    os.path.join('figs','delta_exp_figs','mnist'),
+    os.path.join('figs','delta_exp_figs','mpeg7'),
+    os.path.join('output_005_approx', 'smallest_stratum_exp', 'mnist'),
+    os.path.join('output_005_approx', 'smallest_stratum_exp', 'mpeg7'),
+    os.path.join('output_005_approx', 'smallest_stratum_exp', 'random'),
     os.path.join('output_005_approx', 'uniform_sample_exp', 'mnist'),
     os.path.join('output_005_approx', 'uniform_sample_exp', 'mpeg7'),
     os.path.join('output_005_approx', 'uniform_sample_exp', 'random'),
-    os.path.join('analysis_005_approx', 'smallest_angle_exp', 'combined_data', 'mnist'),
-    os.path.join('analysis_005_approx', 'smallest_angle_exp', 'combined_data', 'mpeg7'),
-    os.path.join('analysis_005_approx', 'smallest_angle_exp', 'combined_data', 'random'),
-    os.path.join('analysis_001_approx', 'smallest_angle_exp', 'combined_data', 'mnist'),
-    os.path.join('analysis_001_approx', 'smallest_angle_exp', 'combined_data', 'mpeg7'),
-    os.path.join('analysis_001_approx', 'smallest_angle_exp', 'combined_data', 'random'),
+    os.path.join('analysis_005_approx', 'smallest_stratum_exp', 'combined_data', 'mnist'),
+    os.path.join('analysis_005_approx', 'smallest_stratum_exp', 'combined_data', 'mpeg7'),
+    os.path.join('analysis_005_approx', 'smallest_stratum_exp', 'combined_data', 'random'),
+    os.path.join('analysis_001_approx', 'smallest_startum_exp', 'combined_data', 'mnist'),
+    os.path.join('analysis_001_approx', 'smallest_stratum_exp', 'combined_data', 'mpeg7'),
+    os.path.join('analysis_001_approx', 'smallest_stratum_exp', 'combined_data', 'random'),
     os.path.join('analysis_005_approx', 'uniform_sample_exp', 'combined_data', 'mnist'),
     os.path.join('analysis_005_approx', 'uniform_sample_exp', 'combined_data', 'mpeg7'),
     os.path.join('analysis_005_approx', 'uniform_sample_exp', 'combined_data', 'random'),
     os.path.join('analysis_001_approx', 'uniform_sample_exp', 'combined_data', 'mnist'),
     os.path.join('analysis_001_approx', 'uniform_sample_exp', 'combined_data', 'mpeg7'),
     os.path.join('analysis_001_approx', 'uniform_sample_exp', 'combined_data', 'random'),
-    os.path.join('figs', 'smallest_angle_exp', 'random'),
-    os.path.join('figs', 'smallest_angle_exp', 'mnist'),
-    os.path.join('figs', 'smallest_angle_exp', 'mpeg7'),
+    os.path.join('figs', 'smallest_stratum_exp', 'random'),
+    os.path.join('figs', 'smallest_stratum_exp', 'mnist'),
+    os.path.join('figs', 'smallest_stratum_exp', 'mpeg7'),
     os.path.join('figs', 'uniform_sample_exp', 'random'),
     os.path.join('figs', 'uniform_sample_exp', 'mnist'),
     os.path.join('figs', 'uniform_sample_exp', 'mpeg7'),
@@ -150,7 +155,20 @@ def get_emnist(url, target_dir):
 def get_maps(url, target_dir):
   dst = get_map_data(url, target_dir, 'map_construction')
 
-
+def make_delta_headers():
+  with open(os.path.join("output_001_approx","delta_exp", "mnist","deltas.txt"), 'w') as f:
+    f.write("n,delta,outFile\n")
+    f.close()
+  with open(os.path.join("output_001_approx","delta_exp", "mpeg7","deltas.txt"), 'w') as f:
+    f.write("n,delta,outFile\n")
+    f.close()
+  with open(os.path.join("output_005_approx","delta_exp", "mnist","deltas.txt"), 'w') as f:
+    f.write("n,delta,outFile\n")
+    f.close()
+  with open(os.path.join("output_005_approx","delta_exp", "mpeg7","deltas.txt"), 'w') as f:
+    f.write("n,delta,outFile\n")
+    f.close()
+  
 def download_data():
   get_mpeg7(URL_MPEG7, dir_data)
   get_emnist(URL_EMNIST, dir_data)
@@ -159,4 +177,4 @@ def download_data():
 def preprocess_data(dir_list):
     make_folders(dir_list)
     download_data()
-
+    make_delta_headers()

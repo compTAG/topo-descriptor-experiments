@@ -1,5 +1,5 @@
-from load_datasets import *
-from visualize import *
+from utils.load_datasets import *
+from utils.visualize import *
 import networkx as nx
 import numpy as np
 import time

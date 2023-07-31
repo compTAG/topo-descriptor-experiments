@@ -1,7 +1,7 @@
 #MPEG7
 
-from vertex import *
-from orth_angle import *
+from utils.vertex import *
+from utils.orth_angle import *
 import matplotlib.pyplot as plt
 import numpy as np
 import random
@@ -12,7 +12,7 @@ import scipy.io as sio
 import networkx as nx
 import sys
 import copy
-from visualize import draw_graph
+from utils.visualize import draw_graph
 from itertools import combinations
 from shapely import Polygon
 
@@ -334,16 +334,16 @@ def get_img_data_approx(img, eps, threshold):
         return G, -1
 
     # Test to make sure the polygon is simple
-    if not simple_polygon(G):
+    elif not simple_polygon(G):
         print("Not simple polygon!")
         return G, -2
 
     # if we had duplicate vertices and it was not caught by the simple_polygon function
     # then return 0
-    if dup_vertices:
+    elif dup_vertices:
         return G, 0
 
-    return G, 1
+    else: return G, 1
 
 
 
