@@ -8,11 +8,10 @@
     jupyter-lab
     Note: You can exit out of jupyterlab with CNTRL + C in terminal.
 
-4. In juypter-lab, open preprocess.ipynb notebook
-    * Please run all cells in order to create graphs for experiment files
-5. Once the graphs have been created for all data sets, open the following files to run experiments
-    * 4_2_smallest_stratum_exp.ipynb
-    * 4_3_uniform_sample_exp.ipyb
+4. In juypter-lab, open `preprocess`Experiment_Supplement.ipynb notebook
+    * Please run all preprocessing cells in order to create graphs for experiment files
+5. Once the graphs have been created for all data sets, the experiments may be run from the Jupyter notebook
+6. All experiments may also be run from exp_handler.py, with command-line arguments doccumented in the notebook.
 
 ## Testing
 
