@@ -10,3 +10,6 @@ graphs_005_approx/
 output_001_approx/
 output_005_approx/
 *.pyc
+pers.py
+*.swp
+cache/

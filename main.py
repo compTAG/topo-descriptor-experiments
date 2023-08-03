@@ -287,7 +287,7 @@ if __name__ == "__main__":
 	#				3 for smallest angle experiment (smallest_angle_exp)
 	#				4 for a uniform random sample experiment (uniform_sample_exp)
 	#				5 for all four exps
-	exp_type = 4
+	exp_type = 1
 	#### data is:
 	#				1 for random
 	#				2 for MPEG7 (classes from PHT paper - Turner et al.)
