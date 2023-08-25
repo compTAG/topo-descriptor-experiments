@@ -10,9 +10,11 @@ from shapely.geometry import LineString, Point
 import pickle
 import glob
 from itertools import permutations
+from itertools import combinations
 import random
 import topology
 import dionysus as d
+import time
 
 def create_graph(verts, edges):
     g = nx.Graph()
@@ -46,7 +48,7 @@ def get_city_map(city,state, country):
 
     nx.write_gpickle(G, os.path.join("graphs","maps",city,city + "_" + state+".pkl"))
 
-    return G, nodes_proj
+    return G, nodes_proj.head(200)
     
 def request_graph(location_point, dist):
   G = ox.graph_from_point(location_point, dist=dist,simplify=False)
@@ -70,6 +72,73 @@ def get_source_graph(graph):
 
   return G_relable,verts
 
+# Cache for previously checked pairs of edges
+intersection_memo = {}
+
+def bounding_boxes_intersect(line1_coords, line2_coords):
+    x1, y1 = line1_coords[0]
+    x2, y2 = line1_coords[1]
+    x3, y3 = line2_coords[0]
+    x4, y4 = line2_coords[1]
+
+    # Compute bounding boxes
+    box1 = (min(x1, x2), min(y1, y2), max(x1, x2), max(y1, y2))
+    box2 = (min(x3, x4), min(y3, y4), max(x3, x4), max(y3, y4))
+
+    return not (box1[2] < box2[0] or box1[0] > box2[2] or box1[3] < box2[1] or box1[1] > box2[3])
+
+def is_intersection(vertices, edges):
+    check_vertices = {Point(vertex) for vertex in vertices}
+
+    for e_1, e_2 in itertools.combinations(edges, 2):
+        # If this combination was checked before, use the cached result
+        if (e_1, e_2) in intersection_memo:
+            if intersection_memo[(e_1, e_2)]:  # If they were found intersecting before
+                return True
+            continue
+
+        # Quick bounding box check
+        if not bounding_boxes_intersect([vertices[e_1[0]], vertices[e_1[1]]], [vertices[e_2[0]], vertices[e_2[1]]]):
+            continue
+
+        line1 = LineString([vertices[e_1[0]], vertices[e_1[1]]])
+        line2 = LineString([vertices[e_2[0]], vertices[e_2[1]]])
+
+        if line1.intersects(line2):
+            int_pt = line1.intersection(line2)
+            if int_pt not in check_vertices:
+                intersection_memo[(e_1, e_2)] = True
+                return True
+
+        intersection_memo[(e_1, e_2)] = False
+
+    return False
+
+# Memoization for find_planar_graphs
+memo = {}
+
+def find_planar_graphs(vertices, edges):
+
+    n = len(edges)
+    
+    # Check if the result for this input is already computed
+    if (tuple(vertices), n) in memo:
+        return memo[(tuple(vertices), n)]
+
+    G = []
+
+    # Generate all subgraphs with varying sizes
+    for size in range(1, n+1):
+        for sub_edges in combinations(edges, size):
+            if not any(is_intersection(vertices, list(sub_edges[:i+1])) for i in range(len(sub_edges))):
+                G.append(list(sub_edges))
+
+    # Store the result in the memoization table
+    memo[(tuple(vertices), n)] = G
+
+
+    return G
+'''
 def is_intersection(vertices, edges,intersect = False):
     check_vertices = []
     intersection_points = []
@@ -90,15 +159,16 @@ def is_intersection(vertices, edges,intersect = False):
 
 def find_planar_graphs(vertices, edges):
     G = []
-    if len(edges) != 0:
+    if len(edges) != 1:
         G = G + find_planar_graphs(vertices, edges[:-1])
         for graph in G:
             if not is_intersection(vertices, graph + [edges[-1]]):
                 G = G + [graph + [edges[-1]]]
+
         return G
     else:
         return [G]        
-
+'''
 def plot_graphs(graphs, figsize=14, dotsize=20):
     n = len(graphs)
     fig = plt.figure(figsize=(figsize,figsize))
@@ -207,103 +277,5 @@ def find_subgraphs(G, nodes_proj, source_dir, bbox):
         pickle.dump(graphs5, f)
     with open(os.path.join(source_dir,g6), "wb") as f:
         pickle.dump(graphs6, f)
-
-
-'''
-# Testing code
-
-graph = create_graph(verts,edges)
-pos = { i : verts[i] for i in range(0, len(verts) ) }
-print(pos)
-nx.draw(graph,pos, with_labels = True)
-plt.show()
-
-
-source_dir = os.path.join("graphs","maps","Bozeman","graphs","4_graphs", "4_nodes.pickle")
-in_graph = open(source_dir,"rb")
-graphs = pickle.load(in_graph)
-G,verts = get_source_graph(graphs[3])
-
-test = check_planar(verts,list(itertools.combinations(G.nodes(), 2)))
-print(len(test))
-
-test_1 = clean_planar(verts,test)
-print(test_1)
-print(len(test_1))
-
-verts = [(492476.236455919, 5059797.971598339), 
-        (492499.0750844237, 5059799.543931472), 
-        (492516.71305272356, 5059801.522552364), 
-        (492535.561073114, 5059812.687826383)]
-edges = [(0, 2), (1, 3), (2, 3)]
-#edges = [(0, 1), (1, 2), (2, 3)]
-test = is_intersection(verts,edges)
-print(test)
-'''
-
-'''
-verts = [(492476.236455919, 5059797.971598339), 
-        (492499.0750844237, 5059799.543931472), 
-        (492516.71305272356, 5059801.522552364), 
-        (492535.561073114, 5059812.687826383)]
-e = []
-unch = [(0, 1), (1, 2), (2, 3)]
-
-def find_planar(edges, unchecked):
-    G = []
-    if len(unchecked) == 0:
-        return edges
-    for e in unchecked:
-        G = edges +[e]
-        #G = G + find_planar(edges, unchecked[:-1])
-        #G = G + find_planar(edges + [unchecked[:-1]], unchecked[:-1])
-    return G
-
-test= find_planar(e,unch)
-print(test)
-'''
-
-'''
-verts = [(492476.236455919, 5059797.971598339), 
-        (492499.0750844237, 5059799.543931472), 
-        (492516.71305272356, 5059801.522552364), 
-        (492535.561073114, 5059812.687826383)]
-
-edges = [(0, 2), (2,3), (1, 3)]
-
-#test = is_intersection(verts,edges)
-#print(test)
-
-#test = test_planar(verts, edges)
-test = find_all_planar_graphs(edges)
-print(test)
-'''
-'''
-source_dir = os.path.join("graphs","maps","Bozeman","graphs","4_graphs", "4_nodes.pickle")
-in_graph = open(source_dir,"rb")
-graphs = pickle.load(in_graph)
-
-graph = graphs[3]
-G,verts = get_source_graph(graph)
-test = test_planar(verts,list(itertools.combinations(G.nodes(), 2)))
-print(test)
-'''
-'''
-source_dir = os.path.join("graphs","maps","Bozeman","graphs","4_graphs", "4_nodes.pickle")
-in_graph = open(source_dir,"rb")
-graphs = pickle.load(in_graph)
-print(len(graphs))
-
-for G in graphs[400:-1]:
-    fig, ax = ox.plot_graph(G,node_color='r',show=False, close=False)
-    plt.show()
-'''
-
-
-
-
-
-
-
 
 

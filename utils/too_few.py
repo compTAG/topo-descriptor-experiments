@@ -16,14 +16,16 @@ import functools
 import math
 import random
 from matplotlib.font_manager import FontProperties
+import concurrent.futures
 from PyPDF2 import PdfFileMerger, PdfFileReader
+import time
 
 class DirectionalExp(object):
   def __init__(self, G, verts, directions):
       self.graph = create_graph(verts, G.edges())
       self.directional_diagrams = []
       self.verts = verts
-      self.graphs = find_planar_graphs(self.verts,list(itertools.combinations(G.nodes(), 2)))
+      self.candidate_graph_edge_lists = find_planar_graphs(self.verts,list(itertools.combinations(G.nodes(), 2)))
       self.planar_graphs = []
       self.pos = { i : verts[i] for i in range(0, len(verts) ) }
       self.directions = directions
@@ -41,9 +43,8 @@ class DirectionalExp(object):
     plot_graphs(self.graphs[1:-1])
 
   def clean(self):
-    self.graphs.pop(0)
-    for graph in self.graphs:
-      g = ExpGraph(create_graph(self.verts, graph))
+    for edgelist in self.candidate_graph_edge_lists:
+      g = ExpGraph(create_graph(self.verts, edgelist))
       if (nx.check_planarity(g.graph)):
         self.planar_graphs.append(g)
 
@@ -105,6 +106,7 @@ class DirectionalExp(object):
     
 
   def planar_exp(self):
+    # remove clean
     self.clean()
     self.create_diagrams()
     self.fill()
@@ -120,7 +122,7 @@ class ExpGraph(object):
       self.graph = graph
       self.count = 0
 
-def bar_charts(graphs_file, alphas, num_verts):
+def bar_charts(graphs_file, alphas, num_verts, bbox):
   #Set bar chart properties
   font = FontProperties()
   font.set_family('serif')
@@ -137,6 +139,67 @@ def bar_charts(graphs_file, alphas, num_verts):
 
   f.savefig(os.path.join("graphs","maps","Bozeman","experiments", str(num_verts)+"_graphs", str(num_verts)+"_vert_exp","exp-small-graph-"+ str(num_verts) +"-vertex-directions_" + str(bbox)+ ".pdf"), bbox_inches='tight')
 
+def process_graph(graph, d):
+    try:
+        i = 1
+        directions = circle_disc(d,i)
+        G, verts = get_source_graph(graph)
+        print(G.nodes())
+
+        exp = DirectionalExp(G, verts, directions)
+        exp.planar_exp()
+        exp.find_num_directions()
+        start = time.perf_counter()
+        while exp.num_directions[-1] > 1:
+            i += 1
+            directions = circle_disc(d, i)
+            exp = DirectionalExp(G, verts, directions)
+            exp.planar_exp()
+            exp.find_num_directions()
+        
+        exp.collinear_points()
+
+        finish = time.perf_counter()
+        print(f"\nFinished start = time.perf_counter() in {round(finish-start, 2)}seconds\n")
+
+        return exp.alpha, exp
+
+    except Exception as e:
+        raise e
+        print(e.__class__, "occurred.")
+        print("Next entry.")
+        return None, None
+    
+
+def run_experiment(graphs_file, num_verts, bbox):
+    random.seed(41821)
+    in_file = graphs_file
+
+    with open(in_file, "rb") as in_graphs:
+        graphs = pickle.load(in_graphs)
+
+    print(len(graphs))
+    d = random.uniform(0, 2*np.pi)
+    print(d)
+
+    alphas = []
+    experiments = []
+
+    with concurrent.futures.ProcessPoolExecutor() as executor:
+        for alpha, exp in executor.map(process_graph, graphs, [d]*len(graphs)):
+            if alpha is not None and exp is not None:
+                alphas.append(alpha)
+                experiments.append(exp)
+
+    # Make Bar Chart
+    bar_charts(graphs_file, alphas, num_verts, bbox)
+
+    # Save Experiment       
+    exp_file = os.path.join("graphs", "maps", "Bozeman", "experiments", str(num_verts) + "_graphs", str(num_verts) + "_vert_exp", str(num_verts) + '_nodes_experiment_' + str(bbox) + '.pickle')
+    with open(exp_file, "wb") as f:
+        pickle.dump(experiments, f)
+
+'''
 
 def run_experiment(graphs_file, num_verts, bbox):
   random.seed(41821)
@@ -186,7 +249,7 @@ def run_experiment(graphs_file, num_verts, bbox):
   exp_file = os.path.join("graphs","maps","Bozeman","experiments", str(num_verts)+"_graphs", str(num_verts)+"_vert_exp", str(num_verts) +'_nodes_experiment_' + str(bbox) +'.pickle')
   with open(exp_file, "wb") as f:
       pickle.dump(experiments, f)
-
+'''
 
 if __name__ == "__main__":
 
