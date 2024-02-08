@@ -10,11 +10,9 @@ from shapely.geometry import LineString, Point
 import pickle
 import glob
 from itertools import permutations
-from itertools import combinations
 import random
 import topology
 import dionysus as d
-import time
 
 def create_graph(verts, edges):
     g = nx.Graph()
@@ -72,73 +70,6 @@ def get_source_graph(graph):
 
   return G_relable,verts
 
-# Cache for previously checked pairs of edges
-intersection_memo = {}
-
-def bounding_boxes_intersect(line1_coords, line2_coords):
-    x1, y1 = line1_coords[0]
-    x2, y2 = line1_coords[1]
-    x3, y3 = line2_coords[0]
-    x4, y4 = line2_coords[1]
-
-    # Compute bounding boxes
-    box1 = (min(x1, x2), min(y1, y2), max(x1, x2), max(y1, y2))
-    box2 = (min(x3, x4), min(y3, y4), max(x3, x4), max(y3, y4))
-
-    return not (box1[2] < box2[0] or box1[0] > box2[2] or box1[3] < box2[1] or box1[1] > box2[3])
-
-def is_intersection(vertices, edges):
-    check_vertices = {Point(vertex) for vertex in vertices}
-
-    for e_1, e_2 in itertools.combinations(edges, 2):
-        # If this combination was checked before, use the cached result
-        if (e_1, e_2) in intersection_memo:
-            if intersection_memo[(e_1, e_2)]:  # If they were found intersecting before
-                return True
-            continue
-
-        # Quick bounding box check
-        if not bounding_boxes_intersect([vertices[e_1[0]], vertices[e_1[1]]], [vertices[e_2[0]], vertices[e_2[1]]]):
-            continue
-
-        line1 = LineString([vertices[e_1[0]], vertices[e_1[1]]])
-        line2 = LineString([vertices[e_2[0]], vertices[e_2[1]]])
-
-        if line1.intersects(line2):
-            int_pt = line1.intersection(line2)
-            if int_pt not in check_vertices:
-                intersection_memo[(e_1, e_2)] = True
-                return True
-
-        intersection_memo[(e_1, e_2)] = False
-
-    return False
-
-# Memoization for find_planar_graphs
-memo = {}
-
-def find_planar_graphs(vertices, edges):
-
-    n = len(edges)
-    
-    # Check if the result for this input is already computed
-    if (tuple(vertices), n) in memo:
-        return memo[(tuple(vertices), n)]
-
-    G = []
-
-    # Generate all subgraphs with varying sizes
-    for size in range(1, n+1):
-        for sub_edges in combinations(edges, size):
-            if not any(is_intersection(vertices, list(sub_edges[:i+1])) for i in range(len(sub_edges))):
-                G.append(list(sub_edges))
-
-    # Store the result in the memoization table
-    memo[(tuple(vertices), n)] = G
-
-
-    return G
-'''
 def is_intersection(vertices, edges,intersect = False):
     check_vertices = []
     intersection_points = []
@@ -159,16 +90,15 @@ def is_intersection(vertices, edges,intersect = False):
 
 def find_planar_graphs(vertices, edges):
     G = []
-    if len(edges) != 1:
+    if len(edges) != 0:
         G = G + find_planar_graphs(vertices, edges[:-1])
         for graph in G:
             if not is_intersection(vertices, graph + [edges[-1]]):
                 G = G + [graph + [edges[-1]]]
-
         return G
     else:
         return [G]        
-'''
+
 def plot_graphs(graphs, figsize=14, dotsize=20):
     n = len(graphs)
     fig = plt.figure(figsize=(figsize,figsize))
@@ -185,14 +115,13 @@ def plot_graphs(graphs, figsize=14, dotsize=20):
     plt.show()                                             
 
 
-def circle_disc(d,n):
-    directions = []
-    points = np.linspace(d, d + 2*np.pi, n, endpoint=False)
-    for point in points:
-        x = np.cos(point)
-        y = np.sin(point)
-        directions.append((x, y))
-    return directions
+def circle_disc(arcs):
+    random_arc = random.randint(0, len(arcs)-1)
+    random_point = random.uniform(arcs[random_arc]["start"]["location"],arcs[random_arc]["end"]["location"])
+    x = np.cos(random_point)
+    y = np.sin(random_point)
+    direction = ((x, y))
+    return direction
 
 def collinear(vertices):
     d = np.array([[1,1,1], 

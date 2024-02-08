@@ -11,7 +11,7 @@ def find_stats(in_file,exp):
   with open(in_file) as f:
     stats = csv.DictReader(f)
     stats_row = next(stats)
-    if exp == "smallest_angle_exp":
+    if exp == "smallest_stratum_exp":
       return {"n": stats_row['n'],
           "minSize":stats_row['min_angle'],
           "fineStratum": stats_row['num_stratum'],
@@ -29,7 +29,7 @@ def find_stats(in_file,exp):
       return -1
 
 def write_stats(error_stats,out_file, exp):
-  if exp == "smallest_angle_exp":
+  if exp == "smallest_stratum_exp":
     with open(out_file, 'w') as f:
             f.write("n,minSize,fineStratum,necessaryStratum\n")
             for graph in error_stats:
@@ -48,7 +48,7 @@ def write_stats(error_stats,out_file, exp):
 
 
 def rando(exp, approx, file_name):
-  if exp == "smallest_angle_exp":
+  if exp == "smallest_stratum_exp":
     num_points = [3, 5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
     for k in num_points:
       error_stats = []
@@ -72,7 +72,7 @@ def rando(exp, approx, file_name):
 
 
 def mpeg7_mnist(data_type, exp, approx,file_name):
-  if exp == "smallest_angle_exp":
+  if exp == "smallest_stratum_exp":
     error_stats = []
     out_file = os.path.join('analysis_' + approx + '_approx', exp, 'combined_data', data_type, file_name + '.txt')
     for filename in os.listdir(os.path.join('output_' + approx + '_approx', exp, data_type)):

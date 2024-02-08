@@ -16,16 +16,14 @@ import functools
 import math
 import random
 from matplotlib.font_manager import FontProperties
-import concurrent.futures
 from PyPDF2 import PdfFileMerger, PdfFileReader
-import time
 
 class DirectionalExp(object):
-  def __init__(self, G, verts, directions):
-      self.graph = create_graph(verts, G.edges())
+  def __init__(self, Graph, verts, directions):
+      self.graph = Graph
       self.directional_diagrams = []
       self.verts = verts
-      self.candidate_graph_edge_lists = find_planar_graphs(self.verts,list(itertools.combinations(G.nodes(), 2)))
+      self.graphs = find_planar_graphs(self.verts,list(itertools.combinations(Graph.nodes(), 2)))
       self.planar_graphs = []
       self.pos = { i : verts[i] for i in range(0, len(verts) ) }
       self.directions = directions
@@ -43,8 +41,9 @@ class DirectionalExp(object):
     plot_graphs(self.graphs[1:-1])
 
   def clean(self):
-    for edgelist in self.candidate_graph_edge_lists:
-      g = ExpGraph(create_graph(self.verts, edgelist))
+    self.graphs.pop(0)
+    for graph in self.graphs:
+      g = ExpGraph(create_graph(self.verts, graph))
       if (nx.check_planarity(g.graph)):
         self.planar_graphs.append(g)
 
@@ -106,7 +105,6 @@ class DirectionalExp(object):
     
 
   def planar_exp(self):
-    # remove clean
     self.clean()
     self.create_diagrams()
     self.fill()
@@ -122,7 +120,78 @@ class ExpGraph(object):
       self.graph = graph
       self.count = 0
 
-def bar_charts(graphs_file, alphas, num_verts, bbox):
+def coars_stratification (verts, edges):
+  graph = create_graph(verts, edges)
+  graph.graph["stratum"] = np.zeros((len(graph.nodes()),len(graph.nodes())))
+  fillangmatrix(graph.graph["stratum"], len(graph.nodes()), list(graph.nodes(data=True)))
+  arcs = find_arc_lengths(graph.graph["stratum"])
+  return graph, arcs
+
+# fill the angmatrix with appropriate orthangles
+# @param [][] angmatrix: nxn matrix for storing orthogonal angles in
+# @param int n: dimensions on nxn matrix angmatrix
+# @param [] vertlist: set of nodes in networkx graph
+# sets [i][j] of angmatrix to orthangle of line through i and j. [j][i] = [i][j] +- pi
+def fillangmatrix(angmatrix, n, vertlist):
+    for i in range(0, n):
+        for j in range(0, n):
+            # print("i: "+str(i) + " j: "+str(j)+" vi id: "+str(vertlist[i][1]['v'].get_id()) + " vj id: " + str(vertlist[j][1]['v'].get_id()))
+            if i == j:
+                angmatrix[i][j] = None  # fills diagonal of matrix with null, as no edge between vertex and itself
+            else:
+                angmatrix[i][j] = findorthangle(vertlist[i][1]['pos'], vertlist[j][1]['pos'])  # sets [i][j] to orthangle of line through i and j. [j][i] = [i][j] +- pi
+
+# potentially visualize with turtle graphics if I get bored/want to check if it looks correct visually
+# finds angle orthogonal to line passing through two vertices, a and b
+# @param Vertex a: first vertex to find orthogonal angle to
+# @param Vertex b: second vertex to find orthogonal angle to
+# @return float orthangle: orthgonal angle to line intersecting a and b in range [0, 2pi)
+def findorthangle(a, b):
+    # get slope
+    tempx = a[0] - b[0]
+    tempy = a[1] - b[1]
+
+    # get slope of perpindicular line to line segment (a,b)
+    orthx = -tempy
+    orthy = tempx
+
+    # atan2 gives back the angle in [-pi, pi] that the orthogonal slope makes with the x-axis
+    orthangle = math.atan2(orthy, orthx)
+    # if it is negative, then we need to subtract it from 2pi so it is in [0, 2pi)
+    if orthangle < 0.0:
+        orthangle = 2*math.pi + orthangle
+    return orthangle  # will be in radians
+
+# computes arc lengths of stratum on the unit sphere
+# @param matrix m: an nxn matrix which stores the orthogonal angle to the line intersecting each pair of vertices
+# @return [] arcs: a list of "arcs" defined by a start radian, end radian, and length
+def find_arc_lengths(m):
+    stratum_boundaries = []
+    for i in range (0, len(m)):
+        for j in range (0, len(m)):
+            if i != j:
+                stratum_boundaries.append({"location":m[i][j], "vertex1":i,
+                    "vertex2":j})
+    # sort by the boundary locations on the sphere (stored in radians)
+    stratum_boundaries = sorted(stratum_boundaries, key=lambda i: i['location'])
+    arcs = []
+    for i in range(0, len(stratum_boundaries)-1):
+        arc_length = 0.0
+        start = stratum_boundaries[i]
+        end = stratum_boundaries[i+1]
+        arcs.append({"start":start,
+            "end":end,
+            "length":abs(start["location"]-end["location"]),
+            "hit":0})
+    arcs.append({"start":stratum_boundaries[len(stratum_boundaries)-1],
+            "end":stratum_boundaries[0],
+            "length":abs((2*math.pi -
+                stratum_boundaries[len(stratum_boundaries)-1]["location"]) +
+                stratum_boundaries[0]["location"]),
+            "hit":0})
+    return arcs
+
+def bar_charts(graphs_file, alphas, num_verts):
   #Set bar chart properties
   font = FontProperties()
   font.set_family('serif')
@@ -139,88 +208,27 @@ def bar_charts(graphs_file, alphas, num_verts, bbox):
 
   f.savefig(os.path.join("graphs","maps","Bozeman","experiments", str(num_verts)+"_graphs", str(num_verts)+"_vert_exp","exp-small-graph-"+ str(num_verts) +"-vertex-directions_" + str(bbox)+ ".pdf"), bbox_inches='tight')
 
-def process_graph(graph, d):
-    try:
-        i = 1
-        directions = circle_disc(d,i)
-        G, verts = get_source_graph(graph)
-        print(G.nodes())
-
-        exp = DirectionalExp(G, verts, directions)
-        exp.planar_exp()
-        exp.find_num_directions()
-        start = time.perf_counter()
-        while exp.num_directions[-1] > 1:
-            i += 1
-            directions = circle_disc(d, i)
-            exp = DirectionalExp(G, verts, directions)
-            exp.planar_exp()
-            exp.find_num_directions()
-        
-        exp.collinear_points()
-
-        finish = time.perf_counter()
-        print(f"\nFinished start = time.perf_counter() in {round(finish-start, 2)}seconds\n")
-
-        return exp.alpha, exp
-
-    except Exception as e:
-        raise e
-        print(e.__class__, "occurred.")
-        print("Next entry.")
-        return None, None
-    
 
 def run_experiment(graphs_file, num_verts, bbox):
-    random.seed(41821)
-    in_file = graphs_file
-
-    with open(in_file, "rb") as in_graphs:
-        graphs = pickle.load(in_graphs)
-
-    print(len(graphs))
-    d = random.uniform(0, 2*np.pi)
-    print(d)
-
-    alphas = []
-    experiments = []
-
-    with concurrent.futures.ProcessPoolExecutor() as executor:
-        for alpha, exp in executor.map(process_graph, graphs, [d]*len(graphs)):
-            if alpha is not None and exp is not None:
-                alphas.append(alpha)
-                experiments.append(exp)
-
-    # Make Bar Chart
-    bar_charts(graphs_file, alphas, num_verts, bbox)
-
-    # Save Experiment       
-    exp_file = os.path.join("graphs", "maps", "Bozeman", "experiments", str(num_verts) + "_graphs", str(num_verts) + "_vert_exp", str(num_verts) + '_nodes_experiment_' + str(bbox) + '.pickle')
-    with open(exp_file, "wb") as f:
-        pickle.dump(experiments, f)
-
-'''
-
-def run_experiment(graphs_file, num_verts, bbox):
-  random.seed(41821)
+  random.seed(41822)
   #in_graphs = glob.glob(graph_files + "/*.pickle")
   in_file = graphs_file
   in_graphs = open(in_file,"rb")
   graphs = pickle.load(in_graphs)
   print(len(graphs))
-  d = random.uniform(0, 2*np.pi)
-  print(d)
   k = 0
   alphas = []
   experiments = []
   for graph in graphs:
+    directions = []
     i = 1
     print(k)
     try:
       #in_graph = open(file,"rb")
       #graph = pickle.load(in_graph)
-      directions = circle_disc(d,i)
       G,verts = get_source_graph(graph)
+      G,arcs = coars_stratification(verts,G.edges()) 
+      directions.append(circle_disc(arcs))
       print(G.nodes())
       #fig, ax = ox.plot_graph(G,node_color='r',show=False, close=False)
       #plt.show()
@@ -228,8 +236,9 @@ def run_experiment(graphs_file, num_verts, bbox):
       exp.planar_exp()
       exp.find_num_directions()
       while exp.num_directions[-1] > 1:
+        print(len(exp.num_directions))
         i += 1
-        directions = circle_disc(d,i)
+        directions.append(circle_disc(arcs))
         exp = DirectionalExp(G,verts,directions)
         exp.planar_exp()
         exp.find_num_directions()
@@ -240,24 +249,25 @@ def run_experiment(graphs_file, num_verts, bbox):
       pass
     except Exception as e:
           print(e.__class__, "occurred.")
+          print(f"Error on line {sys.exc_info()[-1].tb_lineno}: {e.__class__.__name__} - {e}")
           print("Next entry.")
 
   #Make Bar Chart
-  bar_charts(graphs_file,alphas,num_verts,bbox)
+  bar_charts(graphs_file,alphas,num_verts)
 
   #Save Experiment       
   exp_file = os.path.join("graphs","maps","Bozeman","experiments", str(num_verts)+"_graphs", str(num_verts)+"_vert_exp", str(num_verts) +'_nodes_experiment_' + str(bbox) +'.pickle')
   with open(exp_file, "wb") as f:
       pickle.dump(experiments, f)
-'''
+
 
 if __name__ == "__main__":
 
   city = "Bozeman"
   state = "MT"
   country = "USA"
-  vertices = 6
-  bbox = 30
+  vertices = 4
+  bbox = 60
   source_dir = os.path.join("graphs","maps",city,"experiments")
   
   #Get subgraphs
@@ -266,7 +276,7 @@ if __name__ == "__main__":
 
 
   #In graphs location
-  graphs_file = "Bozeman_" + str(vertices) + "graphs_from_source_30.pickle"
+  graphs_file = "Bozeman_" + str(vertices) + "graphs_from_source_60.pickle"
   run_experiment(os.path.join(source_dir,graphs_file),vertices,bbox)
   
 
@@ -295,6 +305,7 @@ if __name__ == "__main__":
       #plt.show()
       f.savefig(os.path.join("graphs","maps","Bozeman","experiments", "collinear_graphs", str(vertices)+"_nodes",str(collinear_val)+".pdf"), bbox_inches='tight')
   
+
 
 
 

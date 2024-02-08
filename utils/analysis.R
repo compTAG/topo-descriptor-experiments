@@ -245,12 +245,12 @@ uniform_sample_exp_analysis_png <-function(in_file, exp, data_type, approx){
 
 # Functions for grabbing combined data and running statistical analysis
 perform_smallest_angle_analysis <- function(random, mnist, mpeg7, approx){
-m1 <- smallest_angle_exp_analysis_pdf(random, "smallest_angle_exp", "random", approx)
-m2 <- smallest_angle_exp_analysis_pdf(mnist, "smallest_angle_exp", "mnist", approx)
-m3 <- smallest_angle_exp_analysis_pdf(mpeg7, "smallest_angle_exp", "mpeg7", approx)
-smallest_angle_exp_analysis_png(random, "smallest_angle_exp", "random", approx)
-smallest_angle_exp_analysis_png(mnist, "smallest_angle_exp", "mnist", approx)
-smallest_angle_exp_analysis_png(mpeg7, "smallest_angle_exp", "mpeg7", approx)
+m1 <- smallest_angle_exp_analysis_pdf(random, "smallest_stratum_exp", "random", approx)
+m2 <- smallest_angle_exp_analysis_pdf(mnist, "smallest_stratum_exp", "mnist", approx)
+m3 <- smallest_angle_exp_analysis_pdf(mpeg7, "smallest_stratum_exp", "mpeg7", approx)
+smallest_angle_exp_analysis_png(random, "smallest_stratum_exp", "random", approx)
+smallest_angle_exp_analysis_png(mnist, "smallest_stratum_exp", "mnist", approx)
+smallest_angle_exp_analysis_png(mpeg7, "smallest_stratum_exp", "mpeg7", approx)
 
 print("Best Fit Summary RANDPTS")
 print(summary(m1))

@@ -6,6 +6,8 @@ from utils.orth_angle import *
 from utils.load_datasets import *
 import argparse
 
+import subprocess
+
 import time
 import pickle
 import sys
@@ -27,6 +29,7 @@ import random
 def stratify(G):
     fillangmatrix(G.graph["stratum"], len(G.nodes()), list(G.nodes(data=True)))
     arcs = find_arc_lengths(G.graph["stratum"])
+    print(f"\n\n\n{arcs}\n\n\n")
     return G, arcs
 
 
@@ -274,24 +277,26 @@ def get_exp_graphs(data_type, graphs_dir, out_graphs_dir):
     return exp_list
 
 def plot_exps(data_type, exp_type, graph_dir, eps):
-	if exp_type == 1:
-		approx = eps
-		rando("smallest_angle_exp",approx,"angle_stats")
-		mpeg7_mnist("mpeg7","smallest_angle_exp", approx, "angle_stats")
-		mpeg7_mnist("mnist","smallest_angle_exp", approx, "angle_stats")
-		ri.initr()
-		ri.parse('source("analysis.R");')
-		ri.parse('approx <- eps;')
-		ri.parse('rando <- get_exp_files(approx,"smallest_angle_exp", "random");')
-		ri.parse('mnist <- get_exp_files(approx,"smallest_angle_exp", "mnist");')
-		ri.parse('mpeg7 <- get_exp_files(approx,"smallest_angle_exp", "mpeg7");')
+    if exp_type == 1:
+        approx = eps
+        rando("smallest_stratum_exp",approx,"angle_stats")
+        mpeg7_mnist("mpeg7","smallest_stratum_exp", approx, "angle_stats")
+        mpeg7_mnist("mnist","smallest_stratum_exp", approx, "angle_stats")
 
-		ri.parse('perform_smallest_angle_analysis(rando,mnist,mpeg7,approx);')
+        
+        ri.initr()
+        ri.parse('source("analysis.R");')
+        ri.parse('approx <- eps;')
+        ri.parse('random <- get_exp_files(approx,"smallest_stratum_exp", "random");')
+        ri.parse('mnist <- get_exp_files(approx,"smallest_stratum_exp", "mnist");')
+        ri.parse('mpeg7 <- get_exp_files(approx,"smallest_stratum_exp", "mpeg7");')
+
+        ri.parse('perform_smallest_stratum_exp_analysis(rando,mnist,mpeg7,approx);')
 		
 		
-		combine_pngs('smallest_angle_exp', approx)
-		img = Image.open("figs/smallest_angle_exp/smallest_angle_exp_"+approx+".png")
-		img.show()
+        combine_pngs('smallest_stratum_exp', approx)
+        img = Image.open("figs/smallest_stratum_exp/smallest_stratum_exp_"+approx+".png")
+        img.show()
 		
 
 ######################################################

@@ -45,7 +45,7 @@ dir_list = [
     os.path.join('analysis_005_approx', 'smallest_stratum_exp', 'combined_data', 'mnist'),
     os.path.join('analysis_005_approx', 'smallest_stratum_exp', 'combined_data', 'mpeg7'),
     os.path.join('analysis_005_approx', 'smallest_stratum_exp', 'combined_data', 'random'),
-    os.path.join('analysis_001_approx', 'smallest_startum_exp', 'combined_data', 'mnist'),
+    os.path.join('analysis_001_approx', 'smallest_stratum_exp', 'combined_data', 'mnist'),
     os.path.join('analysis_001_approx', 'smallest_stratum_exp', 'combined_data', 'mpeg7'),
     os.path.join('analysis_001_approx', 'smallest_stratum_exp', 'combined_data', 'random'),
     os.path.join('analysis_005_approx', 'uniform_sample_exp', 'combined_data', 'mnist'),
