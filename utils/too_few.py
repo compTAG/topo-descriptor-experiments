@@ -1,3 +1,4 @@
+import sys
 import osmnx as ox
 import pandas as pd
 import numpy as np
@@ -7,7 +8,6 @@ import topology
 import dionysus as d
 import matplotlib.pyplot as plt
 import matplotlib
-#from osmnx_requests import make_bounding_box, find_subgraphs,duplicate_graphs
 from planar_graphs import get_city_map, get_source_graph, plot_graphs, create_graph, circle_disc, is_intersection, find_planar_graphs, collinear,make_bounding_box, find_subgraphs,duplicate_graphs
 import itertools
 import pickle
@@ -55,8 +55,6 @@ class DirectionalExp(object):
   def find_graphs(self,diagram):
     for graph in self.planar_graphs:
       for direction in self.directions:
-        diagrams = []
-        graphs = []
         dgm = topology.DirectionalDiagram(graph.graph, direction)
         if (diagram == (dgm)):
           diagram.equal_diagrams.append(dgm)
@@ -139,7 +137,7 @@ def fillangmatrix(angmatrix, n, vertlist):
             if i == j:
                 angmatrix[i][j] = None  # fills diagonal of matrix with null, as no edge between vertex and itself
             else:
-                angmatrix[i][j] = findorthangle(vertlist[i][1]['pos'], vertlist[j][1]['pos'])  # sets [i][j] to orthangle of line through i and j. [j][i] = [i][j] +- pi
+                angmatrix[i][j] = findorthangle(vertlist[i][1], vertlist[j][1])  # sets [i][j] to orthangle of line through i and j. [j][i] = [i][j] +- pi
 
 # potentially visualize with turtle graphics if I get bored/want to check if it looks correct visually
 # finds angle orthogonal to line passing through two vertices, a and b
@@ -148,8 +146,8 @@ def fillangmatrix(angmatrix, n, vertlist):
 # @return float orthangle: orthgonal angle to line intersecting a and b in range [0, 2pi)
 def findorthangle(a, b):
     # get slope
-    tempx = a[0] - b[0]
-    tempy = a[1] - b[1]
+    tempx = a['pos'][0] - b['pos'][0]
+    tempy = a['pos'][1] - b['pos'][1]
 
     # get slope of perpindicular line to line segment (a,b)
     orthx = -tempy
@@ -191,6 +189,28 @@ def find_arc_lengths(m):
             "hit":0})
     return arcs
 
+# tests to make sure gen position assumptions are met for a point cloud
+# @param networkx Graph G: point cloud object
+# @return: True if general position assumptions are met, False otherwise
+def test_gen_pos(G):
+    # Test to make sure no two points share an x- or y-coord
+    for c in itertools.combinations(list(G.nodes(data=True)), 2):
+        if (c[0][1]['x'] == c[1][1]['x'] or
+            c[0][1]['y'] == c[1][1]['y']):
+            print("Shared x- and y-coords")
+            return False
+    # Test to make sure no three points are colinear
+    for c in itertools.combinations(list(G.nodes(data=True)), 3):
+        # print(str(c[0][1]['v'].get_id()) + " " + str(c[1][1]['v'].get_id()) + " "+ str(c[2][1]['v'].get_id()))
+        if colin(c[0][1],c[1][1],c[2][1]):
+            print("3 points colin")
+            return False
+    return True
+
+def colin(x,y,z):
+    cross_product = abs((y['x'] - x['x']) * (z['y'] - x['y']) - (y['y'] - x['y']) * (z['x'] - x['x']))
+    return cross_product == 0
+
 def bar_charts(graphs_file, alphas, num_verts):
   #Set bar chart properties
   font = FontProperties()
@@ -223,33 +243,48 @@ def run_experiment(graphs_file, num_verts, bbox):
     directions = []
     i = 1
     print(k)
+
+    #Show the graph
+    #fig, ax = ox.plot_graph(graph,node_color='r',show=False, close=False)
+    #plt.show()
+
     try:
-      #in_graph = open(file,"rb")
-      #graph = pickle.load(in_graph)
       G,verts = get_source_graph(graph)
-      G,arcs = coars_stratification(verts,G.edges()) 
-      directions.append(circle_disc(arcs))
-      print(G.nodes())
-      #fig, ax = ox.plot_graph(G,node_color='r',show=False, close=False)
-      #plt.show()
-      exp = DirectionalExp(G,verts,directions)
-      exp.planar_exp()
-      exp.find_num_directions()
-      while exp.num_directions[-1] > 1:
-        print(len(exp.num_directions))
-        i += 1
+      G,arcs = coars_stratification(verts,G.edges())
+
+      if (test_gen_pos(graph)==False):
+         k += 1
+         pass
+      else:
         directions.append(circle_disc(arcs))
+        print(G.nodes())
         exp = DirectionalExp(G,verts,directions)
         exp.planar_exp()
         exp.find_num_directions()
-      exp.collinear_points()
-      experiments.append(exp)
-      alphas.append(exp.alpha)
-      k += 1
-      pass
+        while exp.num_directions[-1] > 1:
+
+
+          #Remove the if-check below
+          #if(len(directions) >= 20):
+          #  break
+
+          #Remove the if-check below
+          #if (exp.alpha >= len(directions)):
+          #   print(f"Alphas:{exp.alpha} and directions list length: {len(directions)}")
+              
+
+          i += 1
+          directions.append(circle_disc(arcs))
+          exp = DirectionalExp(G,verts,directions)
+          exp.planar_exp()
+          exp.find_num_directions()
+        exp.collinear_points()
+        experiments.append(exp)
+        alphas.append(exp.alpha)
+        k += 1
+        pass
     except Exception as e:
           print(e.__class__, "occurred.")
-          print(f"Error on line {sys.exc_info()[-1].tb_lineno}: {e.__class__.__name__} - {e}")
           print("Next entry.")
 
   #Make Bar Chart
@@ -305,7 +340,6 @@ if __name__ == "__main__":
       #plt.show()
       f.savefig(os.path.join("graphs","maps","Bozeman","experiments", "collinear_graphs", str(vertices)+"_nodes",str(collinear_val)+".pdf"), bbox_inches='tight')
   
-
 
 
 

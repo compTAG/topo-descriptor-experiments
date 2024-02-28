@@ -40,13 +40,12 @@ def get_city_map(city,state, country):
         print("Directory %s already exists" % dirname)
 
     G = ox.graph_from_place(','.join([city, state, country]), simplify=False, network_type='drive')
-    #G = G.to_undirected()
     G_proj = ox.project_graph(G)
     nodes_proj, gdf_edges = ox.graph_to_gdfs(G_proj, edges=True, nodes = True)
 
     nx.write_gpickle(G, os.path.join("graphs","maps",city,city + "_" + state+".pkl"))
 
-    return G, nodes_proj.head(200)
+    return G, nodes_proj.head(600)
     
 def request_graph(location_point, dist):
   G = ox.graph_from_point(location_point, dist=dist,simplify=False)
@@ -68,7 +67,10 @@ def get_source_graph(graph):
   y = nodes_proj['y'].tolist()
   verts = list(zip(x, y))
 
-  return G_relable,verts
+  #Convert to undirected graph
+  G_undirected = G_relable.to_undirected()
+
+  return G_undirected,verts
 
 def is_intersection(vertices, edges,intersect = False):
     check_vertices = []
@@ -94,7 +96,8 @@ def find_planar_graphs(vertices, edges):
         G = G + find_planar_graphs(vertices, edges[:-1])
         for graph in G:
             if not is_intersection(vertices, graph + [edges[-1]]):
-                G = G + [graph + [edges[-1]]]
+                if edges[-1] not in graph:
+                    G = G + [graph + [edges[-1]]]
         return G
     else:
         return [G]        
@@ -206,5 +209,13 @@ def find_subgraphs(G, nodes_proj, source_dir, bbox):
         pickle.dump(graphs5, f)
     with open(os.path.join(source_dir,g6), "wb") as f:
         pickle.dump(graphs6, f)
+
+
+
+
+
+
+
+
 
 
