@@ -16,6 +16,7 @@ import functools
 import math
 import random
 from matplotlib.font_manager import FontProperties
+from matplotlib.ticker import MaxNLocator
 from PyPDF2 import PdfFileMerger, PdfFileReader
 
 class DirectionalExp(object):
@@ -54,12 +55,11 @@ class DirectionalExp(object):
 
   def find_graphs(self,diagram):
     for graph in self.planar_graphs:
-      for direction in self.directions:
-        dgm = topology.DirectionalDiagram(graph.graph, direction)
-        if (diagram == (dgm)):
-          diagram.equal_diagrams.append(dgm)
-          diagram.equal_graphs.append(graph)
-          graph.count += 1
+      dgm = topology.DirectionalDiagram(graph.graph, diagram.dir)
+      if (diagram == (dgm)):
+        diagram.equal_diagrams.append(dgm)
+        diagram.equal_graphs.append(graph)
+        graph.count += 1
 
   def fill(self):
     for diagram in self.directional_diagrams:
@@ -125,25 +125,14 @@ def coars_stratification (verts, edges):
   arcs = find_arc_lengths(graph.graph["stratum"])
   return graph, arcs
 
-# fill the angmatrix with appropriate orthangles
-# @param [][] angmatrix: nxn matrix for storing orthogonal angles in
-# @param int n: dimensions on nxn matrix angmatrix
-# @param [] vertlist: set of nodes in networkx graph
-# sets [i][j] of angmatrix to orthangle of line through i and j. [j][i] = [i][j] +- pi
 def fillangmatrix(angmatrix, n, vertlist):
     for i in range(0, n):
         for j in range(0, n):
-            # print("i: "+str(i) + " j: "+str(j)+" vi id: "+str(vertlist[i][1]['v'].get_id()) + " vj id: " + str(vertlist[j][1]['v'].get_id()))
             if i == j:
                 angmatrix[i][j] = None  # fills diagonal of matrix with null, as no edge between vertex and itself
             else:
                 angmatrix[i][j] = findorthangle(vertlist[i][1], vertlist[j][1])  # sets [i][j] to orthangle of line through i and j. [j][i] = [i][j] +- pi
 
-# potentially visualize with turtle graphics if I get bored/want to check if it looks correct visually
-# finds angle orthogonal to line passing through two vertices, a and b
-# @param Vertex a: first vertex to find orthogonal angle to
-# @param Vertex b: second vertex to find orthogonal angle to
-# @return float orthangle: orthgonal angle to line intersecting a and b in range [0, 2pi)
 def findorthangle(a, b):
     # get slope
     tempx = a['pos'][0] - b['pos'][0]
@@ -160,9 +149,6 @@ def findorthangle(a, b):
         orthangle = 2*math.pi + orthangle
     return orthangle  # will be in radians
 
-# computes arc lengths of stratum on the unit sphere
-# @param matrix m: an nxn matrix which stores the orthogonal angle to the line intersecting each pair of vertices
-# @return [] arcs: a list of "arcs" defined by a start radian, end radian, and length
 def find_arc_lengths(m):
     stratum_boundaries = []
     for i in range (0, len(m)):
@@ -186,12 +172,10 @@ def find_arc_lengths(m):
             "length":abs((2*math.pi -
                 stratum_boundaries[len(stratum_boundaries)-1]["location"]) +
                 stratum_boundaries[0]["location"]),
-            "hit":0})
+                "hit":0})
     return arcs
 
-# tests to make sure gen position assumptions are met for a point cloud
-# @param networkx Graph G: point cloud object
-# @return: True if general position assumptions are met, False otherwise
+
 def test_gen_pos(G):
     # Test to make sure no two points share an x- or y-coord
     for c in itertools.combinations(list(G.nodes(data=True)), 2):
@@ -207,9 +191,9 @@ def test_gen_pos(G):
             return False
     return True
 
-def colin(x,y,z):
+def colin(x,y,z, tolerance=1e-13):
     cross_product = abs((y['x'] - x['x']) * (z['y'] - x['y']) - (y['y'] - x['y']) * (z['x'] - x['x']))
-    return cross_product == 0
+    return cross_product < tolerance
 
 def bar_charts(graphs_file, alphas, num_verts):
   #Set bar chart properties
@@ -222,6 +206,7 @@ def bar_charts(graphs_file, alphas, num_verts):
   labels, counts = np.unique(alphas, return_counts=True)
   plt.bar(labels, counts, align='center', color = "black")
   plt.gca().set_xticks(range(max(alphas)+1))
+  plt.gca().yaxis.set_major_locator(MaxNLocator(integer=True))
   plt.title('Directions on ' + str(num_verts) + ' Vertex Subgraphs',fontsize=26, fontproperties=font)
   plt.xlabel('Number of Directions',fontsize=24, fontproperties=font)
   plt.ylabel('Number of Subgraphs',fontsize=24, fontproperties=font)
@@ -231,7 +216,6 @@ def bar_charts(graphs_file, alphas, num_verts):
 
 def run_experiment(graphs_file, num_verts, bbox):
   random.seed(41822)
-  #in_graphs = glob.glob(graph_files + "/*.pickle")
   in_file = graphs_file
   in_graphs = open(in_file,"rb")
   graphs = pickle.load(in_graphs)
@@ -239,53 +223,66 @@ def run_experiment(graphs_file, num_verts, bbox):
   k = 0
   alphas = []
   experiments = []
-  for graph in graphs:
-    directions = []
-    i = 1
-    print(k)
+  missed = 0
+  with open("logfile.txt", "a") as f:
+    for graph in graphs:
+      directions = []
+      i = 1
+      print(k)
 
-    #Show the graph
-    #fig, ax = ox.plot_graph(graph,node_color='r',show=False, close=False)
-    #plt.show()
+      #Show the graph
+      #fig, ax = ox.plot_graph(graph,node_color='r',show=False, close=False)
+      #plt.show()
 
-    try:
-      G,verts = get_source_graph(graph)
-      G,arcs = coars_stratification(verts,G.edges())
+      try:
+        G,verts = get_source_graph(graph)
+        G,arcs = coars_stratification(verts,G.edges())
 
-      if (test_gen_pos(graph)==False):
-         k += 1
-         pass
-      else:
-        directions.append(circle_disc(arcs))
-        print(G.nodes())
-        exp = DirectionalExp(G,verts,directions)
-        exp.planar_exp()
-        exp.find_num_directions()
-        while exp.num_directions[-1] > 1:
-
-
-          #Remove the if-check below
-          #if(len(directions) >= 20):
-          #  break
-
-          #Remove the if-check below
-          #if (exp.alpha >= len(directions)):
-          #   print(f"Alphas:{exp.alpha} and directions list length: {len(directions)}")
-              
-
-          i += 1
+        if (test_gen_pos(graph)==False):
+          k += 1
+          pass
+        
+        else:
           directions.append(circle_disc(arcs))
+          print(G.nodes())
           exp = DirectionalExp(G,verts,directions)
           exp.planar_exp()
           exp.find_num_directions()
-        exp.collinear_points()
-        experiments.append(exp)
-        alphas.append(exp.alpha)
-        k += 1
-        pass
-    except Exception as e:
-          print(e.__class__, "occurred.")
-          print("Next entry.")
+          while exp.num_directions[-1] > 1:
+
+
+            #Remove the if-check below
+            #if(len(directions) >= 24):
+            #  break
+                  
+
+            i += 1
+            direction = circle_disc(arcs)
+            if direction is not None:
+              
+              directions.append(direction)
+              exp = DirectionalExp(G,verts,directions)
+              exp.planar_exp()
+              exp.find_num_directions()
+            else:
+              fig, ax = ox.plot_graph(graph,node_color='r',show=False, close=False)
+              plt.show()
+              missed += 1
+              f.write(f'Something went wrong! Missed data count: {missed}\n')
+
+              break
+
+          exp.collinear_points()
+          experiments.append(exp)
+          alphas.append(exp.alpha)
+          k += 1
+          pass
+
+      except Exception as e:
+            print(e.__class__, "occurred.")
+            print("Next entry.")
+
+  print(f" Graphs with a lot of directions needed {missed}")
 
   #Make Bar Chart
   bar_charts(graphs_file,alphas,num_verts)

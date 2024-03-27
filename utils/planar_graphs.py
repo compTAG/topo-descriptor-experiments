@@ -45,7 +45,7 @@ def get_city_map(city,state, country):
 
     nx.write_gpickle(G, os.path.join("graphs","maps",city,city + "_" + state+".pkl"))
 
-    return G, nodes_proj.head(600)
+    return G, nodes_proj.head(200)
     
 def request_graph(location_point, dist):
   G = ox.graph_from_point(location_point, dist=dist,simplify=False)
@@ -119,7 +119,15 @@ def plot_graphs(graphs, figsize=14, dotsize=20):
 
 
 def circle_disc(arcs):
+
     random_arc = random.randint(0, len(arcs)-1)
+    while (arcs[random_arc]["hit"] == 1):
+        random_arc = random.randint(0, len(arcs)-1)
+        if all(arc["hit"] == 1 for arc in arcs):
+            print("All arcs have been hit.")
+            return None
+        
+    arcs[random_arc]["hit"] = 1
     random_point = random.uniform(arcs[random_arc]["start"]["location"],arcs[random_arc]["end"]["location"])
     x = np.cos(random_point)
     y = np.sin(random_point)
