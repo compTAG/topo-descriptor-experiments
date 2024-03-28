@@ -1,4 +1,5 @@
 import sys
+import json
 import osmnx as ox
 import pandas as pd
 import numpy as np
@@ -218,7 +219,16 @@ def run_experiment(graphs_file, num_verts, bbox):
   random.seed(41822)
   in_file = graphs_file
   in_graphs = open(in_file,"rb")
-  graphs = pickle.load(in_graphs)
+
+  with open(in_file, "r") as f:
+        graphs_data = json.load(f)
+
+  graphs = []
+  for graph_data in graphs_data:
+      graph = nx.readwrite.json_graph.node_link_graph(graph_data)
+      print(graph.nodes)
+      graphs.append(graph)
+
   print(len(graphs))
   k = 0
   alphas = []
@@ -265,8 +275,8 @@ def run_experiment(graphs_file, num_verts, bbox):
               exp.planar_exp()
               exp.find_num_directions()
             else:
-              fig, ax = ox.plot_graph(graph,node_color='r',show=False, close=False)
-              plt.show()
+              #fig, ax = ox.plot_graph(graph,node_color='r',show=False, close=False)
+              #plt.show()
               missed += 1
               f.write(f'Something went wrong! Missed data count: {missed}\n')
 
@@ -303,12 +313,12 @@ if __name__ == "__main__":
   source_dir = os.path.join("graphs","maps",city,"experiments")
   
   #Get subgraphs
-  #G, project_nodes = get_city_map(city,state, country)
-  #find_subgraphs(G, project_nodes, source_dir, bbox)
+  G, project_nodes = get_city_map(city,state, country)
+  find_subgraphs(G, project_nodes, source_dir, bbox)
 
 
   #In graphs location
-  graphs_file = "Bozeman_" + str(vertices) + "graphs_from_source_60.pickle"
+  graphs_file = "Bozeman_" + str(vertices) + "graphs_from_source_60.json"
   run_experiment(os.path.join(source_dir,graphs_file),vertices,bbox)
   
 

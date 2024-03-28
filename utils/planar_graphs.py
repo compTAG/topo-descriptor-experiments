@@ -1,4 +1,5 @@
 import osmnx as ox
+import json
 import pandas as pd
 import numpy as np
 import networkx as nx
@@ -43,9 +44,11 @@ def get_city_map(city,state, country):
     G_proj = ox.project_graph(G)
     nodes_proj, gdf_edges = ox.graph_to_gdfs(G_proj, edges=True, nodes = True)
 
-    nx.write_gpickle(G, os.path.join("graphs","maps",city,city + "_" + state+".pkl"))
+    with open(os.path.join("graphs", "maps", city, city + "_" + state + ".json"), "w") as f:
+        data = nx.readwrite.json_graph.node_link_data(G)
+        json.dump(data, f)
 
-    return G, nodes_proj.head(200)
+    return G, nodes_proj
     
 def request_graph(location_point, dist):
   G = ox.graph_from_point(location_point, dist=dist,simplify=False)
@@ -171,7 +174,7 @@ def find_subgraphs(G, nodes_proj, source_dir, bbox):
     graphs4 = []
     graphs5 = []
     graphs6 = []
-   #Get node positions
+    # Get node positions
     x = nodes_proj['lat'].tolist()
     y = nodes_proj['lon'].tolist()
     vertices = list(zip(x, y))
@@ -179,44 +182,52 @@ def find_subgraphs(G, nodes_proj, source_dir, bbox):
     for vertex in vertices:
         try:
             bb = make_bounding_box(vertex, bbox)
-            g = ox.truncate.truncate_graph_bbox(G, bb[0], bb[1], bb[2], bb[3])
+            g = ox.truncate.truncate_graph_bbox(G, bbox=bb)
             if len(g.nodes()) == 4:
                 if len(graphs4) == 0:
                     graphs4.append(g)
                 else:
-                 if duplicate_graphs(g,graphs4) == False:
-                    graphs4.append(g)
+                    if not duplicate_graphs(g, graphs4):
+                        graphs4.append(g)
                 print("4 graphs " + str(len(graphs4)))    
             elif len(g.nodes()) == 5:
                 if len(graphs5) == 0:
                     graphs5.append(g)
                 else:
-                 if duplicate_graphs(g,graphs5) == False:
-                    graphs5.append(g)
+                    if not duplicate_graphs(g, graphs5):
+                        graphs5.append(g)
                 print("5 graphs " + str(len(graphs5)))
             elif len(g.nodes()) == 6:
                 if len(graphs6) == 0:
                     graphs6.append(g)
                 else:
-                 if duplicate_graphs(g,graphs6)==False:
-                    graphs6.append(g)
+                    if not duplicate_graphs(g, graphs6):
+                        graphs6.append(g)
                 print("6 graphs " + str(len(graphs6)))
-            k = k+1
+            k += 1
             print(k)
             pass      
         except Exception as e:
             print(e.__class__, "occurred.")
             print("Next entry.") 
     
-    g4 = "Bozeman_4graphs_from_source_"+ str(bbox) +".pickle"
-    g5 = "Bozeman_5graphs_from_source_"+ str(bbox) +".pickle"
-    g6 = "Bozeman_6graphs_from_source_"+ str(bbox) +".pickle"
-    with open(os.path.join(source_dir,g4), "wb") as f:
-        pickle.dump(graphs4, f)
-    with open(os.path.join(source_dir,g5), "wb") as f:
-        pickle.dump(graphs5, f)
-    with open(os.path.join(source_dir,g6), "wb") as f:
-        pickle.dump(graphs6, f)
+    g4 = "Bozeman_4graphs_from_source_"+ str(bbox) +".json"
+    g5 = "Bozeman_5graphs_from_source_"+ str(bbox) +".json"
+    g6 = "Bozeman_6graphs_from_source_"+ str(bbox) +".json"
+    
+    save_graph_to_json(graphs4, os.path.join(source_dir, g4))
+    save_graph_to_json(graphs5, os.path.join(source_dir, g5))
+    save_graph_to_json(graphs6, os.path.join(source_dir, g6))
+
+
+def save_graph_to_json(graphs, filename):
+    serialized_graphs = []
+    for graph in graphs:
+        serialized_graph = nx.readwrite.json_graph.node_link_data(graph)
+        serialized_graphs.append(serialized_graph)
+
+    with open(filename, 'w') as f:
+        json.dump(serialized_graphs, f)
 
 
 
