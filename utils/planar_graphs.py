@@ -1,4 +1,5 @@
 import osmnx as ox
+import warnings
 import json
 import pandas as pd
 import numpy as np
@@ -14,6 +15,8 @@ from itertools import permutations
 import random
 import topology
 import dionysus as d
+
+warnings.filterwarnings("ignore", message="invalid value encountered in intersection")
 
 def create_graph(verts, edges):
     g = nx.Graph()
@@ -83,15 +86,15 @@ def is_intersection(vertices, edges,intersect = False):
     for e_1,e_2 in itertools.combinations(edges, 2):
         line1 = LineString([vertices[e_1[0]], vertices[e_1[1]]])
         line2 = LineString([vertices[e_2[0]], vertices[e_2[1]]])
-        int_pt = line1.intersection(line2)
         if line1.intersects(line2):
+            int_pt = line1.intersection(line2)
             intersection_points.append(int_pt)
     for i_p in intersection_points:
         if any((i_p == v) for v in check_vertices):
             continue
         else:
             intersect = True
-    return intersect 
+    return intersect
 
 def find_planar_graphs(vertices, edges):
     G = []

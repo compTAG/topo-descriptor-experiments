@@ -226,7 +226,6 @@ def run_experiment(graphs_file, num_verts, bbox):
   graphs = []
   for graph_data in graphs_data:
       graph = nx.readwrite.json_graph.node_link_graph(graph_data)
-      print(graph.nodes)
       graphs.append(graph)
 
   print(len(graphs))
@@ -237,7 +236,6 @@ def run_experiment(graphs_file, num_verts, bbox):
   with open("logfile.txt", "a") as f:
     for graph in graphs:
       directions = []
-      i = 1
       print(k)
 
       #Show the graph
@@ -259,14 +257,7 @@ def run_experiment(graphs_file, num_verts, bbox):
           exp.planar_exp()
           exp.find_num_directions()
           while exp.num_directions[-1] > 1:
-
-
-            #Remove the if-check below
-            #if(len(directions) >= 24):
-            #  break
                   
-
-            i += 1
             direction = circle_disc(arcs)
             if direction is not None:
               
@@ -279,7 +270,6 @@ def run_experiment(graphs_file, num_verts, bbox):
               #plt.show()
               missed += 1
               f.write(f'Something went wrong! Missed data count: {missed}\n')
-
               break
 
           exp.collinear_points()
@@ -289,6 +279,7 @@ def run_experiment(graphs_file, num_verts, bbox):
           pass
 
       except Exception as e:
+            k += 1
             print(e.__class__, "occurred.")
             print("Next entry.")
 
@@ -313,8 +304,8 @@ if __name__ == "__main__":
   source_dir = os.path.join("graphs","maps",city,"experiments")
   
   #Get subgraphs
-  G, project_nodes = get_city_map(city,state, country)
-  find_subgraphs(G, project_nodes, source_dir, bbox)
+  #G, project_nodes = get_city_map(city,state, country)
+  #find_subgraphs(G, project_nodes, source_dir, bbox)
 
 
   #In graphs location
