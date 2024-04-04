@@ -21,16 +21,15 @@ from matplotlib.ticker import MaxNLocator
 from PyPDF2 import PdfFileMerger, PdfFileReader
 
 class DirectionalExp(object):
-  def __init__(self, Graph, verts, directions):
+  def __init__(self, Graph, verts):
       self.graph = Graph
-      self.directional_diagrams = []
+      self.directional_diagram = None
       self.verts = verts
       self.graphs = find_planar_graphs(self.verts,list(itertools.combinations(Graph.nodes(), 2)))
       self.planar_graphs = []
+      self.equal_graphs = []
+      self.alpha=0
       self.pos = { i : verts[i] for i in range(0, len(verts) ) }
-      self.directions = directions
-      self.num_directions = []
-      self.alpha = 0
       self.test_collinearity = {}
 
     
@@ -42,16 +41,19 @@ class DirectionalExp(object):
   def plot_planar(self):
     plot_graphs(self.graphs[1:-1])
 
-  def clean(self):
+  def create_planar(self):
     self.graphs.pop(0)
     for graph in self.graphs:
       g = ExpGraph(create_graph(self.verts, graph))
       if (nx.check_planarity(g.graph)):
         self.planar_graphs.append(g)
+  
+  def clean(self):
+    for graph in self.planar_graphs:
+       graph.count = 0
 
-  def create_diagrams(self):
-    for direction in self.directions:
-      self.directional_diagrams.append(topology.DirectionalDiagram(self.graph, direction))
+  def create_diagrams(self, direction):
+    self.directional_diagram = topology.DirectionalDiagram(self.graph, direction)
 
 
   def find_graphs(self,diagram):
@@ -63,8 +65,14 @@ class DirectionalExp(object):
         graph.count += 1
 
   def fill(self):
-    for diagram in self.directional_diagrams:
-      self.find_graphs(diagram) 
+    self.find_graphs(self.directional_diagram) 
+  
+  def find_equals(self):
+    self.equal_graphs = []
+    for graph in self.planar_graphs:
+      if graph.count > 0:
+         self.equal_graphs.append(graph)
+         
 
   def graph_plots(self,diagram,figsize=14, dotsize=40):
     n = len(diagram.equal_graphs)
@@ -83,13 +91,6 @@ class DirectionalExp(object):
     for diagram in self.directional_diagrams:
       self.graph_plots(diagram)
 
-  def find_num_directions(self):
-    max_count = max(map(lambda i: i.count, self.planar_graphs))
-
-    for n in range(max_count):
-      self.num_directions.append(sum(map(lambda i: i.count >= n, self.planar_graphs)))
-    
-    self.alpha = len(self.num_directions)-1
     
   def plot_num_directions(self):
     max_count = max(map(lambda i: i.count, self.planar_graphs))
@@ -103,10 +104,11 @@ class DirectionalExp(object):
     plt.show()
     
 
-  def planar_exp(self):
-    self.clean()
-    self.create_diagrams()
+  def planar_exp(self,direction):
+    self.create_planar()
+    self.create_diagrams(direction)
     self.fill()
+    self.find_equals()
     
 
   def bottlenecks(self):
@@ -245,6 +247,7 @@ def run_experiment(graphs_file, num_verts, bbox):
       try:
         G,verts = get_source_graph(graph)
         G,arcs = coars_stratification(verts,G.edges())
+        
 
         if (test_gen_pos(graph)==False):
           k += 1
@@ -253,25 +256,29 @@ def run_experiment(graphs_file, num_verts, bbox):
         else:
           directions.append(circle_disc(arcs))
           print(G.nodes())
-          exp = DirectionalExp(G,verts,directions)
-          exp.planar_exp()
-          exp.find_num_directions()
-          while exp.num_directions[-1] > 1:
-                  
+          exp = DirectionalExp(G,verts)
+          exp.planar_exp(directions[-1])
+          exp.planar_graphs = exp.equal_graphs
+          while len(exp.planar_graphs) > 1:
+            exp.clean()     
             direction = circle_disc(arcs)
             if direction is not None:
               
+              
               directions.append(direction)
-              exp = DirectionalExp(G,verts,directions)
-              exp.planar_exp()
-              exp.find_num_directions()
+              exp.create_diagrams(directions[-1])
+              exp.fill()
+              exp.find_equals()
+              exp.planar_graphs = exp.equal_graphs
+
+
             else:
               #fig, ax = ox.plot_graph(graph,node_color='r',show=False, close=False)
               #plt.show()
               missed += 1
               f.write(f'Something went wrong! Missed data count: {missed}\n')
               break
-
+          exp.alpha = len(directions)
           exp.collinear_points()
           experiments.append(exp)
           alphas.append(exp.alpha)
@@ -299,8 +306,8 @@ if __name__ == "__main__":
   city = "Bozeman"
   state = "MT"
   country = "USA"
-  vertices = 4
-  bbox = 60
+  vertices = 6
+  bbox = 30
   source_dir = os.path.join("graphs","maps",city,"experiments")
   
   #Get subgraphs
@@ -321,7 +328,7 @@ if __name__ == "__main__":
 
   
   for e in exps:
-    if e.alpha >= 5:
+    if e.alpha >= 12:
       val_map = {}
       collinear_val = min(e.test_collinearity.keys())
       for node in e.test_collinearity.get(collinear_val):

@@ -63,10 +63,8 @@ class LowerStarFiltrationFactory(object):
 
         filtr = dionysus.Filtration()
         for vertices, time in simplices:
-            simplex = dionysus.Simplex(vertices, time)
-            filtr.append(simplex)
+            filtr.append(dionysus.Simplex(vertices, time))
 
-        filtr.sort()
         return filtr
 
 
@@ -75,10 +73,8 @@ class DirectionalDiagram(object):
         filtr = LowerStarFiltrationFactory(direction).create(graph)
         m = dionysus.homology_persistence(filtr)
         self._dgms = dionysus.init_diagrams(m, filtr)
-
         """
         print(self._dgms)
-
         for i, dgm in enumerate(self._dgms):
             for pt in dgm:
                 print(f"Diagram: {i}; Birth: {pt.birth}; Death: {pt.death}")
@@ -118,7 +114,7 @@ class DirectionalDiagram(object):
 
     def _dgm_equal(self, dgm1, dgm2): #use a direction to check equality 
         
-        if dionysus.bottleneck_distance(dgm1,dgm2) > 1e-11:
+        if dionysus.bottleneck_distance(dgm1,dgm2) != 0:
             return False
 
         return True
