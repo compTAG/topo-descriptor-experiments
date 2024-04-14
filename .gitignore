@@ -1,5 +1,6 @@
 
-logfile.tx
+diag-rand
+logfile.txt
 .ipynb_checkpoints/
 analysis_001_approx/
 analysis_005_approx/

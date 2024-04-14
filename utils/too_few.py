@@ -195,8 +195,27 @@ def test_gen_pos(G):
     return True
 
 def colin(x,y,z, tolerance=1e-13):
-    cross_product = abs((y['x'] - x['x']) * (z['y'] - x['y']) - (y['y'] - x['y']) * (z['x'] - x['x']))
-    return cross_product < tolerance
+  cross_product = abs((y['x'] - x['x']) * (z['y'] - x['y']) - (y['y'] - x['y']) * (z['x'] - x['x']))
+  return cross_product < tolerance
+
+def recenter_and_rescale (V_set):
+  x_values = [coord[0] for coord in V_set]
+  y_values = [coord[1] for coord in V_set]
+  min_x = min(x_values)
+  max_x = max(x_values)
+  min_y = min(y_values)
+  max_y = max(y_values)
+
+  scale_x = 1 / (max_x - min_x)
+  scale_y = 1 / (max_y - min_y)
+
+  recentered_scaled_positions = []
+  for node in V_set:
+      recentered_x = (node[0] - min_x) * scale_x
+      recentered_y = (node[1] - min_y) * scale_y
+      recentered_scaled_positions.append((recentered_x, recentered_y))
+
+  return recentered_scaled_positions
 
 def bar_charts(graphs_file, alphas, num_verts):
   #Set bar chart properties
@@ -246,6 +265,7 @@ def run_experiment(graphs_file, num_verts, bbox):
 
       try:
         G,verts = get_source_graph(graph)
+        verts = recenter_and_rescale(verts)
         G,arcs = coars_stratification(verts,G.edges())
         
 
@@ -273,8 +293,8 @@ def run_experiment(graphs_file, num_verts, bbox):
 
 
             else:
-              #fig, ax = ox.plot_graph(graph,node_color='r',show=False, close=False)
-              #plt.show()
+              fig, ax = ox.plot_graph(graph,node_color='r',show=False, close=False)
+              plt.show()
               missed += 1
               f.write(f'Something went wrong! Missed data count: {missed}\n')
               break
@@ -311,8 +331,8 @@ if __name__ == "__main__":
   source_dir = os.path.join("graphs","maps",city,"experiments")
   
   #Get subgraphs
-  #G, project_nodes = get_city_map(city,state, country)
-  #find_subgraphs(G, project_nodes, source_dir, bbox)
+  G, project_nodes = get_city_map(city,state, country)
+  find_subgraphs(G, project_nodes, source_dir, bbox)
 
 
   #In graphs location
