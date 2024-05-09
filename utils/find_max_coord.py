@@ -26,7 +26,7 @@ for filename in os.listdir(os.path.join('graphs','mpeg7')):
 	G = nx.read_gpickle(os.path.join('graphs','mpeg7', filename))
 	x,y = find_max(G)
 	if x == 1108.0836907535127 or y == 1108.0836907535127:
-		print filename
+		print (filename)
 	x_list_mpeg7.append(x)
 	y_list_mpeg7.append(y)
 
