@@ -4,6 +4,7 @@ import networkx as nx
 import numpy as np
 import time
 import os
+import pickle
 
 
 def randpts_graphs():
@@ -30,7 +31,7 @@ def randpts_graphs():
     index = pc["id"]
     output_file = "RAND_"+str(len(G.nodes()))+"_"+str(index)
     draw_graph(G, G.graph['stratum'], os.path.join("graphs", "random_imgs", output_file))
-    nx.write_gpickle(G, os.path.join("graphs","random", str(output_file)+".gpickle"))
+    save_graph_to_pickle(G, os.path.join("graphs","random", str(output_file)+".gpickle"))
     print(output_file+ ": " +str(time.time() - t)+ "(s)")
     t = time.time()
 
@@ -53,7 +54,7 @@ def mpeg7_graphs(eps, graphs_dir):
       output_file = "MPEG7_"+str(f[:-4])
       draw_graph(G, G.graph['stratum'], os.path.join(graphs_dir,"mpeg7_imgs",output_file))
       if ret != -2 and ret !=-1 and ret != 0:
-        nx.write_gpickle(G, os.path.join(graphs_dir, "mpeg7", str(output_file)+".gpickle"))
+        save_graph_to_pickle(G, os.path.join(graphs_dir, "mpeg7", str(output_file)+".gpickle"))
       else:
         unused_mpeg7.append((output_file, ret))
         print(output_file + " was not used")
@@ -96,7 +97,7 @@ def mnist_graphs(eps, graphs_dir):
       output_file = "MNIST_C"+str(c)+"_S"+str(samp_count)
       draw_graph(G, G.graph['stratum'], os.path.join(graphs_dir,"mnist_imgs",output_file))
       if ret != -2 and ret != -1 and ret != 0:
-        nx.write_gpickle(G, os.path.join(graphs_dir,"mnist",str(output_file)+".gpickle"))
+        save_graph_to_pickle(G, os.path.join(graphs_dir,"mnist",str(output_file)+".gpickle"))
       else:
         unused_mnist.append((output_file, ret))
         print(output_file + " graph was not used")
@@ -109,6 +110,8 @@ def mnist_graphs(eps, graphs_dir):
     for u in unused_mnist:
       f.write(str(u)+"\n")
 
-
+def save_graph_to_pickle(graph, filename):
+    with open(filename, 'wb') as f:
+        pickle.dump(graph, f)
 
 

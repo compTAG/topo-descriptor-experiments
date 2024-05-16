@@ -1,11 +1,17 @@
 import wget
 import os
-from backports import tempfile
+import tempfile
 from zipfile import ZipFile
 import shutil
+import requests
+import certifi
 
-URL_MPEG7 = 'https://dabi.temple.edu/external/shape/MPEG7/MPEG7dataset.zip'
-URL_EMNIST = 'http://www.itl.nist.gov/iaui/vip/cs_links/EMNIST/matlab.zip'
+#URL_MPEG7 = 'https://dabi.temple.edu/external/shape/MPEG7/MPEG7dataset.zip'
+# New link for MPEG-7 https://www.ehu.eus/ccwintco/index.php/MPEG-7_Core_Experiment_CE-Shape-1_Test_Set._Benchmarking_image_database_for_shape_recognition_techniques
+URL_MPEG7 = 'https://www.ehu.eus/ccwintco/uploads/d/de/MPEG7_CE-Shape-1_Part_B.zip'
+#URL_EMNIST = 'http://www.itl.nist.gov/iaui/vip/cs_links/EMNIST/matlab.zip'
+# New link for EMNIST data set http://greg-cohen.com/datasets/emnist/
+URL_EMNIST = 'https://rds.westernsydney.edu.au/Institutes/MARCS/BENS/EMNIST/emnist-matlab.zip'
 URL_MAP_CONSTRUCTION = 'https://github.com/pfoser/mapconstruction/zipball/master'
 
 dir_data = 'data'
@@ -77,25 +83,33 @@ def make_folder(folder_path):
 
     
 def get_data(url, target_dir, data_set_name):
-  # first check if we should do any downloading
-  if os.path.exists(os.path.join(target_dir, data_set_name)):
-    print("Warning: directory %s already exists, not re-downloading %s dataset" % (target_dir, data_set_name))
-    return
+    # Check if the target directory already exists
+    if os.path.exists(os.path.join(target_dir, data_set_name)):
+        print("Warning: directory %s already exists, not re-downloading %s dataset" % (target_dir, data_set_name))
+        return
 
-  with tempfile.TemporaryDirectory() as tmp:
-    data = wget.download(url,tmp)
-
-    # Unzip data and store in data folder
-    with ZipFile(data, 'r') as zip_ref:
-      zip_ref.extractall(tmp)
-      temp_dir = os.path.dirname(zip_ref.namelist()[1])
-      
-      # move and rename
-      dst = os.path.join(target_dir, data_set_name)
-      os.rename(os.path.join(tmp,temp_dir), dst)
-      print("Directory " , dst,  " Created ")
-
-  return dst
+    # Download the data using requests
+    response = requests.get(url, verify=False)
+    
+    # Create a temporary directory
+    with tempfile.TemporaryDirectory() as tmp:
+        # Write the downloaded content to a temporary file
+        temp_file_path = os.path.join(tmp, "emnist-matlab.zip")
+        with open(temp_file_path, 'wb') as f:
+            f.write(response.content)
+        
+        # Unzip data and store in data folder
+        with ZipFile(temp_file_path, 'r') as zip_ref:
+            # Extract data to temporary directory
+            zip_ref.extractall(tmp)
+            temp_dir = os.path.dirname(zip_ref.namelist()[1])
+            
+            # Move and rename extracted directory
+            dst = os.path.join(target_dir, data_set_name)
+            os.rename(os.path.join(tmp, temp_dir), dst)
+            print("Directory ", dst, " Created ")
+    
+    return dst
 
 def get_map_data(url, target_dir, data_set_name):
     # first check if we should do any downloading
@@ -178,3 +192,5 @@ def preprocess_data(dir_list):
     make_folders(dir_list)
     download_data()
     make_delta_headers()
+
+preprocess_data(dir_list)

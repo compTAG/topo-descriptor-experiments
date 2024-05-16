@@ -20,7 +20,7 @@ from utils.visualize import *
 from utils.delta_exp import *
 from tqdm import tqdm
 from utils.combine_data import rando, mpeg7_mnist, combine_pngs
-import rpy2.rinterface as ri
+import rpy2.robjects as robjects
 import random
 ######################################################
 ##### Functions for experiments ######################
@@ -29,7 +29,7 @@ import random
 def stratify(G):
     fillangmatrix(G.graph["stratum"], len(G.nodes()), list(G.nodes(data=True)))
     arcs = find_arc_lengths(G.graph["stratum"])
-    print(f"\n\n\n{arcs}\n\n\n")
+    #print(f"\n\n\n{arcs}\n\n\n")
     return G, arcs
 
 
@@ -240,13 +240,13 @@ def get_exp_graphs(data_type, graphs_dir, out_graphs_dir):
     # random experiment
     if data_type == 1 or data_type == 4:
         for filename in os.listdir(os.path.join('graphs', 'random')):
-            G = nx.read_gpickle(os.path.join('graphs', 'random', filename))
+            G = read_graph_from_pickle(os.path.join('graphs', 'random', filename))
             output_file = os.path.join("random", filename[:-8] + ".txt")
             exp_list.append({"G": G, "output_file": output_file})
     # MPEG7 dataset
     if data_type == 2 or data_type == 4:
         for filename in os.listdir(os.path.join(graphs_dir, 'mpeg7')):
-            G = nx.read_gpickle(os.path.join(graphs_dir, 'mpeg7', filename))
+            G = read_graph_from_pickle(os.path.join(graphs_dir, 'mpeg7', filename))
             output_file = os.path.join("mpeg7", filename[:-8] + ".txt")
             exp_list.append({"G": G, "output_file": output_file})
     # MNIST
@@ -254,7 +254,7 @@ def get_exp_graphs(data_type, graphs_dir, out_graphs_dir):
         for filename in os.listdir(os.path.join(graphs_dir, 'mnist')):
             # test_output_file = "mnist/"+filename[:-8]+".txt"
             # if not os.path.exists(out_graphs_dir+"/uniform_sample_exp/"+test_output_file):
-            G = nx.read_gpickle(os.path.join(graphs_dir, 'mnist', filename))
+            G = read_graph_from_pickle(os.path.join(graphs_dir, 'mnist', filename))
             output_file = os.path.join("mnist", filename[:-8] + ".txt")
             exp_list.append({"G": G, "output_file": output_file})
 
@@ -271,7 +271,7 @@ def get_exp_graphs(data_type, graphs_dir, out_graphs_dir):
         # exp_list.append({"G":G1, "output_file":output_file})
 
         # get the first MNIST file
-        G2 = nx.read_gpickle('graphs_random/RAND_3_1.gpickle')
+        G2 = read_graph_from_pickle('graphs_random/RAND_3_1.gpickle')
         output_file = "random/RAND_3_1.txt"
         exp_list.append({"G": G2, "output_file": output_file})
     return exp_list
@@ -279,24 +279,114 @@ def get_exp_graphs(data_type, graphs_dir, out_graphs_dir):
 def plot_exps(data_type, exp_type, graph_dir, eps):
     if exp_type == 1:
         approx = eps
+
         rando("smallest_stratum_exp",approx,"angle_stats")
         mpeg7_mnist("mpeg7","smallest_stratum_exp", approx, "angle_stats")
         mpeg7_mnist("mnist","smallest_stratum_exp", approx, "angle_stats")
-
         
-        ri.initr()
-        ri.parse('source("analysis.R");')
-        ri.parse('approx <- eps;')
-        ri.parse('random <- get_exp_files(approx,"smallest_stratum_exp", "random");')
-        ri.parse('mnist <- get_exp_files(approx,"smallest_stratum_exp", "mnist");')
-        ri.parse('mpeg7 <- get_exp_files(approx,"smallest_stratum_exp", "mpeg7");')
+        # Source the R script
+        robjects.r['source']("utils/analysis.R")
 
-        ri.parse('perform_smallest_stratum_exp_analysis(rando,mnist,mpeg7,approx);')
+        # Assign the Python variable to the R variable 'approx'
+        robjects.r.assign("approx", approx)
+
+        # Call the R functions
+        get_exp_files = robjects.r['get_exp_files']
+        perform_smallest_stratum_exp_analysis = robjects.r['perform_smallest_stratum_exp_analysis']
+
+        random = get_exp_files(approx, "smallest_stratum_exp", "random")
+        mnist = get_exp_files(approx, "smallest_stratum_exp", "mnist")
+        mpeg7 = get_exp_files(approx, "smallest_stratum_exp", "mpeg7")
+
+        perform_smallest_stratum_exp_analysis(random, mnist, mpeg7, approx)
 		
 		
         combine_pngs('smallest_stratum_exp', approx)
         img = Image.open("figs/smallest_stratum_exp/smallest_stratum_exp_"+approx+".png")
         img.show()
+
+    elif exp_type == 2:
+        approx = eps
+
+        rando("uniform_sample_exp",approx,"angle_stats")
+        mpeg7_mnist("mpeg7","uniform_sample_exp", approx, "angle_stats")
+        mpeg7_mnist("mnist","uniform_sample_exp", approx, "angle_stats")
+
+        # Source the R script
+        robjects.r['source']("utils/analysis.R")
+
+        # Assign the Python variable to the R variable 'approx'
+        robjects.r.assign("approx", approx)
+
+        # Call the R functions
+        get_exp_files = robjects.r['get_exp_files']
+        perform_uniform_sample_analysis = robjects.r['perform_uniform_sample_analysis']
+
+        random = get_exp_files(approx, "uniform_sample_exp", "random")
+        mnist = get_exp_files(approx, "uniform_sample_exp", "mnist")
+        mpeg7 = get_exp_files(approx, "uniform_sample_exp", "mpeg7")
+
+        perform_uniform_sample_analysis(random, mnist, mpeg7, approx)
+
+
+        combine_pngs('uniform_sample_exp', approx)
+        img = Image.open("figs/uniform_sample_exp/uniform_sample_exp_"+approx+".png")
+        img.show()
+    elif exp_type == 4: 
+        r_code = """
+        mnist_file <- read.table("output_001_approx/delta_exp/mnist/deltas.txt", header=TRUE, sep=",")
+        mpeg7_file <- read.table("output_001_approx/delta_exp/mpeg7/deltas.txt", header=TRUE, sep=",")
+
+        pdf("figs/delta_exp_figs/mnist/mnist_delta_exp_001.pdf")
+        par(mar=c(5, 5, 5, 5))
+        hist(mnist_file$delta, ylab="Number of Graphs", xlab="size (radians)", main="", family="serif", cex.lab=3, cex.main=2, cex.sub=2, cex.axis=2)
+        print("Min delta for MNIST")
+        print(min(mnist_file$delta))
+        print("Max delta for MNIST")
+        print(max(mnist_file$delta))
+        print("Total number of graphs")
+        print(length(mnist_file$n))
+        print(summary(mnist_file$delta))
+        dev.off()
+
+        pdf("figs/delta_exp_figs/mnist/mnist_delta_exp_plot_001.pdf")
+        par(mar=c(5, 5, 5, 5))
+        plot(mnist_file$n, mnist_file$delta, ylab="Delta (radians)",xlab="Vertices",
+            main="",
+            family="serif",cex.lab=3, cex.main=2,
+        cex.sub=2,cex.axis=2)
+        dev.off()
+
+        pdf("figs/delta_exp_figs/mpeg7/mpeg7_delta_exp_001.pdf")
+        par(mar=c(5, 5, 5, 5))
+        hist(mpeg7_file$delta, ylab="Number of Graphs", xlab="size (radians)", main="", family="serif", cex.lab=3, cex.main=2, cex.sub=2, cex.axis=2)
+        print("Min delta for MPEG7")
+        print(min(mpeg7_file$delta))
+        print("Max delta for MPEG7")
+        print(max(mpeg7_file$delta))
+        print("Total number of graphs")
+        print(length(mpeg7_file$n))
+        print(summary(mpeg7_file$delta))
+        dev.off()
+
+        pdf("figs/delta_exp_figs/mpeg7/mpeg7_delta_exp_plot_001.pdf")
+        par(mar=c(5, 5, 5, 5))
+        plot(mpeg7_file$n, mpeg7_file$delta, ylab="Delta (radians)",xlab="Vertices",
+            main="",
+            family="serif",cex.lab=3, cex.main=2,
+        cex.sub=2,cex.axis=2)
+        dev.off()
+        """
+
+        # Execute the R code
+        robjects.r(r_code)
+        
+        
+
+def read_graph_from_pickle(filename):
+    with open(filename, 'rb') as f:
+        graph = pickle.load(f)
+    return graph
 		
 
 ######################################################
@@ -342,9 +432,7 @@ if __name__ == "__main__":
 	#### exp type is:
 	#       1 for smallest stratum experiment (smallest_stratum_exp)
 	#       2 for a uniform random sample experiment (uniform_sample_exp)
-	#       3 ******************************************
-	#       4 for a uniform random sample experiment (uniform_sample_exp)
-	#       5 for all four exps
+	#       3 for small graphs experiment
 	exp_type = args.exp[0]
 
 	#### data is:
@@ -352,7 +440,6 @@ if __name__ == "__main__":
 	#       2 for MPEG7 (classes from PHT paper - Turner et al.)
 	#       3 for EMNIST
 	#       4 for all three
-	#       5 for test
 	data_type = args.data[0]
 
 	exp_list = get_exp_graphs(data_type, graphs_dir, out_graphs_dir)

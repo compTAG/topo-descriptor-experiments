@@ -1,8 +1,8 @@
 # FILE FOR MANAGING EXPERIMENTS
 
-from vertex import *
-from orth_angle import *
-from load_datasets import *
+from utils.vertex import *
+from utils.orth_angle import *
+from utils.load_datasets import *
 import random
 import time
 import pickle
@@ -12,7 +12,7 @@ import os
 import copy
 import numpy as np
 import networkx as nx
-from visualize import *
+from utils.visualize import *
 
 ###############################
 ####### Global constants ######

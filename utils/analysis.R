@@ -4,6 +4,7 @@
 #   x-axis: number of vertices
 #   y-axis: the ratio number of generated stratum using smallest size/number of
 #   stratum
+options(defaultPackages = c("methods", "utils", "grDevices", "graphics", "stats"))
 
 # Main function for grabbing combined experiment files
 get_exp_files <-function(approx, exp, data_type){
@@ -244,7 +245,7 @@ uniform_sample_exp_analysis_png <-function(in_file, exp, data_type, approx){
 
 
 # Functions for grabbing combined data and running statistical analysis
-perform_smallest_angle_analysis <- function(random, mnist, mpeg7, approx){
+perform_smallest_stratum_exp_analysis <- function(random, mnist, mpeg7, approx){
 m1 <- smallest_angle_exp_analysis_pdf(random, "smallest_stratum_exp", "random", approx)
 m2 <- smallest_angle_exp_analysis_pdf(mnist, "smallest_stratum_exp", "mnist", approx)
 m3 <- smallest_angle_exp_analysis_pdf(mpeg7, "smallest_stratum_exp", "mpeg7", approx)

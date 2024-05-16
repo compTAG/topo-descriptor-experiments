@@ -1,22 +1,22 @@
 ## Instructions
 
 1. Clone repo to local machine and cd into topo-descriptor-experiments
+
 2. To load environment run:
     conda env create -n "your_conda_environment_name" -f environment.yml
 
-3. In terminal to start jupyterlab run:
-    jupyter-lab
-    Note: You can exit out of jupyterlab with CNTRL + C in terminal.
+3. In terminal to start preprocess run:
+    python3 preprocessing.py
 
-4. In juypter-lab, open `preprocess`Experiment_Supplement.ipynb notebook
-    * Please run all preprocessing cells in order to create graphs for experiment files
-5. Once the graphs have been created for all data sets, the experiments may be run from the Jupyter notebook
-6. All experiments may also be run from exp_handler.py, with command-line arguments doccumented in the notebook.
+4. Once the graphs have been created for all data sets, the experiments may be run from the exp_handler.py
+    Smallest stratum experiment: 
+        python3 exp_handler.py --epsilon 001 --experiment 1 --data 4 (001 aproximation)
+        or
+        python3 exp_handler.py --epsilon 005 --experiment 1 --data 4 (005 aproximation)
+    Uniform random sample experiment:
+        python3 exp_handler.py --epsilon 001 --experiment 2 --data 4 (001 aproximation)
+        or
+        python3 exp_handler.py --epsilon 005 --experiment 2 --data 4 (005 aproximation)
 
-## Testing
-
-Some of the modules, for example `topology` have tests.  To run the tests:
-
-    python -m unittest topology.test
 
 
