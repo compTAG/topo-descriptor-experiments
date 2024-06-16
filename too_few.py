@@ -1,3 +1,4 @@
+import argparse
 import sys
 import json
 import osmnx as ox
@@ -9,7 +10,7 @@ import topology
 import dionysus as d
 import matplotlib.pyplot as plt
 import matplotlib
-from planar_graphs import get_city_map, get_source_graph, plot_graphs, create_graph, circle_disc, find_planar_graphs, collinear, find_subgraphs
+from utils.planar_graphs import get_city_map, get_source_graph, plot_graphs, create_graph, circle_disc, find_planar_graphs, collinear, find_subgraphs
 import itertools
 import pickle
 import glob
@@ -496,7 +497,15 @@ def bar_charts(graphs_file, alphas, num_verts):
   plt.xlabel('Number of Directions',fontsize=24, fontproperties=font)
   plt.ylabel('Number of Subgraphs',fontsize=24, fontproperties=font)
 
-  f.savefig(os.path.join("graphs","maps","Bozeman","experiments", str(num_verts)+"_graphs", str(num_verts)+"_vert_exp","exp-small-graph-"+ str(num_verts) +"-vertex-directions_" + str(bbox)+ ".pdf"), bbox_inches='tight')
+  file_path = os.path.join(
+     "graphs","maps","Bozeman","experiments", 
+     str(num_verts)+"_graphs",str(num_verts)+"_vert_exp",
+     "exp-small-graph-"+ str(num_verts) +"-vertex-directions_" + str(bbox)+ ".pdf")
+  
+  # Create directories if they do not exist
+  os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
+  f.savefig(file_path, bbox_inches='tight')
 
 
 def run_experiment(graphs_file, num_verts, bbox):
@@ -586,11 +595,18 @@ def run_experiment(graphs_file, num_verts, bbox):
 
 if __name__ == "__main__":
 
+  parser = argparse.ArgumentParser(description='Run the Too Few experiment')
+  parser.add_argument('--bbox', type=int, required=True, help='Bounding box value')
+  parser.add_argument('--number_of_vertices', type=int, required=True, help='Number of vertices')
+
+  args = parser.parse_args()
+
+  bbox = args.bbox
+  vertices = args.number_of_vertices
+
   city = "Bozeman"
   state = "MT"
   country = "USA"
-  vertices = 6
-  bbox = 30
   source_dir = os.path.join("graphs","maps",city,"experiments")
   
   #Get subgraphs
@@ -628,7 +644,12 @@ if __name__ == "__main__":
       # Draw the graph with nodes colored according to collinearity
       nx.draw(e.graph, e.pos, edgecolors='black', node_size = 50, cmap=plt.get_cmap('hot'), node_color=values)
       # Save the figure
-      f.savefig(os.path.join("graphs","maps","Bozeman","experiments", "collinear_graphs", str(vertices)+"_nodes",str(collinear_val)+".pdf"), bbox_inches='tight')
+      file_path = os.path.join("graphs","maps","Bozeman","experiments",
+                                "collinear_graphs", str(vertices)+"_nodes",str(collinear_val)+".pdf")
+      
+      os.makedirs(os.path.dirname(file_path), exist_ok=True)
+      
+      f.savefig(file_path, bbox_inches='tight')
   
 
 

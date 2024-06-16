@@ -17,6 +17,11 @@
         python3 exp_handler.py --epsilon 001 --experiment 2 --data 4 (001 aproximation)
         or
         python3 exp_handler.py --epsilon 005 --experiment 2 --data 4 (005 aproximation)
+    Small graphs experiment:
+        python3 too_few.py --bbox 60 --number_of_vertices 4,
+        python3 too_few.py --bbox 80 --number_of_vertices 5
+        or
+        python3 too_few.py --bbox 30 --number_of_vertices 6
 
 
 

@@ -210,6 +210,7 @@ def exp(G, output_file, exp_type, out_graphs_dir):
         uniform_sample_experiment(G, arcs, sample_sizes, output_file)
 
 
+
 # optional
 # draw_graph(G, G.graph["stratum"], output_file)
 
@@ -398,6 +399,7 @@ if __name__ == "__main__":
 
 	parser = argparse.ArgumentParser(prog='Exp Handler - TMTF',
 		description = 'Implements experiments from Too Many, Too Few')
+    
 	parser.add_argument('--epsilon' , '-eps', action = 'store',
 		choices = ['001','005'],
 		dest= 'eps',
@@ -418,6 +420,7 @@ if __name__ == "__main__":
 		required=True)
 	args = parser.parse_args()
 	eps = args.eps[0]
+    
 
 	# choices include graphs_001_approx and graphs_005_approx
 	graphs_dir = "graphs_"+eps+"_approx"
@@ -450,5 +453,4 @@ if __name__ == "__main__":
 
 	plot_exps(data_type, exp_type, out_graphs_dir, eps)
 	print("Complete")
-
 
