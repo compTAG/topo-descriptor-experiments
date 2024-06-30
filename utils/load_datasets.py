@@ -70,12 +70,28 @@ def generate_point_clouds(n,k,l,m):
 # @param Vertex y: second vertex
 # @param Vertex z: third vertex
 # @return: True if three pts are colinear, False otherwise
-def colin(x,y,z):
-    # Uses determinant method from: http://mathworld.wolfram.com/Collinear.html
-    if (x.get_x()*(y.get_y() - z.get_y()) + y.get_x()*(z.get_y() - x.get_y()) +
-        z.get_x()*(x.get_y() - y.get_y())) == 0:
-        return True
-    return False
+# def colin(x,y,z):
+#     # Uses determinant method from: http://mathworld.wolfram.com/Collinear.html
+#     if (x.get_x()*(y.get_y() - z.get_y()) + y.get_x()*(z.get_y() - x.get_y()) +
+#         z.get_x()*(x.get_y() - y.get_y())) == 0:
+#         return True
+#     return False
+def colin(x,y,z, tolerance=1e-13):
+  """
+  Check if three points are collinear within a certain tolerance.
+
+    Parameters:
+        x (dict): Dictionary representing the first point with 'x' and 'y' coordinates.
+        y (dict): Dictionary representing the second point with 'x' and 'y' coordinates.
+        z (dict): Dictionary representing the third point with 'x' and 'y' coordinates.
+        tolerance (float): Tolerance value for considering points collinear. Default is 1e-13.
+
+    Returns:
+        bool: True if the points are collinear within the given tolerance, False otherwise.
+  """
+  cross_product = abs((y.get_x() - x.get_x()) * (z.get_y() - x.get_y()) - (y.get_y() - x.get_y()) * (z.get_x() - x.get_x()))
+
+  return cross_product < tolerance
 
 # tests to see if the contour defines a simple polygon
 # @param G: networkx graph
