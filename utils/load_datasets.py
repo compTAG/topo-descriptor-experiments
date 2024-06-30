@@ -76,7 +76,7 @@ def generate_point_clouds(n,k,l,m):
 #         z.get_x()*(x.get_y() - y.get_y())) == 0:
 #         return True
 #     return False
-def colin(x,y,z, tolerance=1e-13):
+def colin(x,y,z):
   """
   Check if three points are collinear within a certain tolerance.
 
@@ -91,7 +91,7 @@ def colin(x,y,z, tolerance=1e-13):
   """
   cross_product = abs((y.get_x() - x.get_x()) * (z.get_y() - x.get_y()) - (y.get_y() - x.get_y()) * (z.get_x() - x.get_x()))
 
-  return cross_product < tolerance
+  return cross_product == 0
 
 # tests to see if the contour defines a simple polygon
 # @param G: networkx graph

@@ -417,7 +417,7 @@ def test_gen_pos(G):
 
     return True
 
-def colin(x,y,z, tolerance=1e-13):
+def colin(x,y,z):
   """
   Check if three points are collinear within a certain tolerance.
 
@@ -432,7 +432,7 @@ def colin(x,y,z, tolerance=1e-13):
   """
   cross_product = abs((y['x'] - x['x']) * (z['y'] - x['y']) - (y['y'] - x['y']) * (z['x'] - x['x']))
 
-  return cross_product < tolerance
+  return cross_product == 0
 
 def recenter_and_rescale (V_set):
   """
