@@ -88,11 +88,11 @@ smallest_angle_exp_analysis_pdf <-function(in_file, exp, data_type, approx){
   } else {
     pdf(file.path("figs", exp, data_type, paste0(data_type, "_", approx, "_approx_", exp, ".pdf")))
   }
-  par(mar=c(5, 5, 5, 5))
+  par(mar = c(5, 6, 4, 2), oma = c(0, 1, 0, 0))
   plot(log(in_file$n), log(in_file$minSize),
     xlab="Number of Vertices",
     ylab="Smallest Stratum Size",
-    main=paste0("Minimum Stratum Size in ", data_type," Graphs"),
+    main=NULL,
     family="serif",cex.lab=3, cex.main=2,
     cex.sub=2,cex.axis=2)
 
@@ -119,11 +119,11 @@ smallest_angle_exp_analysis_png <-function(in_file, exp, data_type, approx){
   } else {
     png(file.path("figs", exp, data_type, paste0(data_type, "_", approx, "_approx_", exp, ".png")))
   }
-  par(mar=c(5, 5, 5, 5))
+  par(mar = c(5, 6, 4, 2), oma = c(0, 1, 0, 0))
   plot(log(in_file$n), log(in_file$minSize),
     xlab="Number of Vertices",
     ylab="Smallest Stratum Size",
-    main=paste0("Minimum Stratum Size in ", data_type," Graphs"),
+    main=NULL,
     family="serif",cex.lab=3, cex.main=2,
     cex.sub=2,cex.axis=2)
 
@@ -147,13 +147,13 @@ smallest_angle_exp_analysis_png <-function(in_file, exp, data_type, approx){
 uniform_sample_exp_analysis_pdf <-function(in_file, exp, data_type, approx){
   if (data_type == "random") {
     pdf(file.path("figs", exp, data_type, paste0(data_type, "_", exp, ".pdf")))
-    # # par(mar=c(5, 5, 5, 5))
+    par(mar = c(5, 6, 4, 2), oma = c(0, 1, 0, 0))
     ratio <- in_file$hits / in_file$num_stratum
     # # plot(poly(rand$n,2)[,1], rand_ratio,
     plot(in_file$n, ratio,
       xlab="Number of Vertices",
       ylab="Hits over Number of Stratum",
-      main="Random Data Uniform Sampling",
+      main=NULL,
       family="serif",cex.lab=3, cex.main=2,
       cex.sub=2,cex.axis=2)
     m1 <- lm(ratio ~ poly(in_file$n,2))
@@ -172,12 +172,12 @@ uniform_sample_exp_analysis_pdf <-function(in_file, exp, data_type, approx){
 
   else {
     pdf(file.path("figs", exp, data_type, paste0(data_type, "_", approx, "_approx_", exp, ".pdf")))
-    par(mar=c(5, 5, 5, 5))
+    par(mar = c(5, 6, 4, 2), oma = c(0, 1, 0, 0))
     ratio <- in_file$hits / in_file$num_stratum
     plot(in_file$n, ratio,
       xlab="Number of Vertices",
       ylab="Hits over Number of Stratum",
-      main=paste0(data_type, " Uniform Sampling"),
+      main=NULL,
       family="serif",cex.lab=3, cex.main=2,
       cex.sub=2,cex.axis=2)
      m1 <- lm(ratio ~ in_file$n)
@@ -197,13 +197,13 @@ uniform_sample_exp_analysis_pdf <-function(in_file, exp, data_type, approx){
 uniform_sample_exp_analysis_png <-function(in_file, exp, data_type, approx){
   if (data_type == "random") {
     png(file.path("figs", exp, data_type, paste0(data_type, "_", exp, ".png")))
-    # # par(mar=c(5, 5, 5, 5))
+    par(mar = c(5, 6, 4, 2), oma = c(0, 1, 0, 0))
     ratio <- in_file$hits / in_file$num_stratum
     # # plot(poly(rand$n,2)[,1], rand_ratio,
     plot(in_file$n, ratio,
       xlab="Number of Vertices",
       ylab="Hits over Number of Stratum",
-      main="Random Data Uniform Sampling",
+      main=NULL,
       family="serif",cex.lab=3, cex.main=2,
       cex.sub=2,cex.axis=2)
     m1 <- lm(ratio ~ poly(in_file$n,2))
@@ -222,12 +222,12 @@ uniform_sample_exp_analysis_png <-function(in_file, exp, data_type, approx){
 
   else {
     png(file.path("figs", exp, data_type, paste0(data_type, "_", approx, "_approx_", exp, ".png")))
-    par(mar=c(5, 5, 5, 5))
+    par(mar = c(5, 6, 4, 2), oma = c(0, 1, 0, 0))
     ratio <- in_file$hits / in_file$num_stratum
     plot(in_file$n, ratio,
       xlab="Number of Vertices",
       ylab="Hits over Number of Stratum",
-      main=paste0(data_type, " Uniform Sampling"),
+      main=NULL,
       family="serif",cex.lab=3, cex.main=2,
       cex.sub=2,cex.axis=2)
      m1 <- lm(ratio ~ in_file$n)

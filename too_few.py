@@ -493,9 +493,10 @@ def bar_charts(graphs_file, alphas, num_verts):
   plt.bar(labels, counts, align='center', color = "black")
   plt.gca().set_xticks(range(max(alphas)+1))
   plt.gca().yaxis.set_major_locator(MaxNLocator(integer=True))
-  plt.title('Directions on ' + str(num_verts) + ' Vertex Subgraphs',fontsize=26, fontproperties=font)
   plt.xlabel('Number of Directions',fontsize=24, fontproperties=font)
   plt.ylabel('Number of Subgraphs',fontsize=24, fontproperties=font)
+  plt.xticks(fontsize=20, fontproperties=font)
+  plt.yticks(fontsize=20, fontproperties=font)
 
   file_path = os.path.join(
      "graphs","maps","Bozeman","experiments", 
@@ -610,8 +611,8 @@ if __name__ == "__main__":
   source_dir = os.path.join("graphs","maps",city,"experiments")
   
   #Get subgraphs
-  G, project_nodes = get_city_map(city,state, country)
-  find_subgraphs(G, project_nodes, source_dir, bbox)
+  #G, project_nodes = get_city_map(city,state, country)
+  #find_subgraphs(G, project_nodes, source_dir, bbox)
 
 
   #In graphs location
@@ -626,7 +627,7 @@ if __name__ == "__main__":
   # Iterate over each experiment
   for e in exps:
     # Check if alpha value is greater than or equal to 7
-    if e.alpha >= 7:
+    if e.alpha >= 6:
       val_map = {}
       # Find the minimum collinear value
       collinear_val = min(e.test_collinearity.keys())
