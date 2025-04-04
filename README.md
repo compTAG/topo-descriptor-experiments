@@ -19,6 +19,3 @@
         1. python3 too_few.py --bbox 60 --number_of_vertices 4
         2. python3 too_few.py --bbox 80 --number_of_vertices 5
         3. python3 too_few.py --bbox 30 --number_of_vertices 6
-
-
-
