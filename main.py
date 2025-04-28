@@ -243,28 +243,10 @@ def get_exp_graphs(data_type,graphs_dir,out_graphs_dir):
 	# MNIST
 	if data_type == 3 or data_type == 4:
 		for filename in os.listdir(os.path.join(graphs_dir,'mnist')):
-			#test_output_file = "mnist/"+filename[:-8]+".txt"
-			#if not os.path.exists(out_graphs_dir+"/uniform_sample_exp/"+test_output_file):
 			G = nx.read_gpickle(os.path.join(graphs_dir,'mnist', filename))
 			output_file = os.path.join("mnist", filename[:-8]+".txt")
 			exp_list.append({"G":G, "output_file":output_file})
 
-	# Test experiment
-	if data_type == 5:
-		#get one random graph
-		# G = nx.read_gpickle('graphs/random/RAND_3_1.gpickle')
-		# output_file = "TEST_RAND.txt"
-		# exp_list.append({"G":G, "output_file":output_file})
-
-		# #get the first MPEG7 file
-		# G1 = nx.read_gpickle('graphs/mpeg7/MPEG7_apple-1.gpickle')
-		# output_file = "TEST_MPEG7.txt"
-		# exp_list.append({"G":G1, "output_file":output_file})
-
-		#get the first MNIST file
-		G2 = nx.read_gpickle('graphs_random/RAND_3_1.gpickle')
-		output_file = "random/RAND_3_1.txt"
-		exp_list.append({"G":G2, "output_file":output_file})
 	return exp_list
 
 ######################################################
@@ -284,33 +266,17 @@ if __name__ == "__main__":
 	#### exp type is:
 	#				1 for stratification experiment (distribution_exp)
 	#				2 for random sample experiment (sample_exp)
-	#				3 for smallest angle experiment (smallest_angle_exp)
-	#				4 for a uniform random sample experiment (uniform_sample_exp)
-	#				5 for all four exps
+
 	exp_type = 1
 	#### data is:
 	#				1 for random
 	#				2 for MPEG7 (classes from PHT paper - Turner et al.)
 	#				3 for EMNIST
 	#				4 for all three
-	#				5 for test
 	data_type = 4
 
 	exp_list = get_exp_graphs(data_type,graphs_dir,out_graphs_dir)
 
-	# G,arcs = stratify(exp_list[0]["G"])
-	# print G.graph["stratum"]
-	# for a in arcs:
-	# 	print a
-	# for n in G.nodes(data=True):
-	# 	print str(n[1]['v'].get_id()) + " " +str(n[1]['v'].get_x()) + " " + str(n[1]['v'].get_y())
-
-	# sys.exit(1)
-
-	# stratum_order_exp(exp_list[0]["G"])
-
-	# Run the experiments
-	# p.map(exp_wrapper, [(e["G"],e["output_file"],exp_type) for e in exp_list])
 	counter = 1 
 	for e in exp_list:
 		print("Graph "+str(counter)+" of "+str(len(exp_list)))

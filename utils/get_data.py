@@ -6,11 +6,7 @@ import shutil
 import requests
 import certifi
 
-#URL_MPEG7 = 'https://dabi.temple.edu/external/shape/MPEG7/MPEG7dataset.zip'
-# New link for MPEG-7 https://www.ehu.eus/ccwintco/index.php/MPEG-7_Core_Experiment_CE-Shape-1_Test_Set._Benchmarking_image_database_for_shape_recognition_techniques
 URL_MPEG7 = 'https://www.ehu.eus/ccwintco/uploads/d/de/MPEG7_CE-Shape-1_Part_B.zip'
-#URL_EMNIST = 'http://www.itl.nist.gov/iaui/vip/cs_links/EMNIST/matlab.zip'
-# New link for EMNIST data set http://greg-cohen.com/datasets/emnist/
 URL_EMNIST = 'https://rds.westernsydney.edu.au/Institutes/MARCS/BENS/EMNIST/emnist-matlab.zip'
 URL_MAP_CONSTRUCTION = 'https://github.com/pfoser/mapconstruction/zipball/master'
 

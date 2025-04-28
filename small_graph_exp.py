@@ -1,25 +1,18 @@
 import argparse
-import sys
 import json
-import osmnx as ox
-import pandas as pd
 import numpy as np
 import networkx as nx
 import os
 import topology
 import dionysus as d
 import matplotlib.pyplot as plt
-import matplotlib
 from utils.planar_graphs import get_city_map, get_source_graph, plot_graphs, create_graph, circle_disc, find_planar_graphs, collinear, find_subgraphs
 import itertools
 import pickle
-import glob
-import functools
 import math
 import random
 from matplotlib.font_manager import FontProperties
 from matplotlib.ticker import MaxNLocator
-from PyPDF2 import PdfFileMerger, PdfFileReader
 
 class DirectionalExp(object):
   """
@@ -611,8 +604,8 @@ if __name__ == "__main__":
   source_dir = os.path.join("graphs","maps",city,"experiments")
   
   #Get subgraphs
-  #G, project_nodes = get_city_map(city,state, country)
-  #find_subgraphs(G, project_nodes, source_dir, bbox)
+  G, project_nodes = get_city_map(city,state, country)
+  find_subgraphs(G, project_nodes, source_dir, bbox)
 
 
   #In graphs location

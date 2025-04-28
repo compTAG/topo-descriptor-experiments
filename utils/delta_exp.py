@@ -110,18 +110,6 @@ def test_angle_func():
 	print("Testing x, should be 0.0")
 	print(angle(x, origin, x))
 
-	# x = Vertex(0,0.0,1.0)
-	# y = Vertex(1,1.0,0.0)
-	# z = Vertex(2,0.0,0.0)
-	# a = Vertex(3,-1.0,0.0)
-	# b = Vertex(4,1.0,-.001)
-	# print(angle(x,z,y)) # should be 3/2 pi
-	# print(angle(y,z,x)) # should be 1/2 pi
-	# print(angle(a,z,b))
-	# print(angle(b,z,a))
-	# print(math.pi - min(angle(a,z,b), angle(b,z,a)))
-	# print(angle(x,z,b))
-	# print(angle(b,z,x))
 
 def main():
 	exp_list_mpeg7 = get_mpeg7()
@@ -130,7 +118,7 @@ def main():
 	exp_list_mnist = get_mnist()
 	print(len(exp_list_mnist))
 	delta_exp(exp_list_mnist,"mnist")
-	# test_angle_func()
+
 
 if __name__ == '__main__':main()
 

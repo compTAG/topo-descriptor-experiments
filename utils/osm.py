@@ -226,38 +226,6 @@ ox.config(log_console=True, use_cache=True)
 #build_df(city, state, country)
 
 
-'''
-df = pd.read_pickle(os.path.join(dirname,'_'.join([city, state]) +"_cleaned.pkl"))
-data = df['vertex']
-
-result_df = pd.DataFrame(columns = ["osmid", "angle", "distance","vector_length"])
-angles = pd.DataFrame(columns = ["angle"])
-distances = pd.DataFrame(columns = ["distance"])
-vector_lengths = pd.DataFrame(columns = ["vector_length"])
-
-def results(data,result_df, angles, distances, vector_lengths):
-    for row in data.iterrows():
-        for angle in row[1]['vertex'].angles:
-            angles = angles.append({'osmid': str(row[1]['osmid']), 'angle': angle}, ignore_index=True)
-            #angles = angles.append({'angle': angle}, ignore_index=True)
-        for distance in row[1]['vertex'].distances:
-            distances = distances.append({'distance': distance}, ignore_index=True)
-
-        for vector_length in row[1]['vertex'].vector_lengths:
-            vector_lengths = vector_lengths.append({'vector_length': vector_length}, ignore_index=True)
-
-    result_df = angles.join(distances, how='outer')
-    result_df = result_df.join(vector_lengths, how='outer')
-    return result_df
-
-results = results(df,result_df,angles,distances,vector_lengths)
-results = results.sort_values(by=['angle']).reset_index(drop=True)
-results['observations'] = len(results) - results.index.values
-results['max'] = results.angle.apply(lambda row: results['distance'][(results['angle'] >= row)].max())
-results.to_pickle(os.path.join(dirname,city+"_final_results.pkl"))
-'''
-
-
 # Function to color scatter plot by vector length
 def color_vector_length(df, city):
   df = df[["angle","distance","vector_length"]]
@@ -299,46 +267,6 @@ def greater_bn(df,city):
   plt.ylabel('Count >= B_n')
   plt.savefig(os.path.join(dirname,city+"_count.png"))
 
-
-#df = pd.read_pickle(os.path.join(dirname,city+"_final_results.pkl"))
-#color_vector_length(df,city)
-#scatter_plot(df,city)
-#max_beyond(df,city)
-#greater_bn(df,city)
-
-
-
-
-
-#Locate and annotate a node on a graph by lat/lon
-'''
-halfSide = 200
-#Radius of the earth
-radius = 6371
-lat = 45.718977
-lon = -111.069745
-pradius = radius*math.cos(lat)
-latMin = lat - halfSide/radius
-latMax = lat + halfSide/radius
-lonMin = lon - halfSide/pradius
-lonMax = lon + halfSide/pradius
-
-
-ox.config(log_console=True, use_cache=True)
-city = "Bozeman"
-state = "Montana"
-country = "USA"
-G = ox.graph_from_place(','.join([city, state ,country]), simplify=False, network_type='drive')
-
-G = ox.get_undirected(G)
-
-fig, ax = ox.plot_graph(G,node_color='r',show=False, close=False, bbox= (latMax,latMin,lonMin,lonMax))
-
-text = 40695184
-c = Point(lon, lat).centroid
-ax.annotate(text, (c.x, c.y), c='y')
-plt.show()
-'''
 
 
 

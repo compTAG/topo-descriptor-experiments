@@ -210,10 +210,6 @@ def exp(G, output_file, exp_type, out_graphs_dir):
         uniform_sample_experiment(G, arcs, sample_sizes, output_file)
 
 
-
-# optional
-# draw_graph(G, G.graph["stratum"], output_file)
-
 # a small experiment that prints out the Graph nodes and the stratum for verification
 def small_stratum_verification(G, arcs):
     G, arcs = stratify(G)
@@ -253,28 +249,10 @@ def get_exp_graphs(data_type, graphs_dir, out_graphs_dir):
     # MNIST
     if data_type == 3 or data_type == 4:
         for filename in os.listdir(os.path.join(graphs_dir, 'mnist')):
-            # test_output_file = "mnist/"+filename[:-8]+".txt"
-            # if not os.path.exists(out_graphs_dir+"/uniform_sample_exp/"+test_output_file):
             G = read_graph_from_pickle(os.path.join(graphs_dir, 'mnist', filename))
             output_file = os.path.join("mnist", filename[:-8] + ".txt")
             exp_list.append({"G": G, "output_file": output_file})
-
-    # Test experiment
-    if data_type == 5:
-        # get one random graph
-        # G = nx.read_gpickle('graphs/random/RAND_3_1.gpickle')
-        # output_file = "TEST_RAND.txt"
-        # exp_list.append({"G":G, "output_file":output_file})
-
-        # #get the first MPEG7 file
-        # G1 = nx.read_gpickle('graphs/mpeg7/MPEG7_apple-1.gpickle')
-        # output_file = "TEST_MPEG7.txt"
-        # exp_list.append({"G":G1, "output_file":output_file})
-
-        # get the first MNIST file
-        G2 = read_graph_from_pickle('graphs_random/RAND_3_1.gpickle')
-        output_file = "random/RAND_3_1.txt"
-        exp_list.append({"G": G2, "output_file": output_file})
+            
     return exp_list
 
 def plot_exps(data_type, exp_type, graph_dir, eps):

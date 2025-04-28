@@ -39,9 +39,7 @@ rand_forty <- read.table((file.path("analysis_001_approx", "uniform_sample_exp",
 rand_fifty <- read.table((file.path("analysis_001_approx", "uniform_sample_exp", "combined_data", "random", "sample_stats_50.txt")), header=TRUE, sep=",")
 rand_sixty <- read.table((file.path("analysis_001_approx", "uniform_sample_exp", "combined_data", "random", "sample_stats_60.txt")), header=TRUE, sep=",")
 rand_seventy <- read.table((file.path("analysis_001_approx", "uniform_sample_exp", "combined_data", "random", "sample_stats_70.txt")), header=TRUE, sep=",")
-#rand_eighty <- read.table(("analysis_001_approx/uniform_sample_exp/combined_data/random/angle_stats_80.txt"), header=TRUE, sep=",")
-#rand_ninety <- read.table(("analysis_001_approx/uniform_sample_exp/combined_data/random/angle_stats_90.txt"), header=TRUE, sep=",")
-#rand_hundred <- read.table(("analysis_001_approx/uniform_sample_exp/combined_data/random/angle_stats_100.txt"), header=TRUE, sep=",")
+
 
 rand <- rbind(rand_three, rand_five, rand_ten, rand_twenty, rand_thirty,
               rand_forty, rand_fifty, rand_sixty, rand_seventy)
