@@ -8,8 +8,6 @@ import certifi
 
 URL_MPEG7 = 'https://www.ehu.eus/ccwintco/uploads/d/de/MPEG7_CE-Shape-1_Part_B.zip'
 URL_EMNIST = 'https://rds.westernsydney.edu.au/Institutes/MARCS/BENS/EMNIST/emnist-matlab.zip'
-URL_MAP_CONSTRUCTION = 'https://github.com/pfoser/mapconstruction/zipball/master'
-
 dir_data = 'data'
 
 dir_list = [
@@ -106,49 +104,6 @@ def get_data(url, target_dir, data_set_name):
             print("Directory ", dst, " Created ")
     
     return dst
-
-def get_map_data(url, target_dir, data_set_name):
-    # first check if we should do any downloading
-  if os.path.exists(os.path.join(target_dir, data_set_name)):
-    print("Warning: directory %s already exists, not re-downloading %s dataset" % (target_dir, data_set_name))
-    return
-
-  with tempfile.TemporaryDirectory() as tmp:
-    data = wget.download(url,tmp)
-
-    # Pull only maps data
-    with ZipFile(data, 'r') as zip_ref:
-      file_list = zip_ref.namelist()
-      temp_dir = os.path.dirname(zip_ref.namelist()[1])
-      for file in file_list:
-        if file.startswith('pfoser-mapconstruction-bf67921/data/maps/'):
-          zip_ref.extract(file,tmp)
-      
-      # move and rename
-      dst = os.path.join(target_dir, data_set_name)
-      os.rename(os.path.join(tmp,temp_dir), dst)
-
-      #Move files up one directory and delete unwanted data folder
-      maps_dir = os.path.join(target_dir,data_set_name,'maps')
-      shutil.move(os.path.join(target_dir,data_set_name,'data','maps'), maps_dir)
-      if os.path.exists(os.path.join(target_dir,data_set_name, 'data')):
-        os.rmdir(os.path.join(target_dir,data_set_name, 'data'))
-      
-      print("Directory " , dst,  " Created ")
-
-  #Unzip files
-  unzip_contents(maps_dir)
-
-  return dst
-
-def unzip_contents(dir_name):
-  for item in os.listdir(dir_name): 
-    if item.endswith('.zip'): 
-        file_name = os.path.join(dir_name, item) 
-        zip_ref = ZipFile(file_name) 
-        zip_ref.extractall(dir_name)
-        zip_ref.close()
-        os.remove(file_name)
     
 def get_mpeg7(url, target_dir):
   dst = get_data(url, target_dir, 'mpeg7')
@@ -161,9 +116,6 @@ def get_mpeg7(url, target_dir):
 def get_emnist(url, target_dir):
   dst = get_data(url, target_dir, 'emnist')
 
-
-def get_maps(url, target_dir):
-  dst = get_map_data(url, target_dir, 'map_construction')
 
 def make_delta_headers():
   with open(os.path.join("output_001_approx","delta_exp", "mnist","deltas.txt"), 'w') as f:
@@ -182,7 +134,6 @@ def make_delta_headers():
 def download_data():
   get_mpeg7(URL_MPEG7, dir_data)
   get_emnist(URL_EMNIST, dir_data)
-  get_maps(URL_MAP_CONSTRUCTION, dir_data)
 
 def preprocess_data(dir_list):
     make_folders(dir_list)
